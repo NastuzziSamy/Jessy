@@ -11,14 +11,14 @@
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
     <string name="app_not_registred">Appareil non enregistré</string>
-    <string name="login_dialog">Connexion par CAS</string>
+    <string name="username_dialog">Connexion par CAS</string>
     <string name="badge_dialog">Connexion par badge</string>
-    <string name="login">Login</string>
+    <string name="username">Login</string>
     <string name="password">Mot de passe</string>
     <string name="pin">Code PIN</string>
     <string name="no_pin">Pas de PIN</string>
     <string name="pin_required">Code PIN requis !</string>
-    <string name="login_and_password_required">Login CAS et mot de passe requis !</string>
+    <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
     <string name="nfc_not_available">NFC non disponible</string>
     <string name="nfc_not_enabled">NFC non activé</string>
     <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone.</string>

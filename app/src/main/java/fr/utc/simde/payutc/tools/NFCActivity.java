@@ -24,7 +24,7 @@ import fr.utc.simde.payutc.R;
 
 public abstract class NFCActivity extends Activity {
     private static final String	LOG_TAG = "NFCActivity";
-    private NfcAdapter NFCAdapter;
+    private static NfcAdapter NFCAdapter;
 
     private static AlertDialog.Builder alertDialogBuilder;
 

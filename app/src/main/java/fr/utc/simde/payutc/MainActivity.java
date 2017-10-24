@@ -11,49 +11,36 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
+import fr.utc.simde.payutc.tools.CASConnexion;
 
 public class MainActivity extends NFCActivity {
     private static final String LOG_TAG = "MainActivity";
     private static Boolean registered = false;
-    private static String login = "";
-    private static String password = "";
 
     private static AlertDialog alertDialog;
+    private static CASConnexion casConnexion;
 
     private static TextView AppConfigText;
     private static TextView AppRegisteredText;
-    private static Button loginButton;
+    private static Button usernameButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppConfigText = (TextView) findViewById(R.id.text_app_config);
-        AppRegisteredText = (TextView) findViewById(R.id.text_app_registered);
-        loginButton = (Button) findViewById(R.id.button_login);
+        casConnexion = new CASConnexion();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        AppConfigText = findViewById(R.id.text_app_config);
+        AppRegisteredText = findViewById(R.id.text_app_registered);
+        usernameButton = findViewById(R.id.button_username);
+
+        usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Thread thread = new Thread(new Runnable(){
-                    @Override
-                    public void run() {
-                        try {
-                            HTTPRequest test = new HTTPRequest("https://nastuzzi.fr");
-                            test.addArg("coucou", "test");
-                            Log.d(LOG_TAG, Integer.toString(test.get()));
-                            Log.d(LOG_TAG, test.getResponse());
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, e.getMessage());
-                        }
-                    }
-                });
-                thread.start();
+
                 if (registered) {
                     Log.d(LOG_TAG, "Enregistré");
                     connectDialog();
@@ -95,11 +82,32 @@ public class MainActivity extends NFCActivity {
         AppRegisteredText.setText(registered ? R.string.app_registred : R.string.app_not_registred);
     }
 
+    protected Boolean connectWithCAS(String username, String password) {
+        Log.d(LOG_TAG, "Login: " + username);
+        Log.d(LOG_TAG, "Mdp: " + password);
+        Log.d(LOG_TAG, "Url: " + casConnexion.getUrl());
+
+        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "Chargement ...", true);
+        ringProgressDialog.setCancelable(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                } catch (Exception e) {
+                }
+                ringProgressDialog.dismiss();
+            }
+        }).start();
+
+        return false;
+    }
+
     protected Boolean connectWithBadge(String idBadge, String pin) {
         Log.d(LOG_TAG, "ID: " + idBadge);
         Log.d(LOG_TAG, "PIN: " + pin);
 
-        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Please wait ...", "Downloading Image ...", true);
+        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "Chargement ...", true);
         ringProgressDialog.setCancelable(false);
         new Thread(new Runnable() {
             @Override
@@ -157,52 +165,31 @@ public class MainActivity extends NFCActivity {
     }
 
     protected void connectDialog() {
-        final View loginView = getLayoutInflater().inflate(R.layout.dialog_login, null);
-        final EditText loginInput = (EditText) loginView.findViewById(R.id.input_login);
-        final EditText passwordInput = (EditText) loginView.findViewById(R.id.input_password);
-
-        loginInput.setText(login);
-        passwordInput.setText(password);
+        final View usernameView = getLayoutInflater().inflate(R.layout.dialog_username, null);
+        final EditText usernameInput = usernameView.findViewById(R.id.input_username);
+        final EditText passwordInput = usernameView.findViewById(R.id.input_password);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
-            .setTitle(R.string.login_dialog)
-            .setView(loginView)
-            .setCancelable(true)
+            .setTitle(R.string.username_dialog)
+            .setView(usernameView)
+            .setCancelable(false)
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    if (loginInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
-                        Toast.makeText(MainActivity.this, R.string.login_and_password_required, Toast.LENGTH_SHORT).show();
+                    if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
                         dialog.cancel();
                         connectDialog();
                     }
                     else {
-                        Log.d(LOG_TAG, "Login: " + loginInput.getText().toString());
-                        Log.d(LOG_TAG, "Mdp: " + passwordInput.getText().toString());
-                        passwordInput.setText("");
+                        connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
                         dialog.cancel();
                     }
-                }
-            })
-            .setNeutralButton(R.string.erase, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    loginInput.setText("");
-                    passwordInput.setText("");
-                    dialog.cancel();
-                    connectDialog();
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
-                }
-            })
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(final DialogInterface dialog) {
-                    login = loginInput.getText().toString();
-                    password = passwordInput.getText().toString();
                 }
             });
 

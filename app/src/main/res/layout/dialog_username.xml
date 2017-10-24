@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/input_login"
+        android:id="@+id/input_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:inputType="textPersonName"
-        android:hint="@string/login" />
+        android:hint="@string/username" />
 
     <EditText
         android:id="@+id/input_password"

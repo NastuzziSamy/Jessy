@@ -9,7 +9,7 @@ public class NemopaySession {
     private String session;
     private String username;
 
-    public void NemopaySession() {
+    public NemopaySession() {
 
     }
 }

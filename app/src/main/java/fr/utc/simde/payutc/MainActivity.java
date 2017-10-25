@@ -175,11 +175,17 @@ public class MainActivity extends NFCActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    input.requestFocus();
-                    input.setFocusableInTouchMode(true);
 
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            input.requestFocus();
+                            input.setFocusableInTouchMode(true);
+
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                        }
+                    });
                 }
             }.start();
         }
@@ -263,6 +269,6 @@ public class MainActivity extends NFCActivity {
                 }
             });
 
-        createDialog(alertDialogBuilder, usernameInput);
+        createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);
     }
 }

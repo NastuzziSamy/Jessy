@@ -36,6 +36,7 @@ public class CASConnexion {
         }).start();
     }
 
+    public void setUsername(final String username) { this.username = username; }
     public String getUsername() { return this.username; }
     public String getUrl() { return this.url; }
 
@@ -44,10 +45,8 @@ public class CASConnexion {
         this.location = "";
         this.ticket = "";
 
-        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty()) {
+        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty())
             throw new RuntimeException("Elements required");
-        }
-
 
         HTTPRequest http = new HTTPRequest(this.url + "v1/tickets/");
         http.setArg("username", username);

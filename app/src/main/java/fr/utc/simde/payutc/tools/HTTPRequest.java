@@ -6,6 +6,9 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,20 @@ public class HTTPRequest {
         this.postArgs = new HashMap<String, String>();
         this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
+    }
+
+    public static Map<String, String> jsonToMap(String t) throws JSONException {
+        Map<String, String> map = new HashMap<String, String>();
+        JSONObject jObject = new JSONObject(t);
+        Iterator<?> keys = jObject.keys();
+
+        while (keys.hasNext()){
+            String key = (String) keys.next();
+            String value = jObject.getString(key);
+            map.put(key, value);
+        }
+
+        return map;
     }
 
     public int get() throws IOException {
@@ -114,6 +132,7 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
+    public Map<String, String> getJsonResponse() throws IOException, JSONException { return jsonToMap(response); }
     public String getResponse() throws IOException { return response; }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }

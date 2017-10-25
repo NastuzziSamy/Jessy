@@ -5,6 +5,7 @@
     <string name="app_not_configured">Par défaut</string>
     <string name="ok">Ok</string>
     <string name="connexion">Se connecter</string>
+    <string name="register">Enregistrer</string>
     <string name="activate">Activer</string>
     <string name="pass">Continuer</string>
     <string name="erase">Effacer</string>
@@ -31,7 +32,12 @@
     <string name="cas_error_connection">Login et/ou mot de passe non reconnu par le CAS</string>
     <string name="cas_error_service_adding">Une erreur a été détectée lors de l\'ajout du service</string>
     <string name="cas_error_service_connection">Erreur lors de la connexion au service depuis le CAS</string>
+    <string name="cas_error_service_linking">Erreur lors de la connexion entre le CAS et le service</string>
     <string name="badge_connection">Connexion via badge</string>
     <string name="badge_app_not_registered">Il est nécessaire que l\'application soit enregistrée pour permettre la connexion via badge</string>
     <string name="nemopay_connection">Connexion à Nemopay</string>
+    <string name="key_dialog">Enregistrement de l\'appareil</string>
+    <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>
+    <string name="key_name">Nom - Date</string>
+    <string name="key_name_required">Nom requis !</string>
 </resources>

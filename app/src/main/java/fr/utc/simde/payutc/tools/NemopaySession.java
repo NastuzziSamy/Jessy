@@ -41,6 +41,7 @@ public class NemopaySession {
     public HTTPRequest construct(final String method, final String service) throws IOException { return construct(method, service, new HashMap<String, String>()); }
     public HTTPRequest construct(final String method, final String service, final Map<String, String> args) throws IOException {
         HTTPRequest request = new HTTPRequest(url + method + "/" + service);
+        Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         request.setArgs(defaultArgs);
 
         for (String arg : args.keySet())

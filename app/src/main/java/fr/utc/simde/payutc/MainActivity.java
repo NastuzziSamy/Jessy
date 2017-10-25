@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
@@ -102,11 +104,15 @@ public class MainActivity extends NFCActivity {
                         public void run() {
                             loading.dismiss();
 
-                            if (!casConnexion.isServiceAdded()) {
-                                dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
+                            if (casConnexion.isServiceAdded()) {
+                                try {
+                                    nemopaySession.loginCas(casConnexion.getTicket(), casConnexion.getService());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
                             else
-                                Toast.makeText(MainActivity.this, "Connexion à réaliser avec Nemopay", Toast.LENGTH_SHORT).show(); // https://api.nemopay.net/services/POSS3/loginCas2?system_id=payutc
+                                dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
                         }
                     });
                 }

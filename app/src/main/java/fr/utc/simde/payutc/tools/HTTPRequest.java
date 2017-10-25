@@ -107,6 +107,7 @@ public class HTTPRequest {
         in.close();
 
         this.response = builder.toString();
+        Log.d(LOG_TAG, this.response);
     }
 
     public String getResponse() throws IOException { return response; }

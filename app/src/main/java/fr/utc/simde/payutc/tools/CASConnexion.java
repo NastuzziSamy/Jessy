@@ -36,6 +36,10 @@ public class CASConnexion {
 
     public void setUsername(final String username) { this.username = username; }
     public String getUsername() { return this.username; }
+
+    public String getTicket() { return this.ticket; }
+    public String getService() { return this.service; }
+
     public String getUrl() { return this.url; }
 
     public void connect(final String username, final String password) throws Exception {

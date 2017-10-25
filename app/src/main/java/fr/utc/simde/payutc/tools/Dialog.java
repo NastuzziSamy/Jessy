@@ -18,7 +18,7 @@ import fr.utc.simde.payutc.R;
  */
 
 public class Dialog {
-    private static final String LOG_TAG = "Dialog";
+    private static final String LOG_TAG = "_Dialog";
     private static Activity activity;
     private static AlertDialog alertDialog;
     private static AlertDialog.Builder alertDialogBuilder;

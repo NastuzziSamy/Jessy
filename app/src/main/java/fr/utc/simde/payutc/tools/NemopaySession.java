@@ -12,13 +12,13 @@ import java.util.Map;
  */
 
 public class NemopaySession {
-    private static final String LOG_TAG = "NemopaySession";
+    private static final String LOG_TAG = "_NemopaySession";
     private static final String url = "https://api.nemopay.net/services/";
     private String key;
     private String session;
     private String username;
 
-    private final Map<String, String> defaultArgs = new HashMap<String, String>() {{
+    private final Map<String, String> getArgs = new HashMap<String, String>() {{
         put("system_id", "payutc");
     }};
 
@@ -38,15 +38,14 @@ public class NemopaySession {
         }});
     }
 
-    public HTTPRequest construct(final String method, final String service) throws IOException { return construct(method, service, new HashMap<String, String>()); }
-    public HTTPRequest construct(final String method, final String service, final Map<String, String> args) throws IOException {
+    protected HTTPRequest construct(final String method, final String service) throws IOException { return construct(method, service, new HashMap<String, String>()); }
+    protected HTTPRequest construct(final String method, final String service, final Map<String, String> postArgs) throws IOException {
         HTTPRequest request = new HTTPRequest(url + method + "/" + service);
         Log.d(LOG_TAG, "url: " + url + method + "/" + service);
-        request.setArgs(defaultArgs);
+        request.setGet(getArgs);
+        request.setPost(postArgs);
 
-        for (String arg : args.keySet())
-            request.setArg(arg, args.get(arg));
-
+        request.post();
         return request;
     }
 }

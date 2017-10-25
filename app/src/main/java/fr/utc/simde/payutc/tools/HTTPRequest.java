@@ -18,27 +18,29 @@ import java.util.List;
 import java.util.Map;
 
 public class HTTPRequest {
-    public static final String LOG_TAG = "HTTPRequest";
-    public String url;
-    public HttpURLConnection request;
-    public String response;
+    private static final String LOG_TAG = "_HTTPRequest";
+    private String url;
+    private HttpURLConnection request;
+    private String response;
 
-    public Map<String, String> args;
-    public static Map<String, String> cookies;
+    private Map<String, String> postArgs;
+    private Map<String, String> getArgs;
+    private static Map<String, String> cookies;
 
     public HTTPRequest(final String url) {
         this.url = url;
         this.request = null;
         this.response = "";
-        this.args = new HashMap<String, String>();
+        this.postArgs = new HashMap<String, String>();
+        this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
     }
 
     public int get() throws IOException {
-        String data = args2String(this.args);
-        Log.d(LOG_TAG, "get: " + this.url + data);
+        String get = args2String(this.getArgs, true);
+        Log.d(LOG_TAG, "get: " + this.url + get);
 
-        this.request = (HttpURLConnection) (new URL(this.url + "?" + data)).openConnection();
+        this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
         this.request.setRequestMethod("GET");
         this.request.setRequestProperty("Cookie", getCookiesHeader());
         this.request.setUseCaches(false);
@@ -46,25 +48,28 @@ public class HTTPRequest {
         updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
         generateResponse();
+        Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         return this.request.getResponseCode();
     }
 
     public int post() throws IOException {
-        String data = args2String(this.args);
-        Log.d(LOG_TAG, "post: " + this.url + ", data: " + data);
+        String get = args2String(this.getArgs, true);
+        String post = args2String(this.postArgs);
+        Log.d(LOG_TAG, "post: " + this.url + get + ", data: " + post);
 
-        this.request = (HttpURLConnection) (new URL(this.url)).openConnection();
+        this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
         this.request.setRequestMethod("POST");
         this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        this.request.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
+        this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
         this.request.setRequestProperty("Cookie", getCookiesHeader());
         this.request.setUseCaches(false);
         this.request.setDoInput(true);
         this.request.setDoOutput(true);
-        this.request.getOutputStream().write(data.getBytes());
+        this.request.getOutputStream().write(post.getBytes());
         updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
         generateResponse();
+        Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         return this.request.getResponseCode();
     }
 
@@ -107,35 +112,34 @@ public class HTTPRequest {
         in.close();
 
         this.response = builder.toString();
-        Log.d(LOG_TAG, this.response);
     }
 
     public String getResponse() throws IOException { return response; }
 
-    protected String args2String(Map<String, String> args) throws UnsupportedEncodingException {
+    protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
+    protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {
         String data = "";
 
         for (String arg : args.keySet())
             data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(args.get(arg), "UTF-8") + "&");
 
-        return data.substring(0, data.equals("") ? 0 : data.length() - 1);
+        return data.equals("") ? "" : (isGet ? "?" : "") + data.substring(0, data.length() - 1);
     }
 
-    public void setArgs(Map<String, String> args) {
-        this.args = args;
+    public void setGet(Map<String, String> args) {
+        this.getArgs = args;
     }
 
-    public void setArg(final String key, final String value) {
-        this.args.put(key, value);
+    public void setPost(Map<String, String> args) {
+        this.postArgs = args;
     }
 
-    public Boolean delArg(final String key) {
-        if (this.args.containsKey(key))
-            this.args.remove(key);
-        else
-            return false;
+    public void addGet(final String key, final String value) {
+        this.getArgs.put(key, value);
+    }
 
-        return true;
+    public void addPost(final String key, final String value) {
+        this.postArgs.put(key, value);
     }
 
     synchronized String getCookiesHeader() {

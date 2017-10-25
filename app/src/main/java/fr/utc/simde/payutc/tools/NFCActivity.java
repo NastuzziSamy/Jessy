@@ -23,7 +23,7 @@ import android.widget.Toast;
 import fr.utc.simde.payutc.R;
 
 public abstract class NFCActivity extends Activity {
-    private static final String	LOG_TAG = "NFCActivity";
+    private static final String	LOG_TAG = "_NFCActivity";
     private static NfcAdapter NFCAdapter;
 
     private static AlertDialog.Builder alertDialogBuilder;

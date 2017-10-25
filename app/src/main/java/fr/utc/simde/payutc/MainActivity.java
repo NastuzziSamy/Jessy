@@ -14,13 +14,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
+import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends NFCActivity {
-    private static final String LOG_TAG = "MainActivity";
+    private static final String LOG_TAG = "_MainActivity";
+    private static final String service = "http://assos.utc.fr";
     private static Boolean registered = false;
 
     private static Dialog dialog;
@@ -91,7 +95,7 @@ public class MainActivity extends NFCActivity {
 
                 if (casConnexion.isConnected()) {
                     try {
-                        casConnexion.addService();
+                        casConnexion.addService(service);
                         Thread.sleep(100);
                     } catch (Exception e) {
                         Log.e(LOG_TAG, e.getMessage());
@@ -100,15 +104,34 @@ public class MainActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            loading.dismiss();
 
-                            if (!casConnexion.isServiceAdded()) {
+                            if (casConnexion.isServiceAdded())
+                                loading.setMessage(getResources().getString(R.string.nemopay_connection));
+                            else {
+                                loading.dismiss();
                                 dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
                             }
-                            else
-                                Toast.makeText(MainActivity.this, "Connexion à réaliser avec Nemopay", Toast.LENGTH_SHORT).show(); // https://api.nemopay.net/services/POSS3/loginCas2?system_id=payutc
                         }
                     });
+
+                    if (casConnexion.isServiceAdded()) {
+                        try {
+                            HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), service);
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loading.dismiss();
+                                /*
+                                if (casConnexion.isServiceAdded())
+                                    loading.setMessage(getResources().getString(R.string.nemopay_connection));*/
+                            }
+                        });
+                    }
                 }
             }
         }.start();

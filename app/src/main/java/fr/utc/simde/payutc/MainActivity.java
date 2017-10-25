@@ -17,12 +17,14 @@ import android.widget.Toast;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
+import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends NFCActivity {
     private static final String LOG_TAG = "MainActivity";
     private static Boolean registered = false;
 
     private static Dialog dialog;
+    private static NemopaySession nemopaySession;
     private static CASConnexion casConnexion;
 
     private static TextView AppConfigText;
@@ -35,7 +37,8 @@ public class MainActivity extends NFCActivity {
         setContentView(R.layout.activity_main);
 
         dialog = new Dialog(MainActivity.this);
-        casConnexion = new CASConnexion();
+        nemopaySession = new NemopaySession();
+        casConnexion = new CASConnexion(nemopaySession);
 
         AppConfigText = findViewById(R.id.text_app_config);
         AppRegisteredText = findViewById(R.id.text_app_registered);

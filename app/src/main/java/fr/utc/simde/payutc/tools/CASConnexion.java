@@ -41,10 +41,12 @@ public class CASConnexion {
     public String getUrl() { return this.url; }
 
     public void connect(final String username, final String password) throws Exception {
-        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty())
-            throw new RuntimeException("Elements required");
+        if (!username.isEmpty())
+            this.username = username;
 
-        this.username = username;
+        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            throw new RuntimeException("Elements required");
+        }
 
         HTTPRequest http = new HTTPRequest(this.url + "v1/tickets/");
         http.setArg("username", username);

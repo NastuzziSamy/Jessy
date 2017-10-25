@@ -1,5 +1,7 @@
 package fr.utc.simde.payutc.tools;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
@@ -38,13 +40,12 @@ public class NemopaySession {
 
     public HTTPRequest construct(final String method, final String service) throws IOException { return construct(method, service, new HashMap<String, String>()); }
     public HTTPRequest construct(final String method, final String service, final Map<String, String> args) throws IOException {
-        HTTPRequest request = new HTTPRequest(url);
+        HTTPRequest request = new HTTPRequest(url + method + "/" + service);
         request.setArgs(defaultArgs);
 
         for (String arg : args.keySet())
             request.setArg(arg, args.get(arg));
 
-        request.post();
         return request;
     }
 }

@@ -72,9 +72,9 @@ public class MainActivity extends NFCActivity {
     }
 
     @Override
-    protected void onIdentification(String id) {
-        Log.d(LOG_TAG, id);
-        badgeDialog(id);
+    protected void onIdentification(String idBadge) {
+        Log.d(LOG_TAG, idBadge);
+        badgeDialog(idBadge);
     }
 
     protected void setRegistered(boolean p_registered) {
@@ -82,28 +82,61 @@ public class MainActivity extends NFCActivity {
         AppRegisteredText.setText(registered ? R.string.app_registred : R.string.app_not_registred);
     }
 
-    protected Boolean connectWithCAS(String username, String password) {
+    protected void connectWithCAS(final String username, final String password) throws InterruptedException {
         Log.d(LOG_TAG, "Login: " + username);
         Log.d(LOG_TAG, "Mdp: " + password);
         Log.d(LOG_TAG, "Url: " + casConnexion.getUrl());
 
-        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "Chargement ...", true);
-        ringProgressDialog.setCancelable(false);
-        new Thread(new Runnable() {
+        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, R.string.cas_connection, R.string.cas_in_connection, true);
+        loading.setCancelable(false);
+        new Thread() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(10000);
+                    casConnexion.connect(username, password);
+                    Thread.sleep(100);
                 } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
                 }
-                ringProgressDialog.dismiss();
-            }
-        }).start();
 
-        return false;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (casConnexion.isConnected())
+                            loading.setMessage(R.string.cas_in_service_adding);
+                        else {
+                            loading.dismiss();
+                            errorDialog(R.string.cas_connection, R.string.cas_error_connection);
+                        }
+                    }
+                });
+
+                if (casConnexion.isConnected()) {
+                    try {
+                        casConnexion.addService();
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, e.getMessage());
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loading.dismiss();
+
+                            if (!casConnexion.isServiceAdded()) {
+                                errorDialog(R.string.cas_connection, R.string.cas_error_service_adding);
+                            }
+                            else
+                                Toast.makeText(MainActivity.this, "Connexion à réaliser avec Nemopay", Toast.LENGTH_SHORT).show(); // https://api.nemopay.net/services/POSS3/loginCas2?system_id=payutc
+                        }
+                    });
+                }
+            }
+        }.start();
     }
 
-    protected Boolean connectWithBadge(String idBadge, String pin) {
+    protected void connectWithBadge(final String idBadge, final String pin) {
         Log.d(LOG_TAG, "ID: " + idBadge);
         Log.d(LOG_TAG, "PIN: " + pin);
 
@@ -119,8 +152,6 @@ public class MainActivity extends NFCActivity {
                 ringProgressDialog.dismiss();
             }
         }).start();
-
-        return false;
     }
 
     protected void createDialog(AlertDialog.Builder alertDialogBuilder) {
@@ -131,10 +162,20 @@ public class MainActivity extends NFCActivity {
         alertDialog.show();
     }
 
-    protected void badgeDialog(String idBadge) {
+    protected void errorDialog(final String title, final String message) {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
+                .setNegativeButton(R.string.ok, null);
+
+        createDialog(alertDialogBuilder);
+    }
+
+    protected void badgeDialog(final String idBadge) {
         final View pinView = getLayoutInflater().inflate(R.layout.dialog_badge, null);
-        final EditText pinInput = (EditText) pinView.findViewById(R.id.input_pin);
-        final String uid = idBadge;
+        final EditText pinInput = pinView.findViewById(R.id.input_pin);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
@@ -146,17 +187,17 @@ public class MainActivity extends NFCActivity {
                     if (pinInput.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, R.string.pin_required, Toast.LENGTH_SHORT).show();
                         dialog.cancel();
-                        badgeDialog(uid);
+                        badgeDialog(idBadge);
                     }
                     else {
-                        connectWithBadge(uid, pinInput.getText().toString());
+                        connectWithBadge(idBadge, pinInput.getText().toString());
                         dialog.cancel();
                     }
                 }
             })
             .setNeutralButton(R.string.no_pin, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    connectWithBadge(uid, "0000");
+                    connectWithBadge(idBadge, "0000");
                     dialog.cancel();
                 }
             });
@@ -168,6 +209,8 @@ public class MainActivity extends NFCActivity {
         final View usernameView = getLayoutInflater().inflate(R.layout.dialog_username, null);
         final EditText usernameInput = usernameView.findViewById(R.id.input_username);
         final EditText passwordInput = usernameView.findViewById(R.id.input_password);
+
+        usernameInput.setText(casConnexion.getUsername());
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
@@ -182,7 +225,11 @@ public class MainActivity extends NFCActivity {
                         connectDialog();
                     }
                     else {
-                        connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
+                        try {
+                            connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         dialog.cancel();
                     }
                 }

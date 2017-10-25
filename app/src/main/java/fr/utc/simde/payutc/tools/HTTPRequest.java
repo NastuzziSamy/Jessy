@@ -18,14 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 public class HTTPRequest {
-    public static final String LOG_TAG = "JsonApiClient";
-    public String url;
+    public static final String LOG_TAG = "HTTPRequest";
+    public String url = "";
     public HttpURLConnection request;
-    static Map<String, String> args = new HashMap<String, String>();
-    static Map<String, String> cookies = new HashMap<String, String>();
+    public String response;
+
+    static Map<String, String> args;
+    static Map<String, String> cookies;
 
     public HTTPRequest(String url) {
         this.url = url;
+        this.args = new HashMap<String, String>();
+        this.cookies = new HashMap<String, String>();
     }
 
     public int get() throws IOException {
@@ -39,6 +43,7 @@ public class HTTPRequest {
         this.request.setDoOutput(true);
         updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
+        generateResponse();
         return this.request.getResponseCode();
     }
 
@@ -57,6 +62,7 @@ public class HTTPRequest {
         this.request.getOutputStream().write(data.getBytes());
         updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
+        generateResponse();
         return this.request.getResponseCode();
     }
 
@@ -81,10 +87,7 @@ public class HTTPRequest {
         return this.request.getResponseMessage();
     }
 
-    public String getResponse() throws IOException {
-        if (this.request == null)
-            return null;
-
+    protected void generateResponse() throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(this.request.getInputStream(), "UTF-8"));
         StringBuilder builder = new StringBuilder();
         String inputLine;
@@ -94,8 +97,10 @@ public class HTTPRequest {
 
         in.close();
 
-        return builder.toString();
+        this.response = builder.toString();
     }
+
+    public String getResponse() throws IOException { return response; }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException {
         String data = "";
@@ -104,15 +109,6 @@ public class HTTPRequest {
             data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(args.get(arg), "UTF-8") + "&");
 
         return data.substring(0, data.equals("") ? 0 : data.length() - 1);
-    }
-
-    public Boolean addArg(String key, String value) {
-        if (this.args.containsKey(key))
-            return false;
-        else
-            this.args.put(key, value);
-
-        return true;
     }
 
     public void setArg(String key, String value) {

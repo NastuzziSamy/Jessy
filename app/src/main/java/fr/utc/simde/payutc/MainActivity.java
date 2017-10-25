@@ -250,6 +250,9 @@ public class MainActivity extends NFCActivity {
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
+                        if (!usernameInput.getText().toString().equals(""))
+                            casConnexion.setUsername(usernameInput.getText().toString());
+
                         Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
                         dialog.cancel();
                         connectDialog();

@@ -87,7 +87,7 @@ public class MainActivity extends NFCActivity {
         Log.d(LOG_TAG, "Mdp: " + password);
         Log.d(LOG_TAG, "Url: " + casConnexion.getUrl());
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, R.string.cas_connection, R.string.cas_in_connection, true);
+        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_in_connection), true);
         loading.setCancelable(false);
         new Thread() {
             @Override
@@ -103,10 +103,10 @@ public class MainActivity extends NFCActivity {
                     @Override
                     public void run() {
                         if (casConnexion.isConnected())
-                            loading.setMessage(R.string.cas_in_service_adding);
+                            loading.setMessage(getResources().getString(R.string.cas_in_service_adding));
                         else {
                             loading.dismiss();
-                            errorDialog(R.string.cas_connection, R.string.cas_error_connection);
+                            errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_connection));
                         }
                     }
                 });
@@ -125,7 +125,7 @@ public class MainActivity extends NFCActivity {
                             loading.dismiss();
 
                             if (!casConnexion.isServiceAdded()) {
-                                errorDialog(R.string.cas_connection, R.string.cas_error_service_adding);
+                                errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
                             }
                             else
                                 Toast.makeText(MainActivity.this, "Connexion à réaliser avec Nemopay", Toast.LENGTH_SHORT).show(); // https://api.nemopay.net/services/POSS3/loginCas2?system_id=payutc

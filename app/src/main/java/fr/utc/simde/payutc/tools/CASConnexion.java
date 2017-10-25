@@ -8,7 +8,6 @@ import android.util.Log;
 
 public class CASConnexion {
     private static final String LOG_TAG = "_CASConnexion";
-    private static final String service = "http://localhost";
     private static String url;
     private static String username;
     private static String location;
@@ -24,7 +23,7 @@ public class CASConnexion {
             @Override
             public void run() {
                 try {
-                    HTTPRequest http = new HTTPRequest("https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc");
+                    HTTPRequest http = new HTTPRequest("https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc"); // Remettre le getCasUrl
                     http.post();
                     url = http.getResponse();
                     url = url.substring(1, url.length() - 1);
@@ -39,7 +38,6 @@ public class CASConnexion {
     public String getUsername() { return this.username; }
 
     public String getTicket() { return this.ticket; }
-    public String getService() { return this.service; }
 
     public String getUrl() { return this.url; }
 
@@ -63,7 +61,7 @@ public class CASConnexion {
 
     public Boolean isConnected() { return !this.location.isEmpty(); }
 
-    public void addService() throws Exception {
+    public void addService(final String service) throws Exception {
         this.ticket = "";
 
         if (!isConnected())
@@ -73,7 +71,7 @@ public class CASConnexion {
             throw new RuntimeException("Elements required");
 
         HTTPRequest request = new HTTPRequest(this.location);
-        request.addPost("service", this.service);
+        request.addPost("service", service);
 
         if (request.post() == 200)
             this.ticket = request.getResponse();

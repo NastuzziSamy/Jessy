@@ -24,6 +24,7 @@ import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends NFCActivity {
     private static final String LOG_TAG = "_MainActivity";
+    private static final String service = "http://assos.utc.fr";
     private static Boolean registered = false;
 
     private static Dialog dialog;
@@ -94,7 +95,7 @@ public class MainActivity extends NFCActivity {
 
                 if (casConnexion.isConnected()) {
                     try {
-                        casConnexion.addService();
+                        casConnexion.addService(service);
                         Thread.sleep(100);
                     } catch (Exception e) {
                         Log.e(LOG_TAG, e.getMessage());
@@ -115,7 +116,7 @@ public class MainActivity extends NFCActivity {
 
                     if (casConnexion.isServiceAdded()) {
                         try {
-                            HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), casConnexion.getService());
+                            HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), service);
                             Thread.sleep(1000);
                         } catch (Exception e) {
                             e.printStackTrace();

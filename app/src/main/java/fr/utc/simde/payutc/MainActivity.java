@@ -15,6 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
@@ -119,16 +123,20 @@ public class MainActivity extends NFCActivity {
                             HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), service);
                             Thread.sleep(1000);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(LOG_TAG, e.getMessage());
                         }
 
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 loading.dismiss();
-                                /*
-                                if (casConnexion.isServiceAdded())
-                                    loading.setMessage(getResources().getString(R.string.nemopay_connection));*/
+
+                                if (!nemopaySession.isConnected())
+                                    dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_linking));
+                                else if (!nemopaySession.isRegistered())
+                                    keyDialog();
+                                else
+                                    Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -232,5 +240,36 @@ public class MainActivity extends NFCActivity {
             });
 
         dialog.createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);
+    }
+
+    protected void keyDialog() {
+        final View usernameView = getLayoutInflater().inflate(R.layout.dialog_key, null);
+        final EditText keyInput = usernameView.findViewById(R.id.input_key);
+        final String date = new SimpleDateFormat("yyyy/MM/dd", Locale.FRANCE).format(new Date());
+
+        keyInput.setText("Téléphone de " + casConnexion.getUsername() + " - " + date);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+            .setTitle(R.string.key_dialog)
+            .setView(usernameView)
+            .setCancelable(false)
+            .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    if (keyInput.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, R.string.key_name_required, Toast.LENGTH_SHORT).show();
+                        dialog.cancel();
+                        keyDialog();
+                    }
+                    else {
+                        /* AddKey */
+                        Log.d(LOG_TAG, "name: " + keyInput.getText().toString() + (keyInput.getText().toString().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? "" : " - " + date));
+                        dialog.cancel();
+                        keyDialog();
+                    }
+                }
+            });
+
+        dialog.createDialog(alertDialogBuilder, keyInput);
     }
 }

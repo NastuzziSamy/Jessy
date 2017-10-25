@@ -48,7 +48,6 @@ public class CASConnexion {
             throw new RuntimeException("Elements required");
         }
 
-
         HTTPRequest http = new HTTPRequest(this.url + "v1/tickets/");
         http.setArg("username", username);
         http.setArg("password", password);

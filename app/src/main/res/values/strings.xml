@@ -29,6 +29,6 @@
     <string name="cas_in_service_adding">Ajout du service au CAS...</string>
     <string name="cas_in_service_connection">Connexion au service via le CAS...</string>
     <string name="cas_error_connection">Login et/ou mot de passe non reconnu par le CAS</string>
-    <string name="cas_error_service_adding">Une erreur a été détectée lors de l'ajout du service</string>
+    <string name="cas_error_service_adding">Une erreur a été détectée lors de l\'ajout du service</string>
     <string name="cas_error_service_connection">Erreur lors de la connexion au service depuis le CAS</string>
 </resources>

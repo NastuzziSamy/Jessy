@@ -151,21 +151,28 @@ public class MainActivity extends NFCActivity {
 
         dialog.dismiss();
 
-        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
-        ringProgressDialog.setCancelable(false);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
+        if (registered) {
+            final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
+            ringProgressDialog.setCancelable(false);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+                    }
+                    ringProgressDialog.dismiss();
                 }
-                ringProgressDialog.dismiss();
-            }
-        }).start();
+            }).start();
+        }
     }
 
     protected void badgeDialog(final String idBadge) {
+        if (!registered) {
+            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.badge_app_not_registered));
+            return;
+        }
+
         final View pinView = getLayoutInflater().inflate(R.layout.dialog_badge, null);
         final EditText pinInput = pinView.findViewById(R.id.input_pin);
 

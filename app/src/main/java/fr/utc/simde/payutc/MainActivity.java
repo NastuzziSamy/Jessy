@@ -1,5 +1,6 @@
 package fr.utc.simde.payutc;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,12 +16,13 @@ import android.widget.Toast;
 
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
+import fr.utc.simde.payutc.tools.Dialog;
 
 public class MainActivity extends NFCActivity {
     private static final String LOG_TAG = "MainActivity";
     private static Boolean registered = false;
 
-    private static AlertDialog alertDialog;
+    private static Dialog dialog;
     private static CASConnexion casConnexion;
 
     private static TextView AppConfigText;
@@ -32,6 +34,7 @@ public class MainActivity extends NFCActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        dialog = new Dialog(MainActivity.this);
         casConnexion = new CASConnexion();
 
         AppConfigText = findViewById(R.id.text_app_config);
@@ -91,6 +94,8 @@ public class MainActivity extends NFCActivity {
         Log.d(LOG_TAG, "Mdp: " + password);
         Log.d(LOG_TAG, "Url: " + casConnexion.getUrl());
 
+        dialog.dismiss();
+
         final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_in_connection), true);
         loading.setCancelable(false);
         new Thread() {
@@ -110,7 +115,7 @@ public class MainActivity extends NFCActivity {
                             loading.setMessage(getResources().getString(R.string.cas_in_service_adding));
                         else {
                             loading.dismiss();
-                            errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_connection));
+                            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_connection));
                         }
                     }
                 });
@@ -129,7 +134,7 @@ public class MainActivity extends NFCActivity {
                             loading.dismiss();
 
                             if (!casConnexion.isServiceAdded()) {
-                                errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
+                                dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
                             }
                             else
                                 Toast.makeText(MainActivity.this, "Connexion à réaliser avec Nemopay", Toast.LENGTH_SHORT).show(); // https://api.nemopay.net/services/POSS3/loginCas2?system_id=payutc
@@ -144,63 +149,20 @@ public class MainActivity extends NFCActivity {
         Log.d(LOG_TAG, "ID: " + idBadge);
         Log.d(LOG_TAG, "PIN: " + pin);
 
-        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "Chargement ...", true);
+        dialog.dismiss();
+
+        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
         ringProgressDialog.setCancelable(false);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(2000);
                 } catch (Exception e) {
                 }
                 ringProgressDialog.dismiss();
             }
         }).start();
-    }
-
-    protected void createDialog(AlertDialog.Builder alertDialogBuilder) { createDialog(alertDialogBuilder, null); }
-    protected void createDialog(AlertDialog.Builder alertDialogBuilder, final EditText input) {
-        if (alertDialog != null)
-            alertDialog.dismiss();
-
-        alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-
-        // Auto open keyboard
-        if (input != null) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            input.requestFocus();
-                            input.setFocusableInTouchMode(true);
-
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    });
-                }
-            }.start();
-        }
-    }
-
-    protected void errorDialog(final String title, final String message) {
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-        alertDialogBuilder
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(true)
-                .setNegativeButton(R.string.ok, null);
-
-        createDialog(alertDialogBuilder);
     }
 
     protected void badgeDialog(final String idBadge) {
@@ -232,7 +194,7 @@ public class MainActivity extends NFCActivity {
                 }
             });
 
-        createDialog(alertDialogBuilder);
+        dialog.createDialog(alertDialogBuilder);
     }
 
     protected void connectDialog() {
@@ -277,6 +239,6 @@ public class MainActivity extends NFCActivity {
                 }
             });
 
-        createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);
+        dialog.createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);
     }
 }

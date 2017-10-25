@@ -23,8 +23,8 @@ public class HTTPRequest {
     public HttpURLConnection request;
     public String response;
 
-    static Map<String, String> args;
-    static Map<String, String> cookies;
+    public Map<String, String> args;
+    public static Map<String, String> cookies;
 
     public HTTPRequest(final String url) {
         this.url = url;

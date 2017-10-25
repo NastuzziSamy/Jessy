@@ -7,14 +7,12 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 
@@ -43,39 +41,42 @@ public class MainActivity extends NFCActivity {
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            connectDialog();
 
-                if (registered) {
-                    Log.d(LOG_TAG, "Enregistré");
-                    connectDialog();
-                } else {
-                    Log.d(LOG_TAG, "Non enregistré");
+            /*
+            if (registered) {
+                Log.d(LOG_TAG, "Enregistré");
+                connectDialog();
+            } else {
+                Log.d(LOG_TAG, "Non enregistré");
 
-                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                    alertDialogBuilder
-                        .setTitle("Application non enregistrée")
-                        .setMessage("Application non enregistrée")
-                        .setCancelable(true)
-                        .setPositiveButton("Continuer", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                setRegistered(true);
-                                dialog.cancel();
-                            }
-                        })
-                        .setNegativeButton("Quitter",new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                                MainActivity.this.finish();
-                            }
-                        });
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder
+                    .setTitle("Application non enregistrée")
+                    .setMessage("Application non enregistrée")
+                    .setCancelable(true)
+                    .setPositiveButton("Continuer", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            setRegistered(true);
+                            dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton("Quitter",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            dialog.cancel();
+                            MainActivity.this.finish();
+                        }
+                    });
 
-                    createDialog(alertDialogBuilder);
-                }
+                createDialog(alertDialogBuilder);
+            }
+            */
             }
         });
     }
 
     @Override
-    protected void onIdentification(String idBadge) {
+    protected void onIdentification(final String idBadge) {
         Log.d(LOG_TAG, idBadge);
         badgeDialog(idBadge);
     }

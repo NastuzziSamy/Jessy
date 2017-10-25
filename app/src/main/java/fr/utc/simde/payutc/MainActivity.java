@@ -151,21 +151,28 @@ public class MainActivity extends NFCActivity {
 
         dialog.dismiss();
 
-        final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
-        ringProgressDialog.setCancelable(false);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (Exception e) {
+        if (registered) {
+            final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
+            ringProgressDialog.setCancelable(false);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (Exception e) {
+                    }
+                    ringProgressDialog.dismiss();
                 }
-                ringProgressDialog.dismiss();
-            }
-        }).start();
+            }).start();
+        }
     }
 
     protected void badgeDialog(final String idBadge) {
+        if (!registered) {
+            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.badge_app_not_registered));
+            return;
+        }
+
         final View pinView = getLayoutInflater().inflate(R.layout.dialog_badge, null);
         final EditText pinInput = pinView.findViewById(R.id.input_pin);
 
@@ -212,6 +219,9 @@ public class MainActivity extends NFCActivity {
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
+                        if (!usernameInput.getText().toString().equals(""))
+                            casConnexion.setUsername(usernameInput.getText().toString());
+
                         Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
                         dialog.cancel();
                         connectDialog();
@@ -229,13 +239,6 @@ public class MainActivity extends NFCActivity {
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
-                }
-            })
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialogInterface) {
-                    if (!usernameInput.getText().toString().equals(""))
-                        casConnexion.setUsername(usernameInput.getText().toString());
                 }
             });
 

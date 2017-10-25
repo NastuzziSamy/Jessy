@@ -16,13 +16,14 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends NFCActivity {
-    private static final String LOG_TAG = "MainActivity";
+    private static final String LOG_TAG = "_MainActivity";
     private static Boolean registered = false;
 
     private static Dialog dialog;
@@ -102,19 +103,34 @@ public class MainActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            loading.dismiss();
 
-                            if (casConnexion.isServiceAdded()) {
-                                try {
-                                    nemopaySession.loginCas(casConnexion.getTicket(), casConnexion.getService());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else
+                            if (casConnexion.isServiceAdded())
+                                loading.setMessage(getResources().getString(R.string.nemopay_connection));
+                            else {
+                                loading.dismiss();
                                 dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
+                            }
                         }
                     });
+
+                    if (casConnexion.isServiceAdded()) {
+                        try {
+                            HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), casConnexion.getService());
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loading.dismiss();
+                                /*
+                                if (casConnexion.isServiceAdded())
+                                    loading.setMessage(getResources().getString(R.string.nemopay_connection));*/
+                            }
+                        });
+                    }
                 }
             }
         }.start();

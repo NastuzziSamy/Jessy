@@ -7,12 +7,12 @@ import android.util.Log;
  */
 
 public class CASConnexion {
-    private static final String LOG_TAG = "CASConnexion";
-    private static final String service = "http://api.nemopay.net/";
-    private String url;
-    private String username;
-    private String location;
-    private String ticket;
+    private static final String LOG_TAG = "_CASConnexion";
+    private static final String service = "http://localhost";
+    private static String url;
+    private static String username;
+    private static String location;
+    private static String ticket;
 
     public CASConnexion(final NemopaySession nemopaySession) {
         this.url = "";
@@ -24,8 +24,9 @@ public class CASConnexion {
             @Override
             public void run() {
                 try {
-                    HTTPRequest request = nemopaySession.getCasUrl();
-                    url = request.getResponse();
+                    HTTPRequest http = new HTTPRequest("https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc");
+                    http.post();
+                    url = http.getResponse();
                     url = url.substring(1, url.length() - 1);
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
@@ -51,8 +52,8 @@ public class CASConnexion {
             throw new RuntimeException("Elements required");
 
         HTTPRequest request = new HTTPRequest(this.url + "v1/tickets/");
-        request.setArg("username", username);
-        request.setArg("password", password);
+        request.addPost("username", username);
+        request.addPost("password", password);
 
         if (request.post() == 201)
             this.location = request.getHeader("Location");
@@ -72,7 +73,7 @@ public class CASConnexion {
             throw new RuntimeException("Elements required");
 
         HTTPRequest request = new HTTPRequest(this.location);
-        request.setArg("service", this.service);
+        request.addPost("service", this.service);
 
         if (request.post() == 200)
             this.ticket = request.getResponse();

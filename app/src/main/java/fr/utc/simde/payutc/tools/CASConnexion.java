@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class CASConnexion {
     private static final String LOG_TAG = "CASConnexion";
-    private static final String service = "http://localhost";
+    private static final String service = "http://api.nemopay.net/";
     private String url;
     private String username;
     private String location;
@@ -50,10 +50,8 @@ public class CASConnexion {
         request.setArg("username", username);
         request.setArg("password", password);
 
-        if (request.post() == 201) {
-            Log.d(LOG_TAG, request.getHeader("Location"));
+        if (request.post() == 201)
             this.location = request.getHeader("Location");
-        }
         else
             throw new RuntimeException("Not Connected");
     }
@@ -72,10 +70,8 @@ public class CASConnexion {
         HTTPRequest request = new HTTPRequest(this.location);
         request.setArg("service", this.service);
 
-        if (request.post() == 200) {
+        if (request.post() == 200)
             this.ticket = request.getResponse();
-            Log.d(LOG_TAG, this.ticket);
-        }
         else
             throw new RuntimeException("Service not added");
     }

@@ -47,56 +47,22 @@ public class MainActivity extends NFCActivity {
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            connectDialog();
-
-            /*
-            if (registered) {
-                Log.d(LOG_TAG, "Enregistré");
                 connectDialog();
-            } else {
-                Log.d(LOG_TAG, "Non enregistré");
-
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                alertDialogBuilder
-                    .setTitle("Application non enregistrée")
-                    .setMessage("Application non enregistrée")
-                    .setCancelable(true)
-                    .setPositiveButton("Continuer", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,int id) {
-                            setRegistered(true);
-                            dialog.cancel();
-                        }
-                    })
-                    .setNegativeButton("Quitter",new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,int id) {
-                            dialog.cancel();
-                            MainActivity.this.finish();
-                        }
-                    });
-
-                createDialog(alertDialogBuilder);
-            }
-            */
             }
         });
     }
 
     @Override
     protected void onIdentification(final String idBadge) {
-        Log.d(LOG_TAG, idBadge);
         badgeDialog(idBadge);
     }
 
-    protected void setRegistered(boolean p_registered) {
-        registered = p_registered;
+    protected void setRegistered(boolean registered) {
+        this.registered = registered;
         AppRegisteredText.setText(registered ? R.string.app_registred : R.string.app_not_registred);
     }
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
-        Log.d(LOG_TAG, "Login: " + username);
-        Log.d(LOG_TAG, "Mdp: " + password);
-        Log.d(LOG_TAG, "Url: " + casConnexion.getUrl());
-
         dialog.dismiss();
 
         final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_in_connection), true);
@@ -149,9 +115,6 @@ public class MainActivity extends NFCActivity {
     }
 
     protected void connectWithBadge(final String idBadge, final String pin) {
-        Log.d(LOG_TAG, "ID: " + idBadge);
-        Log.d(LOG_TAG, "PIN: " + pin);
-
         dialog.dismiss();
 
         if (registered) {

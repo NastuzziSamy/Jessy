@@ -35,10 +35,10 @@ public class HTTPRequest {
     }
 
     public int get() throws IOException {
-        String data = "?" + args2String(this.args);
+        String data = args2String(this.args);
         Log.d(LOG_TAG, "get: " + this.url + data);
 
-        this.request = (HttpURLConnection) (new URL(this.url + data)).openConnection();
+        this.request = (HttpURLConnection) (new URL(this.url + "?" + data)).openConnection();
         this.request.setRequestMethod("GET");
         this.request.setRequestProperty("Cookie", getCookiesHeader());
         this.request.setUseCaches(false);

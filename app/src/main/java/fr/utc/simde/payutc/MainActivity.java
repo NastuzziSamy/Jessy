@@ -1,11 +1,14 @@
 package fr.utc.simde.payutc;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -154,12 +157,32 @@ public class MainActivity extends NFCActivity {
         }).start();
     }
 
-    protected void createDialog(AlertDialog.Builder alertDialogBuilder) {
+    protected void createDialog(AlertDialog.Builder alertDialogBuilder) { createDialog(alertDialogBuilder, null); }
+    protected void createDialog(AlertDialog.Builder alertDialogBuilder, final EditText input) {
         if (alertDialog != null)
             alertDialog.dismiss();
 
         alertDialog = alertDialogBuilder.create();
         alertDialog.show();
+
+        // Auto open keyboard
+        if (input != null) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    input.requestFocus();
+                    input.setFocusableInTouchMode(true);
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }.start();
+        }
     }
 
     protected void errorDialog(final String title, final String message) {
@@ -206,7 +229,7 @@ public class MainActivity extends NFCActivity {
     }
 
     protected void connectDialog() {
-        final View usernameView = getLayoutInflater().inflate(R.layout.dialog_username, null);
+        final View usernameView = getLayoutInflater().inflate(R.layout.dialog_login, null);
         final EditText usernameInput = usernameView.findViewById(R.id.input_username);
         final EditText passwordInput = usernameView.findViewById(R.id.input_password);
 
@@ -240,6 +263,6 @@ public class MainActivity extends NFCActivity {
                 }
             });
 
-        createDialog(alertDialogBuilder);
+        createDialog(alertDialogBuilder, usernameInput);
     }
 }

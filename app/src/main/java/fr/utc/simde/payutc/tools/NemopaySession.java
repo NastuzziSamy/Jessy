@@ -5,11 +5,11 @@ package fr.utc.simde.payutc.tools;
  */
 
 public class NemopaySession {
-    private String ticket;
     private String session;
     private String username;
 
-    public NemopaySession() {
-
+    public NemopaySession(final String session, final String username) {
+        this.session = session;
+        this.username = username;
     }
 }

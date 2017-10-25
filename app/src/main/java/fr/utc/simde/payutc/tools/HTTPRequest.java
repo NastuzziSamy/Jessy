@@ -19,15 +19,17 @@ import java.util.Map;
 
 public class HTTPRequest {
     public static final String LOG_TAG = "HTTPRequest";
-    public String url = "";
+    public String url;
     public HttpURLConnection request;
     public String response;
 
     static Map<String, String> args;
     static Map<String, String> cookies;
 
-    public HTTPRequest(String url) {
+    public HTTPRequest(final String url) {
         this.url = url;
+        this.request = null;
+        this.response = "";
         this.args = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
     }
@@ -73,14 +75,14 @@ public class HTTPRequest {
         return this.request.getHeaderFields();
     }
 
-    public String getHeader(String name) {
+    public String getHeader(final String name) {
         if (this.request == null)
             return null;
 
         return this.request.getHeaderField(name);
     }
 
-    public String getResponseMessage(String name) throws IOException {
+    public String getResponseMessage(final String name) throws IOException {
         if (this.request == null)
             return null;
 
@@ -111,11 +113,11 @@ public class HTTPRequest {
         return data.substring(0, data.equals("") ? 0 : data.length() - 1);
     }
 
-    public void setArg(String key, String value) {
+    public void setArg(final String key, final String value) {
         this.args.put(key, value);
     }
 
-    public Boolean delArg(String key) {
+    public Boolean delArg(final String key) {
         if (this.args.containsKey(key))
             this.args.remove(key);
         else
@@ -133,7 +135,7 @@ public class HTTPRequest {
         return data;
     }
 
-    synchronized void updateCookies(List<String> cookiesHeader) {
+    synchronized void updateCookies(final List<String> cookiesHeader) {
         if (cookiesHeader != null) {
             Log.d(LOG_TAG, "cookies : " + cookiesHeader);
 

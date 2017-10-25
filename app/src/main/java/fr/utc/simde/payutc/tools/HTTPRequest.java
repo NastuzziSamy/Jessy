@@ -82,6 +82,13 @@ public class HTTPRequest {
         return this.request.getHeaderField(name);
     }
 
+    public int getResponseCode() throws IOException {
+        if (this.request == null)
+            return Integer.parseInt(null);
+
+        return this.request.getResponseCode();
+    }
+
     public String getResponseMessage(final String name) throws IOException {
         if (this.request == null)
             return null;
@@ -111,6 +118,10 @@ public class HTTPRequest {
             data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(args.get(arg), "UTF-8") + "&");
 
         return data.substring(0, data.equals("") ? 0 : data.length() - 1);
+    }
+
+    public void setArgs(Map<String, String> args) {
+        this.args = args;
     }
 
     public void setArg(final String key, final String value) {

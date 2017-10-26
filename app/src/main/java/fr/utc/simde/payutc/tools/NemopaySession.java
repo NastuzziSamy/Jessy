@@ -1,13 +1,24 @@
 package fr.utc.simde.payutc.tools;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.XmlResourceParser;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import fr.utc.simde.payutc.R;
+
+import static java.lang.System.in;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -16,23 +27,30 @@ import java.util.Map;
 public class NemopaySession {
     private static final String LOG_TAG = "_NemopaySession";
     private static final String url = "https://api.nemopay.net/services/";
+    private static Map<String, String> allRights = new HashMap<String, String>();
     private String name;
     private String key;
     private String session;
     private String username;
 
     private HTTPRequest request;
-    private Map<String, String> cookies = new HashMap<String, String>();
+    private String[] rightsNeeded;
 
+    private Map<String, String> cookies = new HashMap<String, String>();
     private final Map<String, String> getArgs = new HashMap<String, String>() {{
         put("system_id", "payutc");
     }};
 
-    public NemopaySession() {
+    public NemopaySession(Activity activity) {
         this.name = "";
         this.key = "";
         this.session = "";
         this.username = "";
+
+        String[] keys = activity.getResources().getStringArray(R.array.rights_keys);
+        String[] values = activity.getResources().getStringArray(R.array.rights_values);
+        for (int i = 0; i < Math.min(keys.length, values.length); ++i)
+            this.allRights.put(keys[i], values[i]);
     }
 
     public Boolean isConnected() { return !this.session.isEmpty() && !this.username.isEmpty(); }
@@ -109,7 +127,9 @@ public class NemopaySession {
         int reponseCode = request("POSS3", "loginBadge2", new HashMap<String, String>() {{
             put("badge_id", idBadge);
             put("pin", pin);
-        }});
+        }}, new String[]{
+            "sale"
+        });
 
         JSONObject response;
         if (reponseCode == 200 && this.request.isJsonResponse())
@@ -149,8 +169,31 @@ public class NemopaySession {
         return reponseCode;
     }
 
-    protected int request(final String method, final String service) throws IOException { return request(method, service, new HashMap<String, String>()); }
-    protected int request(final String method, final String service, final Map<String, String> postArgs) throws IOException {
+    public String needRights(Activity activity) {
+        String result;
+        if (this.rightsNeeded.length == 0)
+            return activity.getString(R.string.no_need_rights);
+        else if (this.rightsNeeded.length == 1)
+            result = activity.getString(R.string.no_right);
+        else
+            result = activity.getString(R.string.no_rights);
+
+        for (String right : this.rightsNeeded) {
+            if (allRights.containsKey(right))
+                result += " " + allRights.get(right) + ",";
+            else {
+                result += " " + right + ",";
+                Log.e(LOG_TAG, "\"" + right + "\" does not exist");
+            }
+        }
+
+        return result.substring(0, result.length() - 1) + ".";
+    }
+
+    protected int request(final String method, final String service) throws IOException { return request(method, service, new HashMap<String, String>(), new String[]{}); }
+    protected int request(final String method, final String service, final String[] rightsNeeded) throws IOException { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
+    protected int request(final String method, final String service, final Map<String, String> postArgs) throws IOException { return request(method, service, postArgs, new String[]{}); }
+    protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws IOException {
         Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
@@ -159,6 +202,7 @@ public class NemopaySession {
 
         int reponseCode = this.request.post();
         this.cookies = request.getCookies();
+        this.rightsNeeded = rightsNeeded;
 
         return reponseCode;
     }

@@ -46,6 +46,9 @@ public class CASConnexion {
         this.username = "";
         this.location = "";
         this.ticket = "";
+
+        HTTPRequest request = new HTTPRequest(this.url + "logout");
+        request.post();
     }
 
     public Boolean isConnected() { return !this.location.isEmpty(); }

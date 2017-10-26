@@ -78,7 +78,12 @@ public class HTTPRequest {
             Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            try {
+                Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+            }
+            catch (Exception e2) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
         }
 
         return getResponseCode();
@@ -115,7 +120,12 @@ public class HTTPRequest {
             Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            try {
+                Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+            }
+            catch (Exception e2) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
         }
 
         return getResponseCode();
@@ -178,6 +188,17 @@ public class HTTPRequest {
 
     public Map<String, String> getJsonResponse() throws IOException, JSONException { return jsonToMap(response); }
     public String getResponse() throws IOException { return response; }
+
+    public Boolean isJsonResponse() {
+        try {
+            jsonToMap(response);
+        }
+        catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
     protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {

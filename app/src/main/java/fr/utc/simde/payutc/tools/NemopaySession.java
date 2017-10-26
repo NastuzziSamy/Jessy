@@ -50,8 +50,22 @@ public class NemopaySession {
     public Boolean isConnected() { return !this.session.isEmpty() && !this.username.isEmpty(); }
     public Boolean isRegistered() { return !this.name.isEmpty() && !this.key.isEmpty() && !this.session.isEmpty(); }
 
+    public void disconnect() {
+        this.session = "";
+        this.username = "";
+    }
+
+    public void unregister() {
+        this.name = "";
+        this.key = "";
+
+        disconnect();
+    }
+
     public String getName() { return this.name; }
     public String getKey() { return this.key; }
+    public String getUsername() { return username; }
+    public HTTPRequest getRequest() { return this.request; }
 
     public void getCasUrl() throws IOException {
         request("POSS3", "getCasUrl");
@@ -64,7 +78,7 @@ public class NemopaySession {
             put("app_desc", description);
         }});
 
-        if (request.getResponseCode() == 200)
+        if (request.getResponseCode() == 200 && request.isJsonResponse())
             this.key = request.getJsonResponse().get("app_key");
 
         this.request = request;
@@ -75,7 +89,11 @@ public class NemopaySession {
             put("key", key);
         }});
 
-        Map<String, String> response = request.getJsonResponse();
+        Map<String, String> response;
+        if (request.getResponseCode() == 200 && request.isJsonResponse())
+            response = request.getJsonResponse();
+        else
+            throw new Exception("Not authentified");
 
         if (response.containsKey("sessionid") && response.containsKey("name")) {
             this.session = response.get("sessionid");
@@ -83,7 +101,7 @@ public class NemopaySession {
             this.key = key;
         }
         else
-            throw new Exception("Not authentified");
+            throw new Exception("No correct informations");
     }
 
     public void loginBadge(final String idBadge, final String pin) throws Exception {
@@ -92,15 +110,18 @@ public class NemopaySession {
             put("pin", pin);
         }});
 
-        Map<String, String> response = request.getJsonResponse();
+        Map<String, String> response;
+        if (request.getResponseCode() == 200 && request.isJsonResponse())
+            response = request.getJsonResponse();
+        else
+            throw new Exception("Not connected");
 
         if (response.containsKey("sessionid") && response.containsKey("username")) {
             this.session = response.get("sessionid");
             this.username = response.get("username");
         }
-        else {
-            throw new Exception("Not connected");
-        }
+        else
+            throw new Exception("No correct informations");
     }
 
     public void loginCas(final String ticket, final String service) throws Exception {
@@ -109,17 +130,19 @@ public class NemopaySession {
             put("service", service);
         }});
 
-        Map<String, String> response = request.getJsonResponse();
+        Map<String, String> response;
+        if (request.getResponseCode() == 200 && request.isJsonResponse())
+            response = request.getJsonResponse();
+        else
+            throw new Exception("Not connected");
 
         if (response.containsKey("sessionid") && response.containsKey("username")) {
             this.session = response.get("sessionid");
             this.username = response.get("username");
         }
         else
-            throw new Exception("Not connected");
+            throw new Exception("No correct informations");
     }
-
-    public HTTPRequest getRequest() { return this.request; }
 
     protected void request(final String method, final String service) throws IOException { request(method, service, new HashMap<String, String>()); }
     protected void request(final String method, final String service, final Map<String, String> postArgs) throws IOException {

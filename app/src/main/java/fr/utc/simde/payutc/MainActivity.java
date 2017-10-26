@@ -14,14 +14,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
@@ -63,8 +59,8 @@ public class MainActivity extends NFCActivity {
             public boolean onLongClick(View v) {
                 if (!nemopaySession.isRegistered())
                     addKeyDialog();
-                else // A supprimer = embêtant si les clés sont réinitialisées
-                    delKey();
+                else
+                    unregister();
 
                 return false;
             }
@@ -73,7 +69,7 @@ public class MainActivity extends NFCActivity {
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectDialog();
+                casDialog();
             }
         });
     }
@@ -84,10 +80,25 @@ public class MainActivity extends NFCActivity {
             badgeDialog(idBadge);
     }
 
+    protected void disconnect() {
+        nemopaySession.disconnect();
+        casConnexion.disconnect();
+    }
+
+    protected void unregister() {
+        nemopaySession.unregister();
+        disconnect();
+
+        ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
+        dialog.errorDialog(getResources().getString(R.string.key_registration), getResources().getString(R.string.key_remove_temp));
+    }
+
     protected void delKey() {
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.remove("key");
         edit.apply();
+
+        unregister();
     }
 
     protected void setKey(final String key) {
@@ -250,7 +261,7 @@ public class MainActivity extends NFCActivity {
         }
 
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.already_connected));
+            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -285,9 +296,9 @@ public class MainActivity extends NFCActivity {
         dialog.createDialog(alertDialogBuilder, pinInput);
     }
 
-    protected void connectDialog() {
+    protected void casDialog() {
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.already_connected));
+            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -310,7 +321,7 @@ public class MainActivity extends NFCActivity {
 
                         Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
                         dialogInterface.cancel();
-                        connectDialog();
+                        casDialog();
                     }
                     else {
                         try {
@@ -399,7 +410,8 @@ public class MainActivity extends NFCActivity {
                     public void onClick(DialogInterface dialogInterface, int id) {
                         setKey(keyInput.getText().toString());
                     }
-                });
+                })
+                .setNegativeButton(R.string.cancel, null);
 
         dialog.createDialog(alertDialogBuilder, keyInput);
     }

@@ -63,6 +63,16 @@ public class MainActivity extends NFCActivity {
         AppRegisteredText = findViewById(R.id.text_app_registered);
         usernameButton = findViewById(R.id.button_username);
 
+        AppRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!nemopaySession.isRegistered())
+                    addKeyDialog();
+
+                return false;
+            }
+        });
+
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -341,5 +351,23 @@ public class MainActivity extends NFCActivity {
             });
 
         dialog.createDialog(alertDialogBuilder, nameInput);
+    }
+
+    protected void addKeyDialog() {
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+        final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+                .setTitle(R.string.key_dialog)
+                .setView(keyView)
+                .setCancelable(false)
+                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        setKey(keyInput.getText().toString());
+                    }
+                });
+
+        dialog.createDialog(alertDialogBuilder);
     }
 }

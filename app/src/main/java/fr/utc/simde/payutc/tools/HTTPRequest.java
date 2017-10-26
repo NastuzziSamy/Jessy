@@ -54,42 +54,71 @@ public class HTTPRequest {
         return map;
     }
 
-    public int get() throws IOException {
-        String get = args2String(this.getArgs, true);
+    public int get() {
+        String get = null;
+
+        try {
+            get = args2String(this.getArgs, true);
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
         Log.d(LOG_TAG, "get: " + this.url + get);
 
-        this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
-        this.request.setRequestMethod("GET");
-        this.request.setRequestProperty("Cookie", getCookiesHeader());
-        this.request.setUseCaches(false);
-        this.request.setDoOutput(true);
-        updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+        try {
+            this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
+            this.request.setRequestMethod("GET");
+            this.request.setRequestProperty("Cookie", getCookiesHeader());
+            this.request.setUseCaches(false);
+            this.request.setDoOutput(true);
+            updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
-        generateResponse();
-        Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
-        return this.request.getResponseCode();
+            generateResponse();
+            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return getResponseCode();
     }
 
-    public int post() throws IOException {
-        String get = args2String(this.getArgs, true);
-        String post = args2String(this.postArgs);
+    public int post() {
+        String get = null;
+        String post = null;
+
+        try {
+            get = args2String(this.getArgs, true);
+            post = args2String(this.postArgs);
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
         Log.d(LOG_TAG, "post: " + this.url + get + ", data: " + post);
 
-        this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
-        this.request.setRequestMethod("POST");
-        this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        this.request.setRequestProperty("charset", "utf-8");
-        this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
-        this.request.setRequestProperty("Cookie", getCookiesHeader());
-        this.request.setUseCaches(false);
-        this.request.setDoInput(true);
-        this.request.setDoOutput(true);
-        this.request.getOutputStream().write(post.getBytes());
-        updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+        try {
+            this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
+            this.request.setRequestMethod("POST");
+            this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            this.request.setRequestProperty("charset", "utf-8");
+            this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
+            this.request.setRequestProperty("Cookie", getCookiesHeader());
+            this.request.setUseCaches(false);
+            this.request.setDoInput(true);
+            this.request.setDoOutput(true);
+            this.request.getOutputStream().write(post.getBytes());
+            updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
-        generateResponse();
-        Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
-        return this.request.getResponseCode();
+            generateResponse();
+            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return getResponseCode();
     }
 
     public Map<String, List<String>> getHeaders() {
@@ -106,18 +135,32 @@ public class HTTPRequest {
         return this.request.getHeaderField(name);
     }
 
-    public int getResponseCode() throws IOException {
+    public int getResponseCode() {
         if (this.request == null)
             return Integer.parseInt(null);
 
-        return this.request.getResponseCode();
+        try {
+            return this.request.getResponseCode();
+        }
+        catch (Exception e) {
+                Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return 500;
     }
 
-    public String getResponseMessage(final String name) throws IOException {
+    public String getResponseMessage(final String name) {
         if (this.request == null)
             return null;
 
-        return this.request.getResponseMessage();
+        try {
+            return this.request.getResponseMessage();
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return "";
     }
 
     protected void generateResponse() throws IOException {

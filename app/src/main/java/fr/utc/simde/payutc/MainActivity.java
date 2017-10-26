@@ -3,6 +3,7 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -78,6 +79,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void unregister() {
         super.unregister();
+
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
     }
 
@@ -97,7 +99,6 @@ public class MainActivity extends BaseActivity {
 
         final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification), true);
         loading.setCancelable(false);
-
         new Thread() {
             @Override
             public void run() {
@@ -126,6 +127,10 @@ public class MainActivity extends BaseActivity {
                 });
             }
         }.start();
+    }
+
+    protected void startFoundationListActivity() {
+        MainActivity.this.startActivity(new Intent(MainActivity.this, FoundationListActivity.class));
     }
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
@@ -227,7 +232,7 @@ public class MainActivity extends BaseActivity {
                         else if (!nemopaySession.isRegistered())
                             keyDialog();
                         else
-                            Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
+                            startFoundationListActivity();
                     }
                 });
             }
@@ -259,7 +264,7 @@ public class MainActivity extends BaseActivity {
 
                         try {
                             if (nemopaySession.isConnected())
-                                Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
+                                startFoundationListActivity();
                             else if (nemopaySession.getRequest().getResponseCode() == 400)
                                 dialog.errorDialog(getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
                             else

@@ -54,6 +54,9 @@
     <string name="key_add_explication">Il est possible d\'ajouter directement une clé d\'application si celle-ci est connue</string>
     <string name="key_remove_temp">L\'application a été désauthentifiée temporairement. Il suffit de relancer l\'application pour qu\'elle soit de nouveau connectée</string>
     <string name="already_connected">Déjà connecté sous</string>
+    <string name="information_collection">Récupération d\'informations</string>
+    <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
+    <string name="foundation_error_get_list">Impossible de récupérer la liste des fondations</string>
 
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>

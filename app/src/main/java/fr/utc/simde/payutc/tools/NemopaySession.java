@@ -1,24 +1,16 @@
 package fr.utc.simde.payutc.tools;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.res.XmlResourceParser;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import fr.utc.simde.payutc.R;
-
-import static java.lang.System.in;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -57,8 +49,10 @@ public class NemopaySession {
     public Boolean isRegistered() { return !this.name.isEmpty() && !this.key.isEmpty() && !this.session.isEmpty(); }
 
     public void disconnect() {
-        this.session = "";
         this.username = "";
+
+        if (!isRegistered())
+            this.session = "";
     }
 
     public void unregister() {
@@ -73,16 +67,33 @@ public class NemopaySession {
     public String getUsername() { return username; }
     public HTTPRequest getRequest() { return this.request; }
 
+    public int getFoundations() throws IOException, JSONException {
+        return request(
+            "POSS3",
+            "getFundations",
+            new String[]{
+                "sale"
+            }
+        );
+    }
+
     public int getCASUrl() throws IOException {
-        return request("POSS3", "getCasUrl");
+        return request(
+            "POSS3",
+            "getCasUrl"
+        );
     }
 
     public int registerApp(final String name, final String description, final String service) throws IOException, JSONException {
-        int reponseCode = request("KEY", "registerApplication", new HashMap<String, String>() {{
-            put("app_url", service);
-            put("app_name", name);
-            put("app_desc", description);
-        }});
+        int reponseCode = request(
+            "KEY",
+            "registerApplication",
+            new HashMap<String, String>() {{
+                put("app_url", service);
+                put("app_name", name);
+                put("app_desc", description);
+            }}
+        );
 
         if (reponseCode == 200 && this.request.isJsonResponse())
             this.key = this.request.getJsonResponse().getString("app_key");
@@ -102,9 +113,13 @@ public class NemopaySession {
         return reponseCode;
     }
     public int loginApp(final String key) throws Exception {
-        int reponseCode = request("POSS3", "loginApp", new HashMap<String, String>() {{
-            put("key", key);
-        }});
+        int reponseCode = request(
+            "POSS3",
+            "loginApp",
+            new HashMap<String, String>() {{
+                put("key", key);
+            }}
+        );
 
         JSONObject response;
         if (reponseCode == 200 && this.request.isJsonResponse())
@@ -124,12 +139,17 @@ public class NemopaySession {
     }
 
     public int loginBadge(final String idBadge, final String pin) throws Exception {
-        int reponseCode = request("POSS3", "loginBadge2", new HashMap<String, String>() {{
-            put("badge_id", idBadge);
-            put("pin", pin);
-        }}, new String[]{
-            "sale"
-        });
+        int reponseCode = request(
+            "POSS3",
+            "loginBadge2",
+            new HashMap<String, String>() {{
+                put("badge_id", idBadge);
+                put("pin", pin);
+            }},
+            new String[]{
+                "sale"
+            }
+        );
 
         JSONObject response;
         if (reponseCode == 200 && this.request.isJsonResponse())
@@ -148,10 +168,14 @@ public class NemopaySession {
     }
 
     public int loginCas(final String ticket, final String service) throws Exception {
-        int reponseCode = request("POSS3", "loginCas2", new HashMap<String, String>() {{
-            put("ticket", ticket);
-            put("service", service);
-        }});
+        int reponseCode = request(
+            "POSS3",
+            "loginCas2",
+            new HashMap<String, String>() {{
+                put("ticket", ticket);
+                put("service", service);
+            }}
+        );
 
         JSONObject response;
         if (reponseCode == 200 && this.request.isJsonResponse())

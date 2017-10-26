@@ -1,8 +1,5 @@
 package fr.utc.simde.payutc;
 
-import android.os.Bundle;
-import android.widget.TextView;
-
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;

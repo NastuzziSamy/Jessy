@@ -20,8 +20,6 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
-import fr.utc.simde.payutc.R;
-
 public abstract class NFCActivity extends Activity {
     private static final String	LOG_TAG = "_NFCActivity";
     private static NfcAdapter NFCAdapter;
@@ -33,9 +31,6 @@ public abstract class NFCActivity extends Activity {
         super.onCreate(savedInstanceState);
         NFCAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
         NFCAlertDialog = new AlertDialog.Builder(this);
-
-        IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
-        this.registerReceiver(NFCReceiver, filter);
 
         if (NFCAdapter == null) {
             Toast.makeText(this, R.string.nfc_not_available, Toast.LENGTH_LONG).show();
@@ -53,6 +48,9 @@ public abstract class NFCActivity extends Activity {
             AlertDialog alertDialog = NFCAlertDialog.create();
             alertDialog.show();
         }
+
+        IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
+        this.registerReceiver(NFCReceiver, filter);
     }
 
     protected abstract void onIdentification(final String idBadge);
@@ -100,7 +98,7 @@ public abstract class NFCActivity extends Activity {
             NFCAdapter.disableForegroundDispatch(this);
     }
 
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
 
         this.unregisterReceiver(NFCReceiver);

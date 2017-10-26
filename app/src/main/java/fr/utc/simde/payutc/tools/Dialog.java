@@ -32,6 +32,8 @@ public class Dialog {
             this.alertDialog.dismiss();
     }
 
+    public Boolean isShowing() { return this.alertDialog != null && this.alertDialog.isShowing(); }
+
     public void createDialog() { createDialog((EditText) null); }
     public void createDialog(AlertDialog.Builder alertDialogBuilder) { createDialog(alertDialogBuilder, null); }
     public void createDialog(AlertDialog.Builder alertDialogBuilder, final EditText input) { this.alertDialogBuilder = alertDialogBuilder; createDialog(input); }

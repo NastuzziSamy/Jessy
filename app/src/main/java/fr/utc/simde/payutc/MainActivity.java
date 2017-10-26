@@ -97,8 +97,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification), true);
-        loading.setCancelable(false);
+        dialog.startLoading(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
         new Thread() {
             @Override
             public void run() {
@@ -112,7 +111,7 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         if (nemopaySession.isRegistered()) {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -134,10 +133,7 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
-        dialog.dismiss();
-
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url), true);
-        loading.setCancelable(false);
+        dialog.startLoading(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url));
         new Thread() {
             @Override
             public void run() {
@@ -159,11 +155,11 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void run() {
                         if (casConnexion.getUrl().equals("")) {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_url));
                         }
                         else
-                            loading.setMessage(getString(R.string.cas_in_connection));
+                            dialog.changeLoading(getString(R.string.cas_in_connection));
                     }
                 });
 
@@ -181,9 +177,9 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void run() {
                         if (casConnexion.isConnected())
-                            loading.setMessage(getString(R.string.cas_in_service_adding));
+                            dialog.changeLoading(getString(R.string.cas_in_service_adding));
                         else {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_connection));
                         }
                     }
@@ -202,11 +198,10 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         if (casConnexion.isServiceAdded())
-                            loading.setMessage(getString(R.string.nemopay_connection));
+                            dialog.changeLoading(getString(R.string.nemopay_connection));
                         else {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_adding));
                         }
                     }
@@ -225,7 +220,7 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         if (!nemopaySession.isConnected())
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_linking));
@@ -240,13 +235,10 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void connectWithBadge(final String idBadge, final String pin) {
-        dialog.dismiss();
-
         if (!nemopaySession.isRegistered() || nemopaySession.isConnected())
             return;
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_recognization), true);
-        loading.setCancelable(false);
+        dialog.startLoading(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_recognization));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -260,7 +252,7 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         try {
                             if (nemopaySession.isConnected())

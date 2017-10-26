@@ -80,7 +80,8 @@ public class MainActivity extends NFCActivity {
 
     @Override
     protected void onIdentification(final String idBadge) {
-        badgeDialog(idBadge);
+        if (!dialog.isShowing())
+            badgeDialog(idBadge);
     }
 
     protected void delKey() {

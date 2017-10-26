@@ -59,6 +59,12 @@ public class CASConnexion {
             throw new RuntimeException("Not Connected");
     }
 
+    public void disconnect() {
+        this.username = "";
+        this.location = "";
+        this.ticket = "";
+    }
+
     public Boolean isConnected() { return !this.location.isEmpty(); }
 
     public void addService(final String service) throws Exception {

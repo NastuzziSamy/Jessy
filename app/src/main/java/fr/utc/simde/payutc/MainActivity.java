@@ -63,8 +63,8 @@ public class MainActivity extends NFCActivity {
             public boolean onLongClick(View v) {
                 if (!nemopaySession.isRegistered())
                     addKeyDialog();
-                else // A supprimer = embêtant si les clés sont réinitialisées
-                    delKey();
+                else
+                    unregister();
 
                 return false;
             }
@@ -84,10 +84,25 @@ public class MainActivity extends NFCActivity {
             badgeDialog(idBadge);
     }
 
+    protected void disconnect() {
+        nemopaySession.disconnect();
+        casConnexion.disconnect();
+    }
+
+    protected void unregister() {
+        nemopaySession.unregister();
+        disconnect();
+
+        ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
+        dialog.errorDialog(getResources().getString(R.string.key_registration), getResources().getString(R.string.key_remove_temp));
+    }
+
     protected void delKey() {
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.remove("key");
         edit.apply();
+
+        unregister();
     }
 
     protected void setKey(final String key) {
@@ -399,7 +414,8 @@ public class MainActivity extends NFCActivity {
                     public void onClick(DialogInterface dialogInterface, int id) {
                         setKey(keyInput.getText().toString());
                     }
-                });
+                })
+                .setNegativeButton(R.string.cancel, null);
 
         dialog.createDialog(alertDialogBuilder, keyInput);
     }

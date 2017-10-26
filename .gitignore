@@ -7,3 +7,10 @@
 /build
 /captures
 .externalNativeBuild
+
+app/src/main/java/fr/utc/simde/payutc/admin rights
+
+app/src/main/java/fr/utc/simde/payutc/full rights
+
+app/src/main/java/fr/utc/simde/payutc/no rights
+.gitignore

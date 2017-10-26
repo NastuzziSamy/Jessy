@@ -1,7 +1,5 @@
 package fr.utc.simde.payutc.tools;
 
-import android.util.Log;
-
 /**
  * Created by Samy on 24/10/2017.
  */

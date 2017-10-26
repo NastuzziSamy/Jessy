@@ -33,6 +33,7 @@ public class NemopaySession {
     private String session;
     private String username;
 
+    private HTTPRequest request;
     private Map<String, String> cookies = new HashMap<String, String>();
 
     private final Map<String, String> getArgs = new HashMap<String, String>() {{
@@ -52,12 +53,12 @@ public class NemopaySession {
     public String getName() { return this.name; }
     public String getKey() { return this.key; }
 
-    public HTTPRequest getCasUrl() throws IOException {
-        return construct("POSS3", "getCasUrl");
+    public void getCasUrl() throws IOException {
+        request("POSS3", "getCasUrl");
     }
 
-    public HTTPRequest registerApp(final String name, final String description, final String service) throws IOException, JSONException {
-        HTTPRequest request = construct("KEY", "registerApplication", new HashMap<String, String>() {{
+    public void registerApp(final String name, final String description, final String service) throws IOException, JSONException {
+        request("KEY", "registerApplication", new HashMap<String, String>() {{
             put("app_url", service);
             put("app_name", name);
             put("app_desc", description);
@@ -66,11 +67,11 @@ public class NemopaySession {
         if (request.getResponseCode() == 200)
             this.key = request.getJsonResponse().get("app_key");
 
-        return request;
+        this.request = request;
     }
 
-    public HTTPRequest loginApp(final String key) throws Exception {
-        HTTPRequest request = construct("POSS3", "loginApp", new HashMap<String, String>() {{
+    public void loginApp(final String key) throws Exception {
+        request("POSS3", "loginApp", new HashMap<String, String>() {{
             put("key", key);
         }});
 
@@ -83,12 +84,27 @@ public class NemopaySession {
         }
         else
             throw new Exception("Not authentified");
-
-        return request;
     }
 
-    public HTTPRequest loginCas(final String ticket, final String service) throws Exception {
-        HTTPRequest request = construct("POSS3", "loginCas2", new HashMap<String, String>() {{
+    public void loginBadge(final String idBadge, final String pin) throws Exception {
+        request("POSS3", "loginBadge2", new HashMap<String, String>() {{
+            put("badge_id", idBadge);
+            put("pin", pin);
+        }});
+
+        Map<String, String> response = request.getJsonResponse();
+
+        if (response.containsKey("sessionid") && response.containsKey("username")) {
+            this.session = response.get("sessionid");
+            this.username = response.get("username");
+        }
+        else {
+            throw new Exception("Not connected");
+        }
+    }
+
+    public void loginCas(final String ticket, final String service) throws Exception {
+        request("POSS3", "loginCas2", new HashMap<String, String>() {{
             put("ticket", ticket);
             put("service", service);
         }});
@@ -101,12 +117,12 @@ public class NemopaySession {
         }
         else
             throw new Exception("Not connected");
-
-        return request;
     }
 
-    protected HTTPRequest construct(final String method, final String service) throws IOException { return construct(method, service, new HashMap<String, String>()); }
-    protected HTTPRequest construct(final String method, final String service, final Map<String, String> postArgs) throws IOException {
+    public HTTPRequest getRequest() { return this.request; }
+
+    protected void request(final String method, final String service) throws IOException { request(method, service, new HashMap<String, String>()); }
+    protected void request(final String method, final String service, final Map<String, String> postArgs) throws IOException {
         HTTPRequest request = new HTTPRequest(url + method + "/" + service);
         Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         request.setGet(getArgs);
@@ -115,6 +131,6 @@ public class NemopaySession {
 
         request.post();
         this.cookies = request.getCookies();
-        return request;
+        this.request = request;
     }
 }

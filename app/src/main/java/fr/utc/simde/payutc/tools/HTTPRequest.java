@@ -46,7 +46,7 @@ public class HTTPRequest {
             get = args2String(this.getArgs, true);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
         Log.d(LOG_TAG, "get: " + this.url + get);
@@ -67,7 +67,7 @@ public class HTTPRequest {
                 Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
             }
             catch (Exception e2) {
-                Log.e(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "error: " + e.getMessage());
             }
         }
 
@@ -83,7 +83,7 @@ public class HTTPRequest {
             post = args2String(this.postArgs);
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
         Log.d(LOG_TAG, "post: " + this.url + get + ", data: " + post);
@@ -109,7 +109,7 @@ public class HTTPRequest {
                 Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
             }
             catch (Exception e2) {
-                Log.e(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "error: " + e.getMessage());
             }
         }
 
@@ -138,7 +138,7 @@ public class HTTPRequest {
             return this.request.getResponseCode();
         }
         catch (Exception e) {
-                Log.e(LOG_TAG, e.getMessage());
+                Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
         return 500;
@@ -152,7 +152,7 @@ public class HTTPRequest {
             return this.request.getResponseMessage();
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
         return "";

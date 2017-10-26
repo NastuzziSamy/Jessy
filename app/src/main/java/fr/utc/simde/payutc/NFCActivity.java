@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.payutc;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -26,20 +26,20 @@ public abstract class NFCActivity extends Activity {
     private static final String	LOG_TAG = "_NFCActivity";
     private static NfcAdapter NFCAdapter;
 
-    private static AlertDialog.Builder alertDialogBuilder;
+    private static AlertDialog.Builder NFCAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         NFCAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
-        alertDialogBuilder = new AlertDialog.Builder(this);
+        NFCAlertDialog = new AlertDialog.Builder(this);
 
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
         this.registerReceiver(NFCReceiver, filter);
 
         if (NFCAdapter == null) {
             Toast.makeText(this, R.string.nfc_not_available, Toast.LENGTH_LONG).show();
-            alertDialogBuilder
+            NFCAlertDialog
                 .setTitle(R.string.nfc_not_available)
                 .setMessage(R.string.nfc_availability)
                 .setCancelable(false)
@@ -50,7 +50,7 @@ public abstract class NFCActivity extends Activity {
                     }
                 });
 
-            AlertDialog alertDialog = alertDialogBuilder.create();
+            AlertDialog alertDialog = NFCAlertDialog.create();
             alertDialog.show();
         }
     }
@@ -124,7 +124,7 @@ public abstract class NFCActivity extends Activity {
     protected void enableNFCDialog() {
         Toast.makeText(this, R.string.nfc_not_enabled, Toast.LENGTH_SHORT).show();
 
-        alertDialogBuilder
+        NFCAlertDialog
             .setTitle(R.string.nfc_not_enabled)
             .setMessage(R.string.nfc_accessibility)
             .setCancelable(true)
@@ -153,7 +153,7 @@ public abstract class NFCActivity extends Activity {
                 }
             });
 
-        AlertDialog alertDialog = alertDialogBuilder.create();
+        AlertDialog alertDialog = NFCAlertDialog.create();
         alertDialog.show();
     }
 }

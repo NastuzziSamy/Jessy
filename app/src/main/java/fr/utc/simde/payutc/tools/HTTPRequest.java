@@ -179,7 +179,7 @@ public class HTTPRequest {
         return request.getContentType() == "application/json";
     }
 
-    public JSONObject getJsonResponse() throws IOException, JSONException {
+    public Object getJsonResponse() throws IOException, JSONException {
         try {
             return new JSONObject(response);
         }

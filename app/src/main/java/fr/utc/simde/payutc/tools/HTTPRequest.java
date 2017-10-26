@@ -29,7 +29,7 @@ public class HTTPRequest {
 
     private Map<String, String> postArgs;
     private Map<String, String> getArgs;
-    private static Map<String, String> cookies;
+    private Map<String, String> cookies;
 
     public HTTPRequest(final String url) {
         this.url = url;
@@ -78,6 +78,7 @@ public class HTTPRequest {
         this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
         this.request.setRequestMethod("POST");
         this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        this.request.setRequestProperty("charset", "utf-8");
         this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
         this.request.setRequestProperty("Cookie", getCookiesHeader());
         this.request.setUseCaches(false);
@@ -159,6 +160,14 @@ public class HTTPRequest {
 
     public void addPost(final String key, final String value) {
         this.postArgs.put(key, value);
+    }
+
+    public Map<String, String> getCookies() {
+        return this.cookies;
+    }
+
+    public void setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
     }
 
     synchronized String getCookiesHeader() {

@@ -25,6 +25,8 @@ public class Dialog {
     public void dismiss() {
         if (this.alertDialog != null)
             this.alertDialog.dismiss();
+
+        this.alertDialog = null;
     }
 
     public Boolean isShowing() { return this.alertDialog != null && this.alertDialog.isShowing(); }

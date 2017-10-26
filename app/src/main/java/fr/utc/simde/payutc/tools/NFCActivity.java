@@ -53,8 +53,6 @@ public abstract class NFCActivity extends Activity {
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
         }
-        else if (!NFCAdapter.isEnabled())
-            enableNFCDialog();
     }
 
     protected abstract void onIdentification(final String idBadge);
@@ -111,15 +109,15 @@ public abstract class NFCActivity extends Activity {
     private final BroadcastReceiver NFCReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
+        final String action = intent.getAction();
 
-            if (action.equals(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, NfcAdapter.STATE_OFF);
+        if (action.equals(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED)) {
+            final int state = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE, NfcAdapter.STATE_OFF);
 
-                //if (state == NfcAdapter.STATE_OFF || state == NfcAdapter.STATE_TURNING_OFF)
-                if (state == NfcAdapter.STATE_OFF)
-                    enableNFCDialog();
-            }
+            //if (state == NfcAdapter.STATE_OFF || state == NfcAdapter.STATE_TURNING_OFF)
+            if (state == NfcAdapter.STATE_OFF)
+                enableNFCDialog();
+        }
         }
     };
 
@@ -127,33 +125,33 @@ public abstract class NFCActivity extends Activity {
         Toast.makeText(this, R.string.nfc_not_enabled, Toast.LENGTH_SHORT).show();
 
         alertDialogBuilder
-                .setTitle(R.string.nfc_not_enabled)
-                .setMessage(R.string.nfc_accessibility)
-                .setCancelable(true)
-                .setPositiveButton(R.string.pass, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                })
-                .setNeutralButton(R.string.activate, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-                        dialog.cancel();
-                    }
-                })
-                .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                        finish();
-                    }
-                })
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(final DialogInterface dialog) {
-                        if (!NFCAdapter.isEnabled())
-                            enableNFCDialog();
-                    }
-                });
+            .setTitle(R.string.nfc_not_enabled)
+            .setMessage(R.string.nfc_accessibility)
+            .setCancelable(true)
+            .setPositiveButton(R.string.pass, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+                }
+            })
+            .setNeutralButton(R.string.activate, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+                dialog.cancel();
+                }
+            })
+            .setNegativeButton(R.string.quit, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+                finish();
+                }
+            })
+            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(final DialogInterface dialog) {
+                if (!NFCAdapter.isEnabled())
+                    enableNFCDialog();
+                }
+            });
 
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();

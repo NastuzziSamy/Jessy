@@ -23,7 +23,7 @@ import android.widget.Toast;
 import fr.utc.simde.payutc.R;
 
 public abstract class NFCActivity extends Activity {
-    private static final String	LOG_TAG = "NFCActivity";
+    private static final String	LOG_TAG = "_NFCActivity";
     private static NfcAdapter NFCAdapter;
 
     private static AlertDialog.Builder alertDialogBuilder;
@@ -75,7 +75,6 @@ public abstract class NFCActivity extends Activity {
 
     protected void onNewIntent(Intent intent) {
         if (intent.getAction().equals(NFCAdapter.ACTION_TAG_DISCOVERED)) {
-            Log.d(LOG_TAG, "Lecture d'un ID NFC");
             String idBadge = ByteArrayToHexString(((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)).getId());
             Log.d(LOG_TAG, "ID: " + idBadge);
             onIdentification(idBadge);

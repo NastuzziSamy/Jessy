@@ -40,20 +40,6 @@ public class HTTPRequest {
         this.cookies = new HashMap<String, String>();
     }
 
-    public static Map<String, String> jsonToMap(String t) throws JSONException {
-        Map<String, String> map = new HashMap<String, String>();
-        JSONObject jObject = new JSONObject(t);
-        Iterator<?> keys = jObject.keys();
-
-        while (keys.hasNext()){
-            String key = (String) keys.next();
-            String value = jObject.getString(key);
-            map.put(key, value);
-        }
-
-        return map;
-    }
-
     public int get() {
         String get = null;
 
@@ -78,7 +64,12 @@ public class HTTPRequest {
             Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            try {
+                Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+            }
+            catch (Exception e2) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
         }
 
         return getResponseCode();
@@ -115,7 +106,12 @@ public class HTTPRequest {
             Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            try {
+                Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+            }
+            catch (Exception e2) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
         }
 
         return getResponseCode();
@@ -176,8 +172,19 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
-    public Map<String, String> getJsonResponse() throws IOException, JSONException { return jsonToMap(response); }
+    public JSONObject getJsonResponse() throws IOException, JSONException { return new JSONObject(response); }
     public String getResponse() throws IOException { return response; }
+
+    public Boolean isJsonResponse() {
+        try {
+            new JSONObject(response);
+        }
+        catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
     protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {

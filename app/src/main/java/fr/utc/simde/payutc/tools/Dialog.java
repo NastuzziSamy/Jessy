@@ -1,16 +1,11 @@
 package fr.utc.simde.payutc.tools;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import fr.utc.simde.payutc.MainActivity;
 import fr.utc.simde.payutc.R;
 
 /**

@@ -6,6 +6,9 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,58 +17,108 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class HTTPRequest {
-    public static final String LOG_TAG = "HTTPRequest";
-    public String url;
-    public HttpURLConnection request;
-    public String response;
+    private static final String LOG_TAG = "_HTTPRequest";
+    private String url;
+    private HttpURLConnection request;
+    private String response;
 
-    static Map<String, String> args;
-    static Map<String, String> cookies;
+    private Map<String, String> postArgs;
+    private Map<String, String> getArgs;
+    private Map<String, String> cookies;
 
     public HTTPRequest(final String url) {
         this.url = url;
         this.request = null;
         this.response = "";
-        this.args = new HashMap<String, String>();
+        this.postArgs = new HashMap<String, String>();
+        this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
     }
 
-    public int get() throws IOException {
-        String data = "?" + args2String(this.args);
-        Log.d(LOG_TAG, "get: " + this.url + data);
+    public static Map<String, String> jsonToMap(String t) throws JSONException {
+        Map<String, String> map = new HashMap<String, String>();
+        JSONObject jObject = new JSONObject(t);
+        Iterator<?> keys = jObject.keys();
 
-        this.request = (HttpURLConnection) (new URL(this.url + data)).openConnection();
-        this.request.setRequestMethod("GET");
-        this.request.setRequestProperty("Cookie", getCookiesHeader());
-        this.request.setUseCaches(false);
-        this.request.setDoOutput(true);
-        updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+        while (keys.hasNext()){
+            String key = (String) keys.next();
+            String value = jObject.getString(key);
+            map.put(key, value);
+        }
 
-        generateResponse();
-        return this.request.getResponseCode();
+        return map;
     }
 
-    public int post() throws IOException {
-        String data = args2String(this.args);
-        Log.d(LOG_TAG, "post: " + this.url + ", data: " + data);
+    public int get() {
+        String get = null;
 
-        this.request = (HttpURLConnection) (new URL(this.url)).openConnection();
-        this.request.setRequestMethod("POST");
-        this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        this.request.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
-        this.request.setRequestProperty("Cookie", getCookiesHeader());
-        this.request.setUseCaches(false);
-        this.request.setDoInput(true);
-        this.request.setDoOutput(true);
-        this.request.getOutputStream().write(data.getBytes());
-        updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+        try {
+            get = args2String(this.getArgs, true);
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
 
-        generateResponse();
-        return this.request.getResponseCode();
+        Log.d(LOG_TAG, "get: " + this.url + get);
+
+        try {
+            this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
+            this.request.setRequestMethod("GET");
+            this.request.setRequestProperty("Cookie", getCookiesHeader());
+            this.request.setUseCaches(false);
+            this.request.setDoOutput(true);
+            updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+
+            generateResponse();
+            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return getResponseCode();
+    }
+
+    public int post() {
+        String get = null;
+        String post = null;
+
+        try {
+            get = args2String(this.getArgs, true);
+            post = args2String(this.postArgs);
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        Log.d(LOG_TAG, "post: " + this.url + get + ", data: " + post);
+
+        try {
+            this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
+            this.request.setRequestMethod("POST");
+            this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            this.request.setRequestProperty("charset", "utf-8");
+            this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
+            this.request.setRequestProperty("Cookie", getCookiesHeader());
+            this.request.setUseCaches(false);
+            this.request.setDoInput(true);
+            this.request.setDoOutput(true);
+            this.request.getOutputStream().write(post.getBytes());
+            updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
+
+            generateResponse();
+            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return getResponseCode();
     }
 
     public Map<String, List<String>> getHeaders() {
@@ -82,11 +135,32 @@ public class HTTPRequest {
         return this.request.getHeaderField(name);
     }
 
-    public String getResponseMessage(final String name) throws IOException {
+    public int getResponseCode() {
+        if (this.request == null)
+            return Integer.parseInt(null);
+
+        try {
+            return this.request.getResponseCode();
+        }
+        catch (Exception e) {
+                Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return 500;
+    }
+
+    public String getResponseMessage(final String name) {
         if (this.request == null)
             return null;
 
-        return this.request.getResponseMessage();
+        try {
+            return this.request.getResponseMessage();
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return "";
     }
 
     protected void generateResponse() throws IOException {
@@ -102,28 +176,41 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
+    public Map<String, String> getJsonResponse() throws IOException, JSONException { return jsonToMap(response); }
     public String getResponse() throws IOException { return response; }
 
-    protected String args2String(Map<String, String> args) throws UnsupportedEncodingException {
+    protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
+    protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {
         String data = "";
 
         for (String arg : args.keySet())
             data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(args.get(arg), "UTF-8") + "&");
 
-        return data.substring(0, data.equals("") ? 0 : data.length() - 1);
+        return data.equals("") ? "" : (isGet ? "?" : "") + data.substring(0, data.length() - 1);
     }
 
-    public void setArg(final String key, final String value) {
-        this.args.put(key, value);
+    public void setGet(Map<String, String> args) {
+        this.getArgs = args;
     }
 
-    public Boolean delArg(final String key) {
-        if (this.args.containsKey(key))
-            this.args.remove(key);
-        else
-            return false;
+    public void setPost(Map<String, String> args) {
+        this.postArgs = args;
+    }
 
-        return true;
+    public void addGet(final String key, final String value) {
+        this.getArgs.put(key, value);
+    }
+
+    public void addPost(final String key, final String value) {
+        this.postArgs.put(key, value);
+    }
+
+    public Map<String, String> getCookies() {
+        return this.cookies;
+    }
+
+    public void setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
     }
 
     synchronized String getCookiesHeader() {

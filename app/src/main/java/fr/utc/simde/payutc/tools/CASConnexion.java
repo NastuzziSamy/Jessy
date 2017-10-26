@@ -7,15 +7,13 @@ import android.util.Log;
  */
 
 public class CASConnexion {
-    private static final String LOG_TAG = "CASConnexion";
-    private static final String casUrl = "https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc";
-    private static final String service = "http://localhost";
-    private String url;
-    private String username;
-    private String location;
-    private String ticket;
+    private static final String LOG_TAG = "_CASConnexion";
+    private static String url;
+    private static String username;
+    private static String location;
+    private static String ticket;
 
-    public CASConnexion() {
+    public CASConnexion(final NemopaySession nemopaySession) {
         this.url = "";
         this.username = "";
         this.location = "";
@@ -25,7 +23,7 @@ public class CASConnexion {
             @Override
             public void run() {
                 try {
-                    HTTPRequest http = new HTTPRequest(casUrl);
+                    HTTPRequest http = new HTTPRequest("https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc"); // Remettre le getCasUrl
                     http.post();
                     url = http.getResponse();
                     url = url.substring(1, url.length() - 1);
@@ -36,7 +34,11 @@ public class CASConnexion {
         }).start();
     }
 
+    public void setUsername(final String username) { this.username = username; }
     public String getUsername() { return this.username; }
+
+    public String getTicket() { return this.ticket; }
+
     public String getUrl() { return this.url; }
 
     public void connect(final String username, final String password) throws Exception {
@@ -44,26 +46,22 @@ public class CASConnexion {
         this.location = "";
         this.ticket = "";
 
-        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty()) {
+        if (this.url.isEmpty() || username.isEmpty() || password.isEmpty())
             throw new RuntimeException("Elements required");
-        }
 
+        HTTPRequest request = new HTTPRequest(this.url + "v1/tickets/");
+        request.addPost("username", username);
+        request.addPost("password", password);
 
-        HTTPRequest http = new HTTPRequest(this.url + "v1/tickets/");
-        http.setArg("username", username);
-        http.setArg("password", password);
-
-        if (http.post() == 201) {
-            Log.d(LOG_TAG, http.getHeader("Location"));
-            this.location = http.getHeader("Location");
-        }
+        if (request.post() == 201)
+            this.location = request.getHeader("Location");
         else
             throw new RuntimeException("Not Connected");
     }
 
     public Boolean isConnected() { return !this.location.isEmpty(); }
 
-    public void addService() throws Exception {
+    public void addService(final String service) throws Exception {
         this.ticket = "";
 
         if (!isConnected())
@@ -72,13 +70,11 @@ public class CASConnexion {
         if (this.url.isEmpty() || this.username.isEmpty() || this.location.isEmpty())
             throw new RuntimeException("Elements required");
 
-        HTTPRequest http = new HTTPRequest(this.location);
-        http.setArg("service", this.service);
+        HTTPRequest request = new HTTPRequest(this.location);
+        request.addPost("service", service);
 
-        if (http.post() == 200) {
-            this.ticket = http.getResponse();
-            Log.d(LOG_TAG, this.ticket);
-        }
+        if (request.post() == 200)
+            this.ticket = request.getResponse();
         else
             throw new RuntimeException("Service not added");
     }

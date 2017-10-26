@@ -2,7 +2,6 @@ package fr.utc.simde.payutc;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
@@ -14,14 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
@@ -49,7 +44,7 @@ public class MainActivity extends NFCActivity {
         nemopaySession = new NemopaySession();
         casConnexion = new CASConnexion(nemopaySession);
         sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
-
+        
         final String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
             setKey(key);
@@ -63,8 +58,8 @@ public class MainActivity extends NFCActivity {
             public boolean onLongClick(View v) {
                 if (!nemopaySession.isRegistered())
                     addKeyDialog();
-                else // A supprimer = embêtant si les clés sont réinitialisées
-                    delKey();
+                else
+                    unregister();
 
                 return false;
             }
@@ -73,7 +68,7 @@ public class MainActivity extends NFCActivity {
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectDialog();
+                casDialog();
             }
         });
     }
@@ -84,10 +79,25 @@ public class MainActivity extends NFCActivity {
             badgeDialog(idBadge);
     }
 
+    protected void disconnect() {
+        nemopaySession.disconnect();
+        casConnexion.disconnect();
+    }
+
+    protected void unregister() {
+        nemopaySession.unregister();
+        disconnect();
+
+        ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
+        dialog.errorDialog(getResources().getString(R.string.key_registration), getResources().getString(R.string.key_remove_temp));
+    }
+
     protected void delKey() {
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.remove("key");
         edit.apply();
+
+        unregister();
     }
 
     protected void setKey(final String key) {
@@ -103,7 +113,7 @@ public class MainActivity extends NFCActivity {
             @Override
             public void run() {
                 try {
-                    nemopaySession.loginApp(key);
+                    nemopaySession.loginApp(key, casConnexion);
                     Thread.sleep(100);
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
@@ -132,11 +142,40 @@ public class MainActivity extends NFCActivity {
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
         dialog.dismiss();
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_in_connection), true);
+        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_in_url), true);
         loading.setCancelable(false);
         new Thread() {
             @Override
             public void run() {
+                if (casConnexion.getUrl().equals("")) {
+                    try {
+                        if (nemopaySession.getCASUrl() == 200) {
+                            Log.d(LOG_TAG, nemopaySession.getRequest().getResponse());
+                            String url = nemopaySession.getRequest().getResponse();
+                            casConnexion.setUrl(url.substring(1, url.length() - 1));
+                        }
+                        else
+                            throw new Exception("Impossible to get CAS url");
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, e.getMessage());
+                    }
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (casConnexion.getUrl().equals("")) {
+                            loading.dismiss();
+                            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_url));
+                        }
+                        else
+                            loading.setMessage(getResources().getString(R.string.cas_in_connection));
+                    }
+                });
+
+                if (casConnexion.getUrl().equals(""))
+                    return;
+
                 try {
                     casConnexion.connect(username, password);
                     Thread.sleep(100);
@@ -156,50 +195,52 @@ public class MainActivity extends NFCActivity {
                     }
                 });
 
-                if (casConnexion.isConnected()) {
-                    try {
-                        casConnexion.addService(service);
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, e.getMessage());
-                    }
+                if (!casConnexion.isConnected())
+                    return;
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            if (casConnexion.isServiceAdded())
-                                loading.setMessage(getResources().getString(R.string.nemopay_connection));
-                            else {
-                                loading.dismiss();
-                                dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
-                            }
-                        }
-                    });
-
-                    if (casConnexion.isServiceAdded()) {
-                        try {
-                            nemopaySession.loginCas(casConnexion.getTicket(), service);
-                            Thread.sleep(1000);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, e.getMessage());
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                loading.dismiss();
-
-                                if (!nemopaySession.isConnected())
-                                    dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_linking));
-                                else if (!nemopaySession.isRegistered())
-                                    keyDialog();
-                                else
-                                    Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+                try {
+                    casConnexion.addService(service);
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
                 }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (casConnexion.isServiceAdded())
+                            loading.setMessage(getResources().getString(R.string.nemopay_connection));
+                        else {
+                            loading.dismiss();
+                            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_adding));
+                        }
+                    }
+                });
+
+                if (!casConnexion.isServiceAdded())
+                    return;
+
+                try {
+                    nemopaySession.loginCas(casConnexion.getTicket(), service);
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loading.dismiss();
+
+                        if (!nemopaySession.isConnected())
+                            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_linking));
+                        else if (!nemopaySession.isRegistered())
+                            keyDialog();
+                        else
+                            Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }.start();
     }
@@ -250,7 +291,7 @@ public class MainActivity extends NFCActivity {
         }
 
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.already_connected));
+            dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -285,9 +326,9 @@ public class MainActivity extends NFCActivity {
         dialog.createDialog(alertDialogBuilder, pinInput);
     }
 
-    protected void connectDialog() {
+    protected void casDialog() {
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.already_connected));
+            dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -310,7 +351,7 @@ public class MainActivity extends NFCActivity {
 
                         Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
                         dialogInterface.cancel();
-                        connectDialog();
+                        casDialog();
                     }
                     else {
                         try {
@@ -399,7 +440,8 @@ public class MainActivity extends NFCActivity {
                     public void onClick(DialogInterface dialogInterface, int id) {
                         setKey(keyInput.getText().toString());
                     }
-                });
+                })
+                .setNegativeButton(R.string.cancel, null);
 
         dialog.createDialog(alertDialogBuilder, keyInput);
     }

@@ -26,9 +26,11 @@
     <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone.</string>
     <string name="nfc_accessibility">L\'application nécessite que le NFC soit activé pour fonctionner correctement.</string>
     <string name="cas_connection">Connexion via CAS</string>
+    <string name="cas_in_url">Récupération du lien CAS...</string>
     <string name="cas_in_connection">Connexion au CAS...</string>
     <string name="cas_in_service_adding">Ajout du service au CAS...</string>
     <string name="cas_in_service_connection">Connexion au service via le CAS...</string>
+    <string name="cas_error_url">Impossible de joindre le CAS</string>
     <string name="cas_error_connection">Login et/ou mot de passe non reconnu par le CAS</string>
     <string name="cas_error_service_adding">Une erreur a été détectée lors de l\'ajout du service</string>
     <string name="cas_error_service_connection">Erreur lors de la connexion au service depuis le CAS</string>
@@ -50,5 +52,6 @@
     <string name="key_description">Description</string>
     <string name="key_name_required">Nom requis !</string>
     <string name="key_add_explication">Il est possible d\'ajouter directement une clé d\'application si celle-ci est connue</string>
-    <string name="already_connected">Déjà connecté !</string>
+    <string name="key_remove_temp">L\'application a été désauthentifiée temporairement. Il suffit de relancer l\'application pour qu\'elle soit de nouveau connectée</string>
+    <string name="already_connected">Déjà connecté sous</string>
 </resources>

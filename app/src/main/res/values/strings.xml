@@ -38,7 +38,7 @@
     <string name="badge_connection">Connexion via badge</string>
     <string name="badge_app_not_registered">Il est nécessaire que l\'application soit enregistrée pour permettre la connexion via badge</string>
     <string name="badge_recognization">Authentification du badge...</string>
-    <string name="badge_error_no_rights">Impossible de vérifier le badge, l\'application n\'a pas les droits nécessaires</string>
+    <string name="badge_error_no_rights">Impossible de vérifier le badge</string>
     <string name="badge_pin_error_not_recognized">Badge ou code PIN non reconnu</string>
     <string name="nemopay_connection">Connexion à Nemopay</string>
     <string name="nemopay_authentification">Authentification de l\'application</string>
@@ -54,4 +54,17 @@
     <string name="key_add_explication">Il est possible d\'ajouter directement une clé d\'application si celle-ci est connue</string>
     <string name="key_remove_temp">L\'application a été désauthentifiée temporairement. Il suffit de relancer l\'application pour qu\'elle soit de nouveau connectée</string>
     <string name="already_connected">Déjà connecté sous</string>
+
+    <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
+    <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
+    <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
+    <string-array name="rights_keys">
+        <item>all</item>
+        <item>sale</item>
+    </string-array>
+
+    <string-array name="rights_values">
+        <item>Tous les droits</item>
+        <item>Vente physique</item>
+    </string-array>
 </resources>

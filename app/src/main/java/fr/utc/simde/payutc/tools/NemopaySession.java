@@ -1,25 +1,13 @@
 package fr.utc.simde.payutc.tools;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import fr.utc.simde.payutc.MainActivity;
-import fr.utc.simde.payutc.R;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -67,93 +55,111 @@ public class NemopaySession {
     public String getUsername() { return username; }
     public HTTPRequest getRequest() { return this.request; }
 
-    public void getCasUrl() throws IOException {
-        request("POSS3", "getCasUrl");
+    public int getCASUrl() throws IOException {
+        return request("POSS3", "getCasUrl");
     }
 
-    public void registerApp(final String name, final String description, final String service) throws IOException, JSONException {
-        request("KEY", "registerApplication", new HashMap<String, String>() {{
+    public int registerApp(final String name, final String description, final String service) throws IOException, JSONException {
+        int reponseCode = request("KEY", "registerApplication", new HashMap<String, String>() {{
             put("app_url", service);
             put("app_name", name);
             put("app_desc", description);
         }});
 
-        if (request.getResponseCode() == 200 && request.isJsonResponse())
-            this.key = request.getJsonResponse().get("app_key");
+        if (reponseCode == 200 && this.request.isJsonResponse())
+            this.key = this.request.getJsonResponse().getString("app_key");
 
-        this.request = request;
+        return reponseCode;
     }
 
-    public void loginApp(final String key) throws Exception {
-        request("POSS3", "loginApp", new HashMap<String, String>() {{
+    public int loginApp(final String key, CASConnexion casConnexion) throws Exception {
+        int reponseCode = loginApp(key);
+
+        JSONObject response = getRequest().getJsonResponse();
+        if (response.has("config") && ((JSONObject) response.get("config")).has("cas_url"))
+            casConnexion.setUrl(((JSONObject) response.get("config")).getString("cas_url"));
+        else
+            throw new Exception("No correct informations");
+
+        return reponseCode;
+    }
+    public int loginApp(final String key) throws Exception {
+        int reponseCode = request("POSS3", "loginApp", new HashMap<String, String>() {{
             put("key", key);
         }});
 
-        Map<String, String> response;
-        if (request.getResponseCode() == 200 && request.isJsonResponse())
-            response = request.getJsonResponse();
+        JSONObject response;
+        if (reponseCode == 200 && this.request.isJsonResponse())
+            response = this.request.getJsonResponse();
         else
             throw new Exception("Not authentified");
 
-        if (response.containsKey("sessionid") && response.containsKey("name")) {
-            this.session = response.get("sessionid");
-            this.name = response.get("name");
+        if (response.has("sessionid") && response.has("name")) {
+            this.session = response.getString("sessionid");
+            this.name = response.getString("name");
             this.key = key;
         }
         else
             throw new Exception("No correct informations");
+
+        return reponseCode;
     }
 
-    public void loginBadge(final String idBadge, final String pin) throws Exception {
-        request("POSS3", "loginBadge2", new HashMap<String, String>() {{
+    public int loginBadge(final String idBadge, final String pin) throws Exception {
+        int reponseCode = request("POSS3", "loginBadge2", new HashMap<String, String>() {{
             put("badge_id", idBadge);
             put("pin", pin);
         }});
 
-        Map<String, String> response;
-        if (request.getResponseCode() == 200 && request.isJsonResponse())
-            response = request.getJsonResponse();
+        JSONObject response;
+        if (reponseCode == 200 && this.request.isJsonResponse())
+            response = this.request.getJsonResponse();
         else
             throw new Exception("Not connected");
 
-        if (response.containsKey("sessionid") && response.containsKey("username")) {
-            this.session = response.get("sessionid");
-            this.username = response.get("username");
+        if (response.has("sessionid") && response.has("username")) {
+            this.session = response.getString("sessionid");
+            this.username = response.getString("username");
         }
         else
             throw new Exception("No correct informations");
+
+        return reponseCode;
     }
 
-    public void loginCas(final String ticket, final String service) throws Exception {
-        request("POSS3", "loginCas2", new HashMap<String, String>() {{
+    public int loginCas(final String ticket, final String service) throws Exception {
+        int reponseCode = request("POSS3", "loginCas2", new HashMap<String, String>() {{
             put("ticket", ticket);
             put("service", service);
         }});
 
-        Map<String, String> response;
-        if (request.getResponseCode() == 200 && request.isJsonResponse())
-            response = request.getJsonResponse();
+        JSONObject response;
+        if (reponseCode == 200 && this.request.isJsonResponse())
+            response = this.request.getJsonResponse();
         else
             throw new Exception("Not connected");
 
-        if (response.containsKey("sessionid") && response.containsKey("username")) {
-            this.session = response.get("sessionid");
-            this.username = response.get("username");
+        if (response.has("sessionid") && response.has("username")) {
+            this.session = response.getString("sessionid");
+            this.username = response.getString("username");
         }
         else
             throw new Exception("No correct informations");
+
+        return reponseCode;
     }
 
-    protected void request(final String method, final String service) throws IOException { request(method, service, new HashMap<String, String>()); }
-    protected void request(final String method, final String service, final Map<String, String> postArgs) throws IOException {
-        HTTPRequest request = new HTTPRequest(url + method + "/" + service);
+    protected int request(final String method, final String service) throws IOException { return request(method, service, new HashMap<String, String>()); }
+    protected int request(final String method, final String service, final Map<String, String> postArgs) throws IOException {
         Log.d(LOG_TAG, "url: " + url + method + "/" + service);
-        request.setGet(getArgs);
-        request.setPost(postArgs);
-        request.setCookies(this.cookies);
+        this.request = new HTTPRequest(url + method + "/" + service);
+        this.request.setGet(getArgs);
+        this.request.setPost(postArgs);
+        this.request.setCookies(this.cookies);
 
-        request.post();
+        int reponseCode = this.request.post();
         this.cookies = request.getCookies();
-        this.request = request;
+
+        return reponseCode;
     }
 }

@@ -40,9 +40,11 @@
     <string name="nemopay_registering">Enregistrement de l\'application</string>
     <string name="nemopay_already_registered">Application déjà authentifiée</string>
     <string name="nemopay_error_registering">Application non enregistrée</string>
+    <string name="key">Clé d\'application</string>
     <string name="key_dialog">Enregistrement de l\'appareil</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>
     <string name="key_name">Nom - Date</string>
     <string name="key_description">Description</string>
     <string name="key_name_required">Nom requis !</string>
+    <string name="key_add_explication">Il est possible d\'ajouter directement une clé d\'application si celle-ci est connue</string>
 </resources>

@@ -4,6 +4,9 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
@@ -18,8 +21,7 @@ public class FoundationListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundation_list);
 
-        final ProgressDialog loading = ProgressDialog.show(FoundationListActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification), true);
-        loading.setCancelable(false);
+        dialog.startLoading(FoundationListActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
         new Thread() {
             @Override
             public void run() {
@@ -34,11 +36,13 @@ public class FoundationListActivity extends BaseActivity {
                     @Override
                     public void run() {
                         HTTPRequest request = nemopaySession.getRequest();
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         try {
+
                             if (request.getResponseCode() == 200 && request.isJsonResponse())
-                                return; // setFoundationList(request.getJsonResponse();
+                                Log.d(LOG_TAG, "Liste acquise");
+                                // setFoundationList(request.getJsonResponse();
                             else
                                 dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
                         } catch (Exception e) {

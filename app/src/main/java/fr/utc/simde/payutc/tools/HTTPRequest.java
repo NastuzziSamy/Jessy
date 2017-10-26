@@ -6,6 +6,7 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -171,19 +172,23 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
-    public JSONObject getJsonResponse() throws IOException, JSONException { return new JSONObject(response); }
-    public String getResponse() throws IOException { return response; }
-
     public Boolean isJsonResponse() {
+        if (request == null)
+            return null;
+
+        return request.getContentType() == "application/json";
+    }
+
+    public JSONObject getJsonResponse() throws IOException, JSONException {
         try {
-            new JSONObject(response);
+            return new JSONObject(response);
         }
         catch (Exception e) {
-            return false;
+            return new JSONArray(response);
         }
-
-        return true;
     }
+
+    public String getResponse() throws IOException { return response; }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
     protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {

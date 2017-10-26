@@ -49,12 +49,7 @@ public class MainActivity extends NFCActivity {
         nemopaySession = new NemopaySession();
         casConnexion = new CASConnexion(nemopaySession);
         sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
-/*
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putString("key", "");
-        edit.remove("key");
-        edit.apply();
-*/
+
         final String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
             setKey(key);
@@ -86,7 +81,13 @@ public class MainActivity extends NFCActivity {
         badgeDialog(idBadge);
     }
 
-    public void setKey(final String key) {
+    protected void delKey() {
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.remove("key");
+        edit.apply();
+    }
+
+    protected void setKey(final String key) {
         if (nemopaySession.isRegistered()) {
             dialog.errorDialog(getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_already_registered));
             return;

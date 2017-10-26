@@ -6,6 +6,9 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +29,7 @@ public class HTTPRequest {
 
     private Map<String, String> postArgs;
     private Map<String, String> getArgs;
-    private static Map<String, String> cookies;
+    private Map<String, String> cookies;
 
     public HTTPRequest(final String url) {
         this.url = url;
@@ -34,6 +38,20 @@ public class HTTPRequest {
         this.postArgs = new HashMap<String, String>();
         this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
+    }
+
+    public static Map<String, String> jsonToMap(String t) throws JSONException {
+        Map<String, String> map = new HashMap<String, String>();
+        JSONObject jObject = new JSONObject(t);
+        Iterator<?> keys = jObject.keys();
+
+        while (keys.hasNext()){
+            String key = (String) keys.next();
+            String value = jObject.getString(key);
+            map.put(key, value);
+        }
+
+        return map;
     }
 
     public int get() throws IOException {
@@ -60,6 +78,7 @@ public class HTTPRequest {
         this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
         this.request.setRequestMethod("POST");
         this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        this.request.setRequestProperty("charset", "utf-8");
         this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
         this.request.setRequestProperty("Cookie", getCookiesHeader());
         this.request.setUseCaches(false);
@@ -114,6 +133,7 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
+    public Map<String, String> getJsonResponse() throws IOException, JSONException { return jsonToMap(response); }
     public String getResponse() throws IOException { return response; }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
@@ -140,6 +160,14 @@ public class HTTPRequest {
 
     public void addPost(final String key, final String value) {
         this.postArgs.put(key, value);
+    }
+
+    public Map<String, String> getCookies() {
+        return this.cookies;
+    }
+
+    public void setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
     }
 
     synchronized String getCookiesHeader() {

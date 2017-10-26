@@ -4,17 +4,22 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NFCActivity;
@@ -24,12 +29,12 @@ import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends NFCActivity {
     private static final String LOG_TAG = "_MainActivity";
-    private static final String service = "http://assos.utc.fr";
-    private static Boolean registered = false;
-
+    private static final String service = "https://assos.utc.fr";
     private static Dialog dialog;
+
     private static NemopaySession nemopaySession;
     private static CASConnexion casConnexion;
+    private static SharedPreferences sharedPreferences;
 
     private static TextView AppConfigText;
     private static TextView AppRegisteredText;
@@ -43,10 +48,25 @@ public class MainActivity extends NFCActivity {
         dialog = new Dialog(MainActivity.this);
         nemopaySession = new NemopaySession();
         casConnexion = new CASConnexion(nemopaySession);
+        sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
+
+        final String key = sharedPreferences.getString("key", "");
+        if (!key.equals(""))
+            setKey(key);
 
         AppConfigText = findViewById(R.id.text_app_config);
         AppRegisteredText = findViewById(R.id.text_app_registered);
         usernameButton = findViewById(R.id.button_username);
+
+        AppRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!nemopaySession.isRegistered())
+                    addKeyDialog();
+
+                return false;
+            }
+        });
 
         usernameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,9 +81,49 @@ public class MainActivity extends NFCActivity {
         badgeDialog(idBadge);
     }
 
-    protected void setRegistered(boolean registered) {
-        this.registered = registered;
-        AppRegisteredText.setText(registered ? R.string.app_registred : R.string.app_not_registred);
+    protected void delKey() {
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.remove("key");
+        edit.apply();
+    }
+
+    protected void setKey(final String key) {
+        if (nemopaySession.isRegistered()) {
+            dialog.errorDialog(getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_already_registered));
+            return;
+        }
+
+        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_authentification), true);
+        loading.setCancelable(false);
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.loginApp(key);
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loading.dismiss();
+
+                        if (nemopaySession.isRegistered()) {
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("key", key);
+                            editor.apply();
+
+                            ((TextView) findViewById(R.id.text_app_registered)).setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
+                        }
+                        else
+                            dialog.errorDialog(getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_error_registering));
+                    }
+                });
+            }
+        }.start();
     }
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
@@ -119,16 +179,20 @@ public class MainActivity extends NFCActivity {
                             HTTPRequest request = nemopaySession.loginCas(casConnexion.getTicket(), service);
                             Thread.sleep(1000);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(LOG_TAG, e.getMessage());
                         }
 
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 loading.dismiss();
-                                /*
-                                if (casConnexion.isServiceAdded())
-                                    loading.setMessage(getResources().getString(R.string.nemopay_connection));*/
+
+                                if (!nemopaySession.isConnected())
+                                    dialog.errorDialog(getResources().getString(R.string.cas_connection), getResources().getString(R.string.cas_error_service_linking));
+                                else if (!nemopaySession.isRegistered())
+                                    keyDialog();
+                                else
+                                    Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -140,7 +204,7 @@ public class MainActivity extends NFCActivity {
     protected void connectWithBadge(final String idBadge, final String pin) {
         dialog.dismiss();
 
-        if (registered) {
+        if (nemopaySession.isRegistered()) {
             final ProgressDialog ringProgressDialog = ProgressDialog.show(MainActivity.this, "Connexion ...", "A faire ...", true);
             ringProgressDialog.setCancelable(false);
             new Thread(new Runnable() {
@@ -149,6 +213,7 @@ public class MainActivity extends NFCActivity {
                     try {
                         Thread.sleep(2000);
                     } catch (Exception e) {
+                        Log.e(LOG_TAG, e.getMessage());
                     }
                     ringProgressDialog.dismiss();
                 }
@@ -157,7 +222,7 @@ public class MainActivity extends NFCActivity {
     }
 
     protected void badgeDialog(final String idBadge) {
-        if (!registered) {
+        if (!nemopaySession.isRegistered()) {
             dialog.errorDialog(getResources().getString(R.string.badge_connection), getResources().getString(R.string.badge_app_not_registered));
             return;
         }
@@ -171,22 +236,22 @@ public class MainActivity extends NFCActivity {
             .setView(pinView)
             .setCancelable(true)
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
+                public void onClick(DialogInterface dialogInterface, int id) {
                     if (pinInput.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, R.string.pin_required, Toast.LENGTH_SHORT).show();
-                        dialog.cancel();
+                        dialogInterface.cancel();
                         badgeDialog(idBadge);
                     }
                     else {
                         connectWithBadge(idBadge, pinInput.getText().toString());
-                        dialog.cancel();
+                        dialogInterface.cancel();
                     }
                 }
             })
             .setNeutralButton(R.string.no_pin, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
+                public void onClick(DialogInterface dialogInterface, int id) {
                     connectWithBadge(idBadge, "0000");
-                    dialog.cancel();
+                    dialogInterface.cancel();
                 }
             });
 
@@ -206,31 +271,104 @@ public class MainActivity extends NFCActivity {
             .setView(usernameView)
             .setCancelable(false)
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
+                public void onClick(DialogInterface dialogInterface, int id) {
                     if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
                         if (!usernameInput.getText().toString().equals(""))
                             casConnexion.setUsername(usernameInput.getText().toString());
 
                         Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
-                        dialog.cancel();
+                        dialogInterface.cancel();
                         connectDialog();
                     }
                     else {
                         try {
                             connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, e.getMessage());
                         }
-                        dialog.cancel();
+                        dialogInterface.cancel();
                     }
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.cancel();
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    dialogInterface.cancel();
                 }
             });
 
         dialog.createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);
+    }
+
+    protected void keyDialog() {
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key, null);
+        final EditText nameInput = keyView.findViewById(R.id.input_name);
+        final EditText descriptionInput = keyView.findViewById(R.id.input_description);
+        final String date = new SimpleDateFormat("yyyy/MM/dd", Locale.FRANCE).format(new Date());
+
+        nameInput.setText("Téléphone de " + casConnexion.getUsername() + " - " + date);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+            .setTitle(R.string.key_dialog)
+            .setView(keyView)
+            .setCancelable(false)
+            .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    if (nameInput.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, R.string.key_name_required, Toast.LENGTH_SHORT).show();
+                        dialogInterface.cancel();
+                        keyDialog();
+                    }
+                    else {
+                        dialogInterface.cancel();
+
+                        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_registering), true);
+                        loading.setCancelable(false);
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    nemopaySession.registerApp(nameInput.getText().toString() + (nameInput.getText().toString().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? "" : " - " + date), descriptionInput.getText().toString(), service);
+                                    Thread.sleep(100);
+                                } catch (Exception e) {
+                                    Log.e(LOG_TAG, e.getMessage());
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loading.dismiss();
+
+                                        if (nemopaySession.getKey().isEmpty())
+                                            dialog.errorDialog(getResources().getString(R.string.nemopay_connection), getResources().getString(R.string.nemopay_error_registering));
+                                        else
+                                            setKey(nemopaySession.getKey());
+                                    }
+                                });
+                            }
+                        }.start();
+                    }
+                }
+            });
+
+        dialog.createDialog(alertDialogBuilder, nameInput);
+    }
+
+    protected void addKeyDialog() {
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+        final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+                .setTitle(R.string.key_dialog)
+                .setView(keyView)
+                .setCancelable(false)
+                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        setKey(keyInput.getText().toString());
+                    }
+                });
+
+        dialog.createDialog(alertDialogBuilder);
     }
 }

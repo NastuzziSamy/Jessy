@@ -50,5 +50,6 @@
     <string name="key_description">Description</string>
     <string name="key_name_required">Nom requis !</string>
     <string name="key_add_explication">Il est possible d\'ajouter directement une clé d\'application si celle-ci est connue</string>
+    <string name="key_remove_temp">L\'application a été désauthentifiée temporairement. Il suffit de relancer l\'application pour qu\'elle soit de nouveau connectée</string>
     <string name="already_connected">Déjà connecté !</string>
 </resources>

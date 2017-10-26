@@ -50,8 +50,21 @@ public class NemopaySession {
     public Boolean isConnected() { return !this.session.isEmpty() && !this.username.isEmpty(); }
     public Boolean isRegistered() { return !this.name.isEmpty() && !this.key.isEmpty() && !this.session.isEmpty(); }
 
+    public void disconnect() {
+        this.session = "";
+        this.username = "";
+    }
+
+    public void unregister() {
+        this.name = "";
+        this.key = "";
+
+        disconnect();
+    }
+
     public String getName() { return this.name; }
     public String getKey() { return this.key; }
+    public HTTPRequest getRequest() { return this.request; }
 
     public void getCasUrl() throws IOException {
         request("POSS3", "getCasUrl");
@@ -118,8 +131,6 @@ public class NemopaySession {
         else
             throw new Exception("Not connected");
     }
-
-    public HTTPRequest getRequest() { return this.request; }
 
     protected void request(final String method, final String service) throws IOException { request(method, service, new HashMap<String, String>()); }
     protected void request(final String method, final String service, final Map<String, String> postArgs) throws IOException {

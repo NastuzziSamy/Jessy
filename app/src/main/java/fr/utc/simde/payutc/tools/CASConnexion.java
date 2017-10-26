@@ -18,28 +18,13 @@ public class CASConnexion {
         this.username = "";
         this.location = "";
         this.ticket = "";
-
-        new Thread(new Runnable(){
-            @Override
-            public void run() {
-                try {
-                    HTTPRequest http = new HTTPRequest("https://api.nemopay.net/services/POSS3/getCasUrl?system_id=payutc"); // Remettre le getCasUrl
-                    http.post();
-                    url = http.getResponse();
-                    url = url.substring(1, url.length() - 1);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
-                }
-            }
-        }).start();
     }
 
     public void setUsername(final String username) { this.username = username; }
     public String getUsername() { return this.username; }
-
     public String getTicket() { return this.ticket; }
-
     public String getUrl() { return this.url; }
+    public void setUrl(final String url) { this.url = url; }
 
     public void connect(final String username, final String password) throws Exception {
         this.username = username;

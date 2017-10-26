@@ -17,18 +17,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import fr.utc.simde.payutc.tools.NFCActivity;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
-public class MainActivity extends NFCActivity {
+public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";
-    private static Dialog dialog;
 
-    private static NemopaySession nemopaySession;
-    private static CASConnexion casConnexion;
     private static SharedPreferences sharedPreferences;
 
     private static TextView AppConfigText;
@@ -79,17 +75,10 @@ public class MainActivity extends NFCActivity {
             badgeDialog(idBadge);
     }
 
-    protected void disconnect() {
-        nemopaySession.disconnect();
-        casConnexion.disconnect();
-    }
-
+    @Override
     protected void unregister() {
-        nemopaySession.unregister();
-        disconnect();
-
+        super.unregister();
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
-        dialog.errorDialog(getString(R.string.key_registration), getString(R.string.key_remove_temp));
     }
 
     protected void delKey() {
@@ -116,7 +105,7 @@ public class MainActivity extends NFCActivity {
                     nemopaySession.loginApp(key, casConnexion);
                     Thread.sleep(100);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
                 }
 
                 runOnUiThread(new Runnable() {
@@ -157,7 +146,7 @@ public class MainActivity extends NFCActivity {
                         else
                             throw new Exception("Impossible to get CAS url");
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, e.getMessage());
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
                     }
                 }
 
@@ -180,7 +169,7 @@ public class MainActivity extends NFCActivity {
                     casConnexion.connect(username, password);
                     Thread.sleep(100);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
                 }
 
                 runOnUiThread(new Runnable() {
@@ -202,7 +191,7 @@ public class MainActivity extends NFCActivity {
                     casConnexion.addService(service);
                     Thread.sleep(100);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
                 }
 
                 runOnUiThread(new Runnable() {
@@ -225,7 +214,7 @@ public class MainActivity extends NFCActivity {
                     nemopaySession.loginCas(casConnexion.getTicket(), service);
                     Thread.sleep(1000);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
                 }
 
                 runOnUiThread(new Runnable() {
@@ -260,7 +249,7 @@ public class MainActivity extends NFCActivity {
                     nemopaySession.loginBadge(idBadge, pin);
                     Thread.sleep(100);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
                 }
 
                 runOnUiThread(new Runnable() {
@@ -276,7 +265,7 @@ public class MainActivity extends NFCActivity {
                             else
                                 dialog.errorDialog(getString(R.string.badge_dialog), getString(R.string.badge_error_no_rights) + ".\n" + nemopaySession.needRights(MainActivity.this));
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, e.getMessage());
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
                         }
                     }
                 });
@@ -357,7 +346,7 @@ public class MainActivity extends NFCActivity {
                         try {
                             connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, e.getMessage());
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
                         }
                         dialogInterface.cancel();
                     }
@@ -404,7 +393,7 @@ public class MainActivity extends NFCActivity {
                                     nemopaySession.registerApp(nameInput.getText().toString() + (nameInput.getText().toString().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? "" : " - " + date), descriptionInput.getText().toString(), service);
                                     Thread.sleep(100);
                                 } catch (Exception e) {
-                                    Log.e(LOG_TAG, e.getMessage());
+                                    Log.e(LOG_TAG, "error: " + e.getMessage());
                                 }
 
                                 runOnUiThread(new Runnable() {

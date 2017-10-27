@@ -21,6 +21,9 @@
     <string name="no_pin">Pas de PIN</string>
     <string name="pin_required">Code PIN requis !</string>
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
+
+    <string name="error_unexpected">Une erreur improbable a eu lieu</string>
+
     <string name="nfc_not_available">NFC non disponible</string>
     <string name="nfc_not_enabled">NFC non activé</string>
     <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone.</string>

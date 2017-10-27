@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,41 +29,18 @@ public class FoundationListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundation_list);
 
-        dialog.startLoading(FoundationListActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    nemopaySession.getFoundations();
-                    Thread.sleep(100);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
+        try {
+            setFoundationList(new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
+        } catch (Exception e) {
+            Log.wtf(LOG_TAG, "error: " + e.getMessage());
+            dialog.errorDialog(getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected));
+            /*, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    finish();
                 }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        HTTPRequest request = nemopaySession.getRequest();
-                        dialog.stopLoading();
-
-                        try {
-                            if (request.getResponseCode() != 200)
-                                throw new Exception("Malformed JSON");
-
-                            JsonNode foundationList = request.getJsonResponse();
-
-                            if (!request.isJsonResponse() || !foundationList.isArray())
-                                throw new Exception("JSON unexpected");
-
-                            setFoundationList(foundationList);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "error: " + e.getMessage());
-                            dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
-                        }
-                    }
-                });
-            }
-        }.start();
+            }*/
+        }
     }
 
     @Override
@@ -75,7 +53,7 @@ public class FoundationListActivity extends BaseActivity {
         disconnect();
     }
 
-    protected void setFoundationList(JsonNode foundationList) throws Exception {
+    protected void setFoundationList(final JsonNode foundationList) throws Exception {
         LinearLayout linearLayout = findViewById(R.id.foundationList);
 
         for (final JsonNode foundation : foundationList) {

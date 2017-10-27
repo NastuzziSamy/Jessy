@@ -17,7 +17,7 @@ import fr.utc.simde.payutc.tools.NemopaySession;
  */
 
 public abstract class BaseActivity extends NFCActivity {
-    private static final String LOG_TAG = "_LOG_TAG";
+    private static final String LOG_TAG = "_BaseActivity";
     protected static Dialog dialog;
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
@@ -76,13 +76,22 @@ public abstract class BaseActivity extends NFCActivity {
                                 throw new Exception("JSON unexpected");
 
                             if (foundationList.size() == 0) {
+                                dialog.stopLoading();
                                 fatal(activity, getString(R.string.information_collection), nemopaySession.getUsername() + " " + getString(R.string.user_no_rights));
+
                                 return;
                             }
 
                             for (final JsonNode foundation : foundationList) {
                                 if (!foundation.has("name") || !foundation.has("fun_id"))
                                     throw new Exception("Unexpected JSON");
+                            }
+
+                            if (foundationList.size() == 1) {
+                                dialog.stopLoading();
+                                nemopaySession.setFoundation(foundationList.get(0).get("fun_id").intValue());
+                                Log.d(LOG_TAG, String.valueOf(foundationList.get(0).get("fun_id").intValue()));
+                                return;
                             }
 
                             Intent intent = new Intent(activity, FoundationListActivity.class);

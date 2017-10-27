@@ -62,7 +62,7 @@ public class FoundationListActivity extends BaseActivity {
                 throw new Exception("Unexpected JSON");
 
             foundationButton.setText(foundation.get("name").textValue());
-            foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").asInt()));
+            foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").intValue()));
 
             linearLayout.addView(foundationButton);
         }

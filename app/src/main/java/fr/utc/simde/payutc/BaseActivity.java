@@ -1,5 +1,7 @@
 package fr.utc.simde.payutc;
 
+import android.app.Activity;
+
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;
@@ -19,10 +21,10 @@ public abstract class BaseActivity extends NFCActivity {
         casConnexion.disconnect();
     }
 
-    protected void unregister() {
+    protected void unregister(Activity activity) {
         nemopaySession.unregister();
         disconnect();
 
-        dialog.errorDialog(getString(R.string.key_registration), getString(R.string.key_remove_temp));
+        dialog.errorDialog(activity, getString(R.string.key_registration), getString(R.string.key_remove_temp));
     }
 }

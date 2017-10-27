@@ -57,7 +57,7 @@ public class FoundationListActivity extends BaseActivity {
                             setFoundationList(foundationList);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
-                            dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
+                            dialog.errorDialog(FoundationListActivity.this, getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
                         }
                     }
                 });

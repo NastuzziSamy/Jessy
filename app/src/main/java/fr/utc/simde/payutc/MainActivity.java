@@ -56,7 +56,7 @@ public class MainActivity extends BaseActivity {
                 if (!nemopaySession.isRegistered())
                     addKeyDialog();
                 else
-                    unregister();
+                    unregister(MainActivity.this);
 
                 return false;
             }
@@ -77,8 +77,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void unregister() {
-        super.unregister();
+    protected void unregister(Activity activity) {
+        super.unregister(activity);
 
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
     }
@@ -88,12 +88,12 @@ public class MainActivity extends BaseActivity {
         edit.remove("key");
         edit.apply();
 
-        unregister();
+        unregister(MainActivity.this);
     }
 
     protected void setKey(final String key) {
         if (nemopaySession.isRegistered()) {
-            dialog.errorDialog(getString(R.string.nemopay_connection), getString(R.string.nemopay_already_registered));
+            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_already_registered));
             return;
         }
 
@@ -121,7 +121,7 @@ public class MainActivity extends BaseActivity {
                             ((TextView) findViewById(R.id.text_app_registered)).setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
                         }
                         else
-                            dialog.errorDialog(getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
                     }
                 });
             }
@@ -156,7 +156,7 @@ public class MainActivity extends BaseActivity {
                     public void run() {
                         if (casConnexion.getUrl().equals("")) {
                             dialog.stopLoading();
-                            dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_url));
+                            dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_error_url));
                         }
                         else
                             dialog.changeLoading(getString(R.string.cas_in_connection));
@@ -180,7 +180,7 @@ public class MainActivity extends BaseActivity {
                             dialog.changeLoading(getString(R.string.cas_in_service_adding));
                         else {
                             dialog.stopLoading();
-                            dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_connection));
+                            dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_error_connection));
                         }
                     }
                 });
@@ -202,7 +202,7 @@ public class MainActivity extends BaseActivity {
                             dialog.changeLoading(getString(R.string.nemopay_connection));
                         else {
                             dialog.stopLoading();
-                            dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_adding));
+                            dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_error_service_adding));
                         }
                     }
                 });
@@ -223,7 +223,7 @@ public class MainActivity extends BaseActivity {
                         dialog.stopLoading();
 
                         if (!nemopaySession.isConnected())
-                            dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_linking));
+                            dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_error_service_linking));
                         else if (!nemopaySession.isRegistered())
                             keyDialog();
                         else
@@ -258,9 +258,9 @@ public class MainActivity extends BaseActivity {
                             if (nemopaySession.isConnected())
                                 startFoundationListActivity();
                             else if (nemopaySession.getRequest().getResponseCode() == 400)
-                                dialog.errorDialog(getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
+                                dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
                             else
-                                dialog.errorDialog(getString(R.string.badge_dialog), getString(R.string.badge_error_no_rights) + ".\n" + nemopaySession.needRights(MainActivity.this));
+                                dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_error_no_rights) + ".\n" + nemopaySession.needRights(MainActivity.this));
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
                         }
@@ -272,12 +272,12 @@ public class MainActivity extends BaseActivity {
 
     protected void badgeDialog(final String idBadge) {
         if (!nemopaySession.isRegistered()) {
-            dialog.errorDialog(getString(R.string.badge_connection), getString(R.string.badge_app_not_registered));
+            dialog.errorDialog(MainActivity.this, getString(R.string.badge_connection), getString(R.string.badge_app_not_registered));
             return;
         }
 
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getString(R.string.badge_connection), getString(R.string.already_connected) + " " + nemopaySession.getUsername());
+            dialog.errorDialog(MainActivity.this, getString(R.string.badge_connection), getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -309,7 +309,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                connectWithBadge(idBadge, "0000");
+                dialog.errorDialog(MainActivity.this, getResources().getString(R.string.badge_connection), getResources().getString(R.string.badge_pin_not_initialized));
             }
         });
 
@@ -318,7 +318,7 @@ public class MainActivity extends BaseActivity {
 
     protected void casDialog() {
         if (nemopaySession.isConnected()) {
-            dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.already_connected) + " " + nemopaySession.getUsername());
+            dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
 
@@ -403,7 +403,7 @@ public class MainActivity extends BaseActivity {
                                         loading.dismiss();
 
                                         if (nemopaySession.getKey().isEmpty())
-                                            dialog.errorDialog(getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                                            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
                                         else
                                             setKey(nemopaySession.getKey());
                                     }

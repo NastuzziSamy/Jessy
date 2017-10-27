@@ -3,11 +3,10 @@ package fr.utc.simde.payutc.tools;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.text.method.LinkMovementMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import fr.utc.simde.payutc.R;
 
@@ -74,13 +73,14 @@ public class Dialog {
         }
     }
 
-    public void errorDialog(final Activity activity, final String title, final String message) {
+    public void errorDialog(final Activity activity, final String title, final String message) { errorDialog(activity, title, message, null); }
+    public void errorDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onClickListener) {
         this.alertDialogBuilder = new AlertDialog.Builder(activity);
         this.alertDialogBuilder
             .setTitle(title)
             .setMessage(message)
             .setCancelable(true)
-            .setNegativeButton(R.string.ok, null);
+            .setNegativeButton(R.string.ok, onClickListener);
 
         createDialog();
     }

@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
+import android.text.method.LinkMovementMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import fr.utc.simde.payutc.R;
 
@@ -72,13 +74,13 @@ public class Dialog {
         }
     }
 
-    public void errorDialog(final String title, final String message) {
-        this.alertDialogBuilder = new AlertDialog.Builder(this.activity);
+    public void errorDialog(final Activity activity, final String title, final String message) {
+        this.alertDialogBuilder = new AlertDialog.Builder(activity);
         this.alertDialogBuilder
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(true)
-                .setNegativeButton(R.string.ok, null);
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(true)
+            .setNegativeButton(R.string.ok, null);
 
         createDialog();
     }

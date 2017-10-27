@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc.tools;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.view.inputmethod.InputMethodManager;
@@ -17,6 +18,7 @@ public class Dialog {
     private static Activity activity;
     private static AlertDialog alertDialog;
     private static AlertDialog.Builder alertDialogBuilder;
+    private static ProgressDialog loading;
 
     public Dialog(final Activity activity) {
         this.activity = activity;
@@ -25,9 +27,15 @@ public class Dialog {
     public void dismiss() {
         if (this.alertDialog != null)
             this.alertDialog.dismiss();
+
+        if (this.loading != null)
+            this.loading.dismiss();
+
+        this.alertDialog = null;
+        this.loading = null;
     }
 
-    public Boolean isShowing() { return this.alertDialog != null && this.alertDialog.isShowing(); }
+    public Boolean isShowing() { return (this.alertDialog != null && this.alertDialog.isShowing()) || (this.loading != null && this.loading.isShowing()); }
 
     public void createDialog() { createDialog((EditText) null); }
     public void createDialog(AlertDialog.Builder alertDialogBuilder) { createDialog(alertDialogBuilder, null); }
@@ -75,4 +83,19 @@ public class Dialog {
         createDialog();
     }
 
+    public void startLoading(Activity activity, final String title, final String message) {
+        dismiss();
+        this.loading = ProgressDialog.show(activity, title, message, true, false);
+    }
+
+    public void changeLoading(final String message) {
+        this.loading.setMessage(message);
+    }
+
+    public void stopLoading() {
+        if (this.loading != null)
+          this.loading.dismiss();
+
+        this.loading = null;
+    }
 }

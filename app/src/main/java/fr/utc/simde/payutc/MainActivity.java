@@ -3,7 +3,6 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -77,7 +76,7 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void unregister(Activity activity) {
+    protected void unregister(final Activity activity) {
         super.unregister(activity);
 
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);

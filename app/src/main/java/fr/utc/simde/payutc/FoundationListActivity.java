@@ -33,42 +33,13 @@ public class FoundationListActivity extends BaseActivity {
             setFoundationList(new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
         } catch (Exception e) {
             Log.wtf(LOG_TAG, "error: " + e.getMessage());
-            dialog.errorDialog(getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected));
-            /*, new DialogInterface.OnClickListener() {
+            dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int id) {
                     finish();
                 }
-<<<<<<< HEAD
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        HTTPRequest request = nemopaySession.getRequest();
-                        dialog.stopLoading();
-
-                        try {
-                            if (request.getResponseCode() != 200)
-                                throw new Exception("Malformed JSON");
-
-                            JsonNode foundationList = request.getJsonResponse();
-
-                            if (!request.isJsonResponse() || !foundationList.isArray())
-                                throw new Exception("JSON unexpected");
-
-                            setFoundationList(foundationList);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "error: " + e.getMessage());
-                            dialog.errorDialog(FoundationListActivity.this, getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
-                        }
-                    }
-                });
-            }
-        }.start();
-=======
-            }*/
+            });
         }
->>>>>>> foundationListActivity
     }
 
     @Override

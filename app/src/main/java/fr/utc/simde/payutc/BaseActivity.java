@@ -1,14 +1,10 @@
 package fr.utc.simde.payutc;
 
 import android.app.Activity;
-<<<<<<< HEAD
-=======
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
->>>>>>> foundationListActivity
 
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Dialog;
@@ -30,7 +26,7 @@ public abstract class BaseActivity extends NFCActivity {
         casConnexion.disconnect();
     }
 
-    protected void unregister(Activity activity) {
+    protected void unregister(final Activity activity) {
         nemopaySession.unregister();
         disconnect();
 
@@ -77,7 +73,7 @@ public abstract class BaseActivity extends NFCActivity {
                             activity.startActivity(intent);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
-                            dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
+                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
                         }
                     }
                 });

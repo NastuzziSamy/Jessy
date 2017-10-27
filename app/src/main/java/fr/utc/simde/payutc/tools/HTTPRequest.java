@@ -6,8 +6,10 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -171,19 +173,34 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
-    public JSONObject getJsonResponse() throws IOException, JSONException { return new JSONObject(response); }
-    public String getResponse() throws IOException { return response; }
+    public Boolean isJsonResponse() throws Exception {
+        if (request == null)
+            return null;
 
-    public Boolean isJsonResponse() {
-        try {
-            new JSONObject(response);
+        if (request.getContentType().equals("application/json")) {
+            try {
+                new ObjectMapper().readTree(this.response);
+                return true;
+            } catch (IOException e) {
+                throw new Exception("Malformed JSON");
+            }
         }
-        catch (Exception e) {
+        else {
             return false;
         }
-
-        return true;
     }
+
+    public JsonNode getJsonResponse() throws IOException, JSONException {
+        try {
+            return new ObjectMapper().readTree(this.response);
+        }
+        catch (Exception e) {
+            Log.e(LOG_TAG, "error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public String getResponse() throws IOException { return response; }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
     protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {

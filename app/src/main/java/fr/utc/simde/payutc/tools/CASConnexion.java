@@ -43,12 +43,19 @@ public class CASConnexion {
     }
 
     public void disconnect() {
+        if (isConnected()) {
+            new Thread() {
+                @Override
+                public void run() {
+                    HTTPRequest request = new HTTPRequest(url + "logout");
+                    request.post();
+                }
+            }.start();
+        }
+
         this.username = "";
         this.location = "";
         this.ticket = "";
-
-        HTTPRequest request = new HTTPRequest(this.url + "logout");
-        request.post();
     }
 
     public Boolean isConnected() { return !this.location.isEmpty(); }

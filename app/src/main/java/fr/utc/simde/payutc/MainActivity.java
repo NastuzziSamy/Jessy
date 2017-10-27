@@ -3,6 +3,7 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -78,6 +79,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void unregister() {
         super.unregister();
+
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
     }
 
@@ -95,9 +97,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification), true);
-        loading.setCancelable(false);
-
+        dialog.startLoading(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
         new Thread() {
             @Override
             public void run() {
@@ -111,7 +111,7 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         if (nemopaySession.isRegistered()) {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -128,11 +128,12 @@ public class MainActivity extends BaseActivity {
         }.start();
     }
 
-    protected void connectWithCAS(final String username, final String password) throws InterruptedException {
-        dialog.dismiss();
+    protected void startFoundationListActivity() {
+        MainActivity.this.startActivity(new Intent(MainActivity.this, FoundationListActivity.class));
+    }
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url), true);
-        loading.setCancelable(false);
+    protected void connectWithCAS(final String username, final String password) throws InterruptedException {
+        dialog.startLoading(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url));
         new Thread() {
             @Override
             public void run() {
@@ -154,11 +155,11 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void run() {
                         if (casConnexion.getUrl().equals("")) {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_url));
                         }
                         else
-                            loading.setMessage(getString(R.string.cas_in_connection));
+                            dialog.changeLoading(getString(R.string.cas_in_connection));
                     }
                 });
 
@@ -176,9 +177,9 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void run() {
                         if (casConnexion.isConnected())
-                            loading.setMessage(getString(R.string.cas_in_service_adding));
+                            dialog.changeLoading(getString(R.string.cas_in_service_adding));
                         else {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_connection));
                         }
                     }
@@ -197,11 +198,10 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         if (casConnexion.isServiceAdded())
-                            loading.setMessage(getString(R.string.nemopay_connection));
+                            dialog.changeLoading(getString(R.string.nemopay_connection));
                         else {
-                            loading.dismiss();
+                            dialog.stopLoading();
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_adding));
                         }
                     }
@@ -220,14 +220,14 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         if (!nemopaySession.isConnected())
                             dialog.errorDialog(getString(R.string.cas_connection), getString(R.string.cas_error_service_linking));
                         else if (!nemopaySession.isRegistered())
                             keyDialog();
                         else
-                            Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
+                            startFoundationListActivity();
                     }
                 });
             }
@@ -235,13 +235,10 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void connectWithBadge(final String idBadge, final String pin) {
-        dialog.dismiss();
-
         if (!nemopaySession.isRegistered() || nemopaySession.isConnected())
             return;
 
-        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_recognization), true);
-        loading.setCancelable(false);
+        dialog.startLoading(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_recognization));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -255,11 +252,11 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loading.dismiss();
+                        dialog.stopLoading();
 
                         try {
                             if (nemopaySession.isConnected())
-                                Toast.makeText(MainActivity.this, "Tout est bon !", Toast.LENGTH_SHORT).show();
+                                startFoundationListActivity();
                             else if (nemopaySession.getRequest().getResponseCode() == 400)
                                 dialog.errorDialog(getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
                             else
@@ -286,12 +283,13 @@ public class MainActivity extends BaseActivity {
 
         final View pinView = getLayoutInflater().inflate(R.layout.dialog_badge, null);
         final EditText pinInput = pinView.findViewById(R.id.input_pin);
+        final Button noPinButton = pinView.findViewById(R.id.button_no_pin);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
             .setTitle(R.string.badge_dialog)
             .setView(pinView)
-            .setCancelable(true)
+            .setCancelable(false)
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int id) {
                     if (pinInput.getText().toString().equals("")) {
@@ -305,12 +303,15 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             })
-            .setNeutralButton(R.string.no_pin, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    connectWithBadge(idBadge, "0000");
-                    dialogInterface.cancel();
-                }
-            });
+            .setNegativeButton(R.string.cancel, null);
+
+        noPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                connectWithBadge(idBadge, "0000");
+            }
+        });
 
         dialog.createDialog(alertDialogBuilder, pinInput);
     }

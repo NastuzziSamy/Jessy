@@ -64,22 +64,24 @@ public class FoundationListActivity extends BaseActivity {
                 throw new Exception("Unexpected JSON");
 
             foundationButton.setText(foundation.get("name").textValue());
-            foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").intValue()));
+            foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").intValue(), foundation.get("name").textValue()));
 
             this.listLayout.addView(foundationButton);
         }
     }
 
     public class onClickFoundation implements View.OnClickListener {
-        final int idFoundation;
+        final int foundationId;
+        final String foundationName;
 
-        public onClickFoundation(int idFoundation) {
-            this.idFoundation = idFoundation;
+        public onClickFoundation(final int foundationId, final String foundationName) {
+            this.foundationId = foundationId;
+            this.foundationName = foundationName;
         }
 
         @Override
         public void onClick(View view) {
-            startArticlesActivity(FoundationListActivity.this, this.idFoundation);
+            startArticlesActivity(FoundationListActivity.this, this.foundationId, this.foundationName);
         }
 
     };

@@ -49,6 +49,7 @@ public abstract class BaseActivity extends NFCActivity {
 
     protected void startFoundationListActivity(final Activity activity) {
         dialog.startLoading(activity, getString(R.string.information_collection), getString(R.string.foundation_list_collecting));
+
         new Thread() {
             @Override
             public void run() {
@@ -65,15 +66,15 @@ public abstract class BaseActivity extends NFCActivity {
                         HTTPRequest request = nemopaySession.getRequest();
 
                         try {
-                            // Tout une série de vérifications avant de lancer l'activité
+                            // Toute une série de vérifications avant de lancer l'activité
                             if (request.getResponseCode() != 200)
-                                throw new Exception("Malformed JSON");
+                                throw new Exception("HTTP Error: " + Integer.toString(request.getResponseCode()));
 
                             JsonNode foundationList = request.getJsonResponse();
                             String response = request.getResponse();
 
                             if (!request.isJsonResponse() || !foundationList.isArray())
-                                throw new Exception("JSON unexpected");
+                                throw new Exception("Malformed JSON");
 
                             if (foundationList.size() == 0) {
                                 dialog.stopLoading();
@@ -90,7 +91,7 @@ public abstract class BaseActivity extends NFCActivity {
                             if (foundationList.size() == 1) {
                                 dialog.stopLoading();
 
-                                startArticlesActivity(activity, foundationList.get(0).get("fun_id").intValue());
+                                startArticlesActivity(activity, foundationList.get(0).get("fun_id").intValue(), foundationList.get(0).get("name").textValue());
                                 return;
                             }
 
@@ -109,13 +110,116 @@ public abstract class BaseActivity extends NFCActivity {
     }
 
     protected void startCategoryArticlesActivity(final Activity activity) {
-        Intent intent = new Intent(activity, ArticleCategoryActivity.class);
-        activity.startActivity(intent);
+        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.category_list_collecting));
+
+        final Thread categoryThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.getCategories();
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        HTTPRequest request = nemopaySession.getRequest();
+
+                        try {
+                            // Toute une série de vérifications avant de lancer l'activité
+                            if (request.getResponseCode() != 200)
+                                throw new Exception("HTTP Error: " + Integer.toString(request.getResponseCode()));
+
+                            JsonNode categoryList = request.getJsonResponse();
+                            String response = request.getResponse();
+
+                            if (!request.isJsonResponse() || !categoryList.isArray())
+                                throw new Exception("Malformed JSON");
+
+                            if (categoryList.size() == 0) {
+                                dialog.stopLoading();
+
+                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                                return;
+                            }
+
+                            for (final JsonNode category : categoryList) {
+                                if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                                    throw new Exception("Unexpected JSON");
+                            }
+
+                            String extra_category = response;
+                            dialog.changeLoading(getResources().getString(R.string.article_list_collecting));
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.category_error_get_list));
+                        }
+                    }
+                });
+            }
+        };
+        categoryThread.start();
+
+        new Thread() {
+            @Override
+            public void run() {
+                final Intent intent = new Intent(activity, ArticleCategoryActivity.class);
+                try {
+                    categoryThread.join();
+                    Thread.sleep(100);
+                    intent.putExtra("categoryList", nemopaySession.getRequest().getResponse());
+                    nemopaySession.getArticles();
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        HTTPRequest request = nemopaySession.getRequest();
+
+                        try {
+                            // Toute une série de vérifications avant de lancer l'activité
+                            if (request.getResponseCode() != 200)
+                                throw new Exception("HTTP Error: " + Integer.toString(request.getResponseCode()));
+
+                            JsonNode articleList = request.getJsonResponse();
+                            String response = request.getResponse();
+
+                            if (!request.isJsonResponse() || !articleList.isArray())
+                                throw new Exception("Malformed JSON");
+
+                            if (articleList.size() == 0) {
+                                dialog.stopLoading();
+
+                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.article_error_0));
+                                return;
+                            }
+
+                            for (final JsonNode article : articleList) {
+                                if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                                    throw new Exception("Unexpected JSON");
+                            }
+
+                            intent.putExtra("articleList", response);
+                            dialog.stopLoading();
+                            activity.startActivity(intent);
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.article_error_get_list));
+                        }
+                    }
+                });
+            }
+        }.start();
     }
 
-    protected void startArticlesActivity(final Activity activity, final int idFoundation) {
-        nemopaySession.setFoundation(idFoundation);
-        Log.d(LOG_TAG, String.valueOf(idFoundation));
+    protected void startArticlesActivity(final Activity activity, final int foundationId, final String foundationName) {
+        nemopaySession.setFoundation(foundationId, foundationName);
+        Log.d(LOG_TAG, String.valueOf(foundationId));
 
         // Plus tard, on pourra choisir quelle activité lancer
         startCategoryArticlesActivity(activity);

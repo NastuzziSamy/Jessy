@@ -1,12 +1,8 @@
 package fr.utc.simde.payutc;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.util.Log;
 import android.widget.TabHost;
-import android.widget.TextView;
 
 import fr.utc.simde.payutc.fragments.ArticleGroupFragment;
 
@@ -15,11 +11,15 @@ import fr.utc.simde.payutc.fragments.ArticleGroupFragment;
  */
 
 public class ArticleCategoryActivity extends BaseActivity {
+    private static final String LOG_TAG = "_ArticleCategoryActivit";
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView (R.layout.activity_articles_category);
+
+        Log.d(LOG_TAG, "C: " + getIntent().getExtras().getString("categoryList"));
+        Log.d(LOG_TAG, "A: " + getIntent().getExtras().getString("articleList"));
 
         TabHost host = findViewById(R.id.tab_categories);
         host.setup();

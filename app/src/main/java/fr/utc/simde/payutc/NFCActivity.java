@@ -70,7 +70,7 @@ public abstract class NFCActivity extends Activity {
     }
 
     protected void onNewIntent(Intent intent) {
-        if (intent.getAction().equals(NFCAdapter.ACTION_TAG_DISCOVERED)) {
+        if (intent.getAction() != null && intent.getAction().equals(NFCAdapter.ACTION_TAG_DISCOVERED)) {
             String idBadge = ByteArrayToHexString(((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)).getId());
             Log.d(LOG_TAG, "ID: " + idBadge);
             onIdentification(idBadge);

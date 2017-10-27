@@ -61,6 +61,7 @@
     <string name="information_collection">Récupération d\'informations</string>
     <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
     <string name="foundation_error_get_list">Impossible de récupérer la liste des fondations</string>
+    <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
 
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>

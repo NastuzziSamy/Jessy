@@ -62,15 +62,24 @@ public class FoundationListActivity extends BaseActivity {
                 throw new Exception("Unexpected JSON");
 
             foundationButton.setText(foundation.get("name").textValue());
-            final String idFoundation = foundation.get("fun_id").textValue();
-            foundationButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                   //Log.d(LOG_TAG, idFoundation);
-                }
-            });
+            foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").intValue()));
 
             linearLayout.addView(foundationButton);
         }
     }
+
+    public class onClickFoundation implements View.OnClickListener {
+        final int idFoundation;
+
+        public onClickFoundation(int idFoundation) {
+            this.idFoundation = idFoundation;
+        }
+
+        @Override
+        public void onClick(View view) {
+            nemopaySession.setFoundation(this.idFoundation);
+            Log.d(LOG_TAG, String.valueOf(this.idFoundation));
+        }
+
+    };
 }

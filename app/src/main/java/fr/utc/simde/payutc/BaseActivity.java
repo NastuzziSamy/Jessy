@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 
@@ -16,7 +17,7 @@ import fr.utc.simde.payutc.tools.NemopaySession;
  */
 
 public abstract class BaseActivity extends NFCActivity {
-    private static final String LOG_TAG = "_LOG_TAG";
+    private static final String LOG_TAG = "_BaseActivity";
     protected static Dialog dialog;
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
@@ -31,6 +32,19 @@ public abstract class BaseActivity extends NFCActivity {
         disconnect();
 
         dialog.errorDialog(activity, getString(R.string.key_registration), getString(R.string.key_remove_temp));
+    }
+
+    protected void fatal(final Activity activity, final String title, final String message) {
+        dialog.fatalDialog(activity, title, message, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(activity, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |  Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(intent);
+            }
+        });
+
+        disconnect();
     }
 
     protected void startFoundationListActivity(final Activity activity) {
@@ -51,6 +65,7 @@ public abstract class BaseActivity extends NFCActivity {
                         HTTPRequest request = nemopaySession.getRequest();
 
                         try {
+                            // Tout une série de vérifications avant de lancer l'activité
                             if (request.getResponseCode() != 200)
                                 throw new Exception("Malformed JSON");
 
@@ -60,12 +75,24 @@ public abstract class BaseActivity extends NFCActivity {
                             if (!request.isJsonResponse() || !foundationList.isArray())
                                 throw new Exception("JSON unexpected");
 
+                            if (foundationList.size() == 0) {
+                                dialog.stopLoading();
+                                fatal(activity, getString(R.string.information_collection), nemopaySession.getUsername() + " " + getString(R.string.user_no_rights));
+
+                                return;
+                            }
+
                             for (final JsonNode foundation : foundationList) {
                                 if (!foundation.has("name") || !foundation.has("fun_id"))
                                     throw new Exception("Unexpected JSON");
                             }
 
-                            getIntent().getSerializableExtra("MyClass");
+                            if (foundationList.size() == 1) {
+                                dialog.stopLoading();
+                                nemopaySession.setFoundation(foundationList.get(0).get("fun_id").intValue());
+                                Log.d(LOG_TAG, String.valueOf(foundationList.get(0).get("fun_id").intValue()));
+                                return;
+                            }
 
                             Intent intent = new Intent(activity, FoundationListActivity.class);
                             intent.putExtra("foundationList", response);

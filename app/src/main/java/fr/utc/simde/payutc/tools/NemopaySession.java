@@ -25,6 +25,7 @@ public class NemopaySession {
     private String key;
     private String session;
     private String username;
+    private int idFoundation;
 
     private HTTPRequest request;
     private String[] rightsNeeded;
@@ -61,6 +62,10 @@ public class NemopaySession {
         this.key = "";
 
         disconnect();
+    }
+
+    public void setFoundation(final int idFoundation) {
+        this.idFoundation = idFoundation;
     }
 
     public String getName() { return this.name; }

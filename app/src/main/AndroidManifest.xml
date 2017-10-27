@@ -19,6 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".BaseActivity" />
+        <activity android:name=".FoundationListActivity" />
     </application>
 
 </manifest>

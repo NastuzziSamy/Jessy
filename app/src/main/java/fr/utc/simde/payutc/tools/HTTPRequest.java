@@ -6,9 +6,10 @@ package fr.utc.simde.payutc.tools;
 
 import android.util.Log;
 
-import org.json.JSONArray;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -172,19 +173,30 @@ public class HTTPRequest {
         this.response = builder.toString();
     }
 
-    public Boolean isJsonResponse() {
+    public Boolean isJsonResponse() throws Exception {
         if (request == null)
             return null;
 
-        return request.getContentType() == "application/json";
+        if (request.getContentType().equals("application/json")) {
+            try {
+                new ObjectMapper().readTree(this.response);
+                return true;
+            } catch (IOException e) {
+                throw new Exception("Malformed JSON");
+            }
+        }
+        else {
+            return false;
+        }
     }
 
-    public Object getJsonResponse() throws IOException, JSONException {
+    public JsonNode getJsonResponse() throws IOException, JSONException {
         try {
-            return new JSONObject(response);
+            return new ObjectMapper().readTree(this.response);
         }
         catch (Exception e) {
-            return new JSONArray(response);
+            Log.e(LOG_TAG, "error: " + e.getMessage());
+            return null;
         }
     }
 

@@ -3,6 +3,13 @@ package fr.utc.simde.payutc;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,14 +46,18 @@ public class FoundationListActivity extends BaseActivity {
                         dialog.stopLoading();
 
                         try {
+                            if (request.getResponseCode() != 200)
+                                throw new Exception("Malformed JSON");
 
-                            if (request.getResponseCode() == 200 && request.isJsonResponse())
-                                Log.d(LOG_TAG, "Liste acquise");
-                                // setFoundationList(request.getJsonResponse();
-                            else
-                                dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
+                            JsonNode foundationList = request.getJsonResponse();
+
+                            if (!request.isJsonResponse() || !foundationList.isArray())
+                                throw new Exception("JSON unexpected");
+
+                            setFoundationList(foundationList);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
+                            dialog.errorDialog(getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
                         }
                     }
                 });
@@ -62,5 +73,27 @@ public class FoundationListActivity extends BaseActivity {
         super.onDestroy();
 
         disconnect();
+    }
+
+    protected void setFoundationList(JsonNode foundationList) throws Exception {
+        LinearLayout linearLayout = findViewById(R.id.foundationList);
+
+        for (final JsonNode foundation : foundationList) {
+            Button foundationButton = new Button(this);
+
+            if (!foundation.has("name") || !foundation.has("fun_id"))
+                throw new Exception("Unexpected JSON");
+
+            foundationButton.setText(foundation.get("name").textValue());
+            final String idFoundation = foundation.get("fun_id").textValue();
+            foundationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                   //Log.d(LOG_TAG, idFoundation);
+                }
+            });
+
+            linearLayout.addView(foundationButton);
+        }
     }
 }

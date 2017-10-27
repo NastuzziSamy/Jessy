@@ -3,8 +3,9 @@ package fr.utc.simde.payutc.tools;
 import android.app.Activity;
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class NemopaySession {
         );
     }
 
-    public int registerApp(final String name, final String description, final String service) throws IOException, JSONException {
+    public int registerApp(final String name, final String description, final String service) throws Exception {
         int reponseCode = request(
             "KEY",
             "registerApplication",
@@ -95,8 +96,14 @@ public class NemopaySession {
             }}
         );
 
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            this.key = this.request.getJsonResponse().getString("app_key");
+        if (reponseCode != 200 || !this.request.isJsonResponse())
+            throw new Exception("Not created");
+
+        JsonNode response = this.request.getJsonResponse();
+        if (response.has("app_key"))
+            this.key = response.get("app_key").textValue();
+        else
+            throw new Exception("Unexpected JSON");
 
         return reponseCode;
     }
@@ -104,11 +111,11 @@ public class NemopaySession {
     public int loginApp(final String key, CASConnexion casConnexion) throws Exception {
         int reponseCode = loginApp(key);
 
-        JSONObject response = getRequest().getJsonResponse();
-        if (response.has("config") && ((JSONObject) response.get("config")).has("cas_url"))
-            casConnexion.setUrl(((JSONObject) response.get("config")).getString("cas_url"));
+        JsonNode response = this.request.getJsonResponse();
+        if (response.has("config") && response.get("config").has("cas_url"))
+            casConnexion.setUrl(response.get("config").get("cas_url").textValue());
         else
-            throw new Exception("No correct informations");
+            throw new Exception("Unexpected JSON");
 
         return reponseCode;
     }
@@ -121,19 +128,19 @@ public class NemopaySession {
             }}
         );
 
-        JSONObject response;
+        JsonNode response;
         if (reponseCode == 200 && this.request.isJsonResponse())
             response = this.request.getJsonResponse();
         else
             throw new Exception("Not authentified");
 
         if (response.has("sessionid") && response.has("name")) {
-            this.session = response.getString("sessionid");
-            this.name = response.getString("name");
+            this.session = response.get("sessionid").textValue();
+            this.name = response.get("name").textValue();
             this.key = key;
         }
         else
-            throw new Exception("No correct informations");
+            throw new Exception("Unexpected JSON");
 
         return reponseCode;
     }
@@ -151,18 +158,18 @@ public class NemopaySession {
             }
         );
 
-        JSONObject response;
+        JsonNode response;
         if (reponseCode == 200 && this.request.isJsonResponse())
             response = this.request.getJsonResponse();
         else
             throw new Exception("Not connected");
 
         if (response.has("sessionid") && response.has("username")) {
-            this.session = response.getString("sessionid");
-            this.username = response.getString("username");
+            this.session = response.get("sessionid").textValue();
+            this.username = response.get("username").textValue();
         }
         else
-            throw new Exception("No correct informations");
+            throw new Exception("Unexpected JSON");
 
         return reponseCode;
     }
@@ -177,18 +184,18 @@ public class NemopaySession {
             }}
         );
 
-        JSONObject response;
+        JsonNode response;
         if (reponseCode == 200 && this.request.isJsonResponse())
             response = this.request.getJsonResponse();
         else
             throw new Exception("Not connected");
 
         if (response.has("sessionid") && response.has("username")) {
-            this.session = response.getString("sessionid");
-            this.username = response.getString("username");
+            this.session = response.get("sessionid").textValue();
+            this.username = response.get("username").textValue();
         }
         else
-            throw new Exception("No correct informations");
+            throw new Exception("Unexpected JSON");
 
         return reponseCode;
     }

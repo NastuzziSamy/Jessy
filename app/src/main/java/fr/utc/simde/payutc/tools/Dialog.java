@@ -93,7 +93,9 @@ public class Dialog {
     }
 
     public void stopLoading() {
-        this.loading.dismiss();
+        if (this.loading != null)
+          this.loading.dismiss();
+
         this.loading = null;
     }
 }

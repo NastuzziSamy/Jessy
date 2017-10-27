@@ -66,7 +66,8 @@
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
     <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
-    <string-array name="rights_keys"><item>Accès en lecture seule sur les paramètres</item>
+    <string-array name="rights_keys">
+        <item>Accès en lecture seule sur les paramètres</item>
         <item>add_free</item>
         <item>offline_app</item>
         <item>delegated_auth</item>
@@ -140,7 +141,8 @@
         <item>sale_visualisation</item>
     </string-array>
 
-    <string-array name="rights_values"><item>Accès en lecture seule sur les paramètres</item>
+    <string-array name="rights_values">
+        <item>Accès en lecture seule sur les paramètres</item>
         <item>Ajout de gratuités</item>
         <item>Application hors ligne</item>
         <item>Authentification déléguée</item>
@@ -213,4 +215,7 @@
         <item>Visualisation des sessions de recharge</item>
         <item>Visualisation des sessions de vente</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

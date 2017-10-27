@@ -77,8 +77,8 @@ public abstract class BaseActivity extends NFCActivity {
 
                             if (foundationList.size() == 0) {
                                 dialog.stopLoading();
-                                fatal(activity, getString(R.string.information_collection), nemopaySession.getUsername() + " " + getString(R.string.user_no_rights));
 
+                                fatal(activity, getString(R.string.information_collection), nemopaySession.getUsername() + " " + getString(R.string.user_no_rights));
                                 return;
                             }
 
@@ -89,8 +89,8 @@ public abstract class BaseActivity extends NFCActivity {
 
                             if (foundationList.size() == 1) {
                                 dialog.stopLoading();
-                                nemopaySession.setFoundation(foundationList.get(0).get("fun_id").intValue());
-                                Log.d(LOG_TAG, String.valueOf(foundationList.get(0).get("fun_id").intValue()));
+
+                                startArticlesActivity(activity, foundationList.get(0).get("fun_id").intValue());
                                 return;
                             }
 
@@ -106,5 +106,18 @@ public abstract class BaseActivity extends NFCActivity {
                 });
             }
         }.start();
+    }
+
+    protected void startCategoryArticlesActivity(final Activity activity) {
+        Intent intent = new Intent(activity, ArticleCategoryActivity.class);
+        activity.startActivity(intent);
+    }
+
+    protected void startArticlesActivity(final Activity activity, final int idFoundation) {
+        nemopaySession.setFoundation(idFoundation);
+        Log.d(LOG_TAG, String.valueOf(idFoundation));
+
+        // Plus tard, on pourra choisir quelle activité lancer
+        startCategoryArticlesActivity(activity);
     }
 }

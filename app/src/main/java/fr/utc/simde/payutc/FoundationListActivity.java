@@ -24,10 +24,14 @@ import fr.utc.simde.payutc.tools.HTTPRequest;
 public class FoundationListActivity extends BaseActivity {
     private static final String LOG_TAG = "_FoundationListActivity";
 
+    LinearLayout listLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundation_list);
+
+        listLayout = findViewById(R.id.foundationList);
 
         try {
             setFoundationList(new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
@@ -53,8 +57,6 @@ public class FoundationListActivity extends BaseActivity {
     }
 
     protected void setFoundationList(final JsonNode foundationList) throws Exception {
-        LinearLayout linearLayout = findViewById(R.id.foundationList);
-
         for (final JsonNode foundation : foundationList) {
             Button foundationButton = new Button(this);
 
@@ -64,7 +66,7 @@ public class FoundationListActivity extends BaseActivity {
             foundationButton.setText(foundation.get("name").textValue());
             foundationButton.setOnClickListener(new onClickFoundation(foundation.get("fun_id").intValue()));
 
-            linearLayout.addView(foundationButton);
+            this.listLayout.addView(foundationButton);
         }
     }
 
@@ -77,8 +79,7 @@ public class FoundationListActivity extends BaseActivity {
 
         @Override
         public void onClick(View view) {
-            nemopaySession.setFoundation(this.idFoundation);
-            Log.d(LOG_TAG, String.valueOf(this.idFoundation));
+            startArticlesActivity(FoundationListActivity.this, this.idFoundation);
         }
 
     };

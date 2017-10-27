@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,16 +29,17 @@ public class FoundationListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundation_list);
 
-        dialog.startLoading(FoundationListActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    nemopaySession.getFoundations();
-                    Thread.sleep(100);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
+        try {
+            setFoundationList(new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
+        } catch (Exception e) {
+            Log.wtf(LOG_TAG, "error: " + e.getMessage());
+            dialog.errorDialog(getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected));
+            /*, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int id) {
+                    finish();
                 }
+<<<<<<< HEAD
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -63,6 +65,10 @@ public class FoundationListActivity extends BaseActivity {
                 });
             }
         }.start();
+=======
+            }*/
+        }
+>>>>>>> foundationListActivity
     }
 
     @Override
@@ -75,7 +81,7 @@ public class FoundationListActivity extends BaseActivity {
         disconnect();
     }
 
-    protected void setFoundationList(JsonNode foundationList) throws Exception {
+    protected void setFoundationList(final JsonNode foundationList) throws Exception {
         LinearLayout linearLayout = findViewById(R.id.foundationList);
 
         for (final JsonNode foundation : foundationList) {

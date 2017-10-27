@@ -128,10 +128,6 @@ public class MainActivity extends BaseActivity {
         }.start();
     }
 
-    protected void startFoundationListActivity() {
-        MainActivity.this.startActivity(new Intent(MainActivity.this, FoundationListActivity.class));
-    }
-
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
         dialog.startLoading(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url));
         new Thread() {
@@ -227,7 +223,7 @@ public class MainActivity extends BaseActivity {
                         else if (!nemopaySession.isRegistered())
                             keyDialog();
                         else
-                            startFoundationListActivity();
+                            startFoundationListActivity(MainActivity.this);
                     }
                 });
             }
@@ -256,7 +252,7 @@ public class MainActivity extends BaseActivity {
 
                         try {
                             if (nemopaySession.isConnected())
-                                startFoundationListActivity();
+                                startFoundationListActivity(MainActivity.this);
                             else if (nemopaySession.getRequest().getResponseCode() == 400)
                                 dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
                             else

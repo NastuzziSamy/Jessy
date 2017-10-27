@@ -283,12 +283,13 @@ public class MainActivity extends BaseActivity {
 
         final View pinView = getLayoutInflater().inflate(R.layout.dialog_badge, null);
         final EditText pinInput = pinView.findViewById(R.id.input_pin);
+        final Button noPinButton = pinView.findViewById(R.id.button_no_pin);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
             .setTitle(R.string.badge_dialog)
             .setView(pinView)
-            .setCancelable(true)
+            .setCancelable(false)
             .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int id) {
                     if (pinInput.getText().toString().equals("")) {
@@ -302,12 +303,15 @@ public class MainActivity extends BaseActivity {
                     }
                 }
             })
-            .setNeutralButton(R.string.no_pin, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    connectWithBadge(idBadge, "0000");
-                    dialogInterface.cancel();
-                }
-            });
+            .setNegativeButton(R.string.cancel, null);
+
+        noPinButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                connectWithBadge(idBadge, "0000");
+            }
+        });
 
         dialog.createDialog(alertDialogBuilder, pinInput);
     }

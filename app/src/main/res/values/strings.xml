@@ -23,6 +23,7 @@
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
+    <string name="error_view">Une erreur a empêché la création de la vue</string>
 
     <string name="nfc_not_available">NFC non disponible</string>
     <string name="nfc_not_enabled">NFC non activé</string>
@@ -67,6 +68,7 @@
     <string name="category_error_get_list">Impossible de récupérer la liste des catégories</string>
     <string name="article_error_0">n\'a aucun article à vendre</string>
     <string name="article_error_get_list">Impossible de récupérer la liste des articles</string>
+    <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>

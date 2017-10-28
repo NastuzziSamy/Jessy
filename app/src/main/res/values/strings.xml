@@ -23,16 +23,17 @@
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
+    <string name="error_view">Une erreur a empêché la création de la vue</string>
 
     <string name="nfc_not_available">NFC non disponible</string>
     <string name="nfc_not_enabled">NFC non activé</string>
     <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone.</string>
     <string name="nfc_accessibility">L\'application nécessite que le NFC soit activé pour fonctionner correctement.</string>
     <string name="cas_connection">Connexion via CAS</string>
-    <string name="cas_in_url">Récupération du lien CAS...</string>
-    <string name="cas_in_connection">Connexion au CAS...</string>
-    <string name="cas_in_service_adding">Ajout du service au CAS...</string>
-    <string name="cas_in_service_connection">Connexion au service via le CAS...</string>
+    <string name="cas_in_url">Récupération du lien CAS</string>
+    <string name="cas_in_connection">Connexion au CAS</string>
+    <string name="cas_in_service_adding">Ajout du service au CAS</string>
+    <string name="cas_in_service_connection">Connexion au service via le CAS</string>
     <string name="cas_error_url">Impossible de joindre le CAS</string>
     <string name="cas_error_connection">Login et/ou mot de passe non reconnu par le CAS</string>
     <string name="cas_error_service_adding">Une erreur a été détectée lors de l\'ajout du service</string>
@@ -40,7 +41,7 @@
     <string name="cas_error_service_linking">Erreur lors de la connexion entre le CAS et le service</string>
     <string name="badge_connection">Connexion par badge</string>
     <string name="badge_app_not_registered">Il est nécessaire que l\'application soit enregistrée pour permettre la connexion via badge</string>
-    <string name="badge_recognization">Authentification du badge...</string>
+    <string name="badge_recognization">Authentification du badge</string>
     <string name="badge_error_no_rights">Impossible de vérifier le badge</string>
     <string name="badge_pin_error_not_recognized">Badge ou code PIN non reconnu</string>
     <string name="badge_pin_not_initialized">Pour pouvoir se connecter via son badge, il est impératif d\'avoir configuré son code PIN sur https://pay.utc.fr/</string>
@@ -61,12 +62,20 @@
     <string name="information_collection">Récupération d\'informations</string>
     <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
     <string name="foundation_error_get_list">Impossible de récupérer la liste des fondations</string>
-    <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
+    <string name="category_list_collecting">Récupération des catégories</string>
+    <string name="article_list_collecting">Récupération des articles</string>
+    <string name="category_error_0">n\'a aucune catégorie</string>
+    <string name="category_error_get_list">Impossible de récupérer la liste des catégories</string>
+    <string name="article_error_0">n\'a aucun article à vendre</string>
+    <string name="article_error_get_list">Impossible de récupérer la liste des articles</string>
+    <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
 
+    <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
     <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
-    <string-array name="rights_keys"><item>Accès en lecture seule sur les paramètres</item>
+    <string-array name="rights_keys">
+        <item>Accès en lecture seule sur les paramètres</item>
         <item>add_free</item>
         <item>offline_app</item>
         <item>delegated_auth</item>
@@ -140,7 +149,8 @@
         <item>sale_visualisation</item>
     </string-array>
 
-    <string-array name="rights_values"><item>Accès en lecture seule sur les paramètres</item>
+    <string-array name="rights_values">
+        <item>Accès en lecture seule sur les paramètres</item>
         <item>Ajout de gratuités</item>
         <item>Application hors ligne</item>
         <item>Authentification déléguée</item>
@@ -213,4 +223,7 @@
         <item>Visualisation des sessions de recharge</item>
         <item>Visualisation des sessions de vente</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

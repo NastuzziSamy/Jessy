@@ -60,9 +60,9 @@ public abstract class BaseActivity extends NFCActivity {
 
                     Thread.sleep(100);
                     final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode foundationList = request.getJsonResponse();
+                    final JsonNode foundationList = request.getJSONResponse();
 
-                    if (!request.isJsonResponse() || !foundationList.isArray())
+                    if (!request.isJSONResponse() || !foundationList.isArray())
                         throw new Exception("Malformed JSON");
 
                     if (foundationList.size() == 0) {
@@ -131,9 +131,9 @@ public abstract class BaseActivity extends NFCActivity {
 
                     Thread.sleep(100);
                     final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode categoryList = request.getJsonResponse();
+                    final JsonNode categoryList = request.getJSONResponse();
 
-                    if (!request.isJsonResponse() || !categoryList.isArray())
+                    if (!request.isJSONResponse() || !categoryList.isArray())
                         throw new Exception("Malformed JSON");
 
                     if (categoryList.size() == 0) {
@@ -181,9 +181,9 @@ public abstract class BaseActivity extends NFCActivity {
 
                     Thread.sleep(100);
                     final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode articleList = request.getJsonResponse();
+                    final JsonNode articleList = request.getJSONResponse();
 
-                    if (!request.isJsonResponse() || !articleList.isArray())
+                    if (!request.isJSONResponse() || !articleList.isArray())
                         throw new Exception("Malformed JSON");
 
                     if (articleList.size() == 0) {

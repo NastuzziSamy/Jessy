@@ -151,10 +151,10 @@ public class NemopaySession {
             }}
         );
 
-        if (reponseCode != 200 || !this.request.isJsonResponse())
+        if (reponseCode != 200 || !this.request.isJSONResponse())
             throw new Exception("Not created");
 
-        JsonNode response = this.request.getJsonResponse();
+        JsonNode response = this.request.getJSONResponse();
         if (response.has("app_key"))
             this.key = response.get("app_key").textValue();
         else
@@ -166,7 +166,7 @@ public class NemopaySession {
     public int loginApp(final String key, CASConnexion casConnexion) throws Exception {
         int reponseCode = loginApp(key);
 
-        JsonNode response = this.request.getJsonResponse();
+        JsonNode response = this.request.getJSONResponse();
         if (response.has("config") && response.get("config").has("cas_url"))
             casConnexion.setUrl(response.get("config").get("cas_url").textValue());
         else
@@ -184,8 +184,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not authentified");
 
@@ -217,8 +217,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not connected");
 
@@ -243,8 +243,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not connected");
 

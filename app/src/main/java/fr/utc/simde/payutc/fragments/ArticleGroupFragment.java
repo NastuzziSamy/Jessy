@@ -25,18 +25,25 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
 
     private LayoutInflater layoutInflater;
     private View view;
-    private ScrollView scrollView;
-    private GridLayout gridView;
+    private GridLayout gridLayout;
+
+    private int nbrColumns;
 
     public ArticleGroupFragment(final Activity activity, final JsonNode articleList) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
         this.view = this.layoutInflater.inflate(R.layout.fragment_article_group, null);
-        this.gridView = this.view.findViewById(R.id.grid_articles);
+        this.gridLayout = this.view.findViewById(R.id.grid_articles);
+        setGridLayout(3);
 
-        createArticles(activity, articleList);
+        createGroups(activity, articleList);
     }
 
-    public void createArticles(final Activity activity, final JsonNode articleList) throws Exception {
+    public void setGridLayout(final int nbrColumns) {
+        this.nbrColumns = nbrColumns;
+        this.gridLayout.setColumnCount(nbrColumns);
+    }
+
+    public void createGroups(final Activity activity, final JsonNode articleList) throws Exception {
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -47,10 +54,9 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
             if (!article.get("active").booleanValue())
                 continue;
 
-            linearLayout.addView(new ArticleFragment(activity, article).getView());
+            this.gridLayout.addView(new ArticleFragment(activity, article).getView());
         }
 
-        this.gridView.addView(linearLayout);
     }
 
     @Override

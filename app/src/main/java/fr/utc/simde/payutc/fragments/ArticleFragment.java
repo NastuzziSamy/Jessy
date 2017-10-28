@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,30 +44,32 @@ public class ArticleFragment extends View {
 
     private LayoutInflater layoutInflater;
     private View view;
+    private ImageView imageView;
     private TextView textView;
 
-    private ImageView iv;
     private HTTPRequest request;
-
-    private LinearLayout linearLayout;
 
     public ArticleFragment(final Activity activity, final JsonNode article) {
         super(activity);
-/*
-        this.layoutInflater = LayoutInflater.from(activity);
-        this.view = this.layoutInflater.inflate(R.layout.fragment_article, null);
-        this.textView = view.findViewById(R.id.text_article);
-        this.textView.setText(article.get("name").textValue());*/
 
         this.id = article.get("id").intValue();
         this.price = article.get("price").intValue();
         this.name = article.get("name").textValue();
         this.imageUrl = article.get("image_url").textValue();
 
+        this.layoutInflater = LayoutInflater.from(activity);
+        this.view = this.layoutInflater.inflate(R.layout.fragment_article, null);
+        this.imageView = view.findViewById(R.id.image_article);
+        this.textView = view.findViewById(R.id.text_article);
+
+        RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(200,200);
+        imageView.setLayoutParams(parms);
+
         setView(activity);
     }
 
-    public void setView(final Activity activity) {
+    public void setView(final Activity activity) {/*
+     this.textView.setText(article.get("name").textValue())
         TextView t = new TextView(activity);
         iv = new ImageView(activity);
         iv.setTag("image_article_" + Integer.toString(this.id));
@@ -82,9 +85,10 @@ public class ArticleFragment extends View {
         linearLayout.addView(iv);
         linearLayout.addView(t);
         linearLayout.addView(t2);
+*/
 
         if (this.imageUrl != null && !this.imageUrl.equals("")) {
-           new Thread(){
+            new Thread(){
                 @Override
                 public void run() {
                     request = new HTTPRequest(imageUrl);
@@ -94,7 +98,8 @@ public class ArticleFragment extends View {
                             @Override
                             public void run() {
                                 try {
-                                    iv.setImageBitmap(request.getImageResponse());
+                                    imageView.setImageBitmap(request.getImageResponse());
+
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -105,6 +110,8 @@ public class ArticleFragment extends View {
             }.start();
             //new DownloadImageTask(iv).execute(this.imageUrl);
         }
+
+        this.textView.setText(this.name);
     }
     public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imageView;
@@ -138,6 +145,6 @@ public class ArticleFragment extends View {
     }
 
     public View getView() {
-        return this.linearLayout;
+        return this.view;
     }
 }

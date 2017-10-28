@@ -19,7 +19,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginBottom="25dp"
-            android:src="@mipmap/ic_launcher_round" />
+            android:src="@mipmap/ic_launcher_round"
+            android:contentDescription="@string/app_name"/>
 
         <TextView
             android:id="@+id/text_app_config"

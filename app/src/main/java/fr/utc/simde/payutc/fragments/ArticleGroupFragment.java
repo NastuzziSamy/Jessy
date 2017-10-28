@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -23,12 +24,13 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
 
     private LayoutInflater layoutInflater;
     private View view;
+    private ScrollView scrollView;
     private GridLayout gridView;
 
     public ArticleGroupFragment(final Activity activity, final JsonNode articleList) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
         this.view = this.layoutInflater.inflate(R.layout.fragment_article_group, null);
-        this.gridView = this.view.findViewById(R.id.grid_article);
+        this.gridView = this.view.findViewById(R.id.grid_articles);
 
         createArticles(activity, articleList);
     }
@@ -36,6 +38,7 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
     public void createArticles(final Activity activity, final JsonNode articleList) throws Exception {
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
+
         for (JsonNode article : articleList) {
             if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id"))
                 throw new Exception("Unexpected JSON");

@@ -5,10 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridLayout
-        android:id="@+id/grid_article"
+    <ScrollView
+        android:id="@+id/scroll_articles"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
-    </GridLayout>
+        <GridLayout
+            android:id="@+id/grid_articles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </GridLayout>
+    </ScrollView>
 </LinearLayout>

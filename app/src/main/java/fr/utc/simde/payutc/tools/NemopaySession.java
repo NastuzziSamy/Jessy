@@ -25,7 +25,8 @@ public class NemopaySession {
     private String key;
     private String session;
     private String username;
-    private int idFoundation;
+    private int foundationId;
+    private String foundationName;
 
     private HTTPRequest request;
     private String[] rightsNeeded;
@@ -40,6 +41,8 @@ public class NemopaySession {
         this.key = "";
         this.session = "";
         this.username = "";
+        this.foundationId = -1;
+        this.foundationName = "";
 
         String[] keys = activity.getResources().getStringArray(R.array.rights_keys);
         String[] values = activity.getResources().getStringArray(R.array.rights_values);
@@ -64,16 +67,60 @@ public class NemopaySession {
         disconnect();
     }
 
-    public void setFoundation(final int idFoundation) {
-        this.idFoundation = idFoundation;
+    public void setFoundation(final int foundationId, final String foundationName) {
+        this.foundationId = foundationId;
+        this.foundationName = foundationName;
     }
 
     public String getName() { return this.name; }
     public String getKey() { return this.key; }
     public String getUsername() { return username; }
     public HTTPRequest getRequest() { return this.request; }
+    public int getFoundationId() { return foundationId; }
+    public String getFoundationName() { return foundationName; }
 
-    public int getFoundations() throws IOException, JSONException {
+    public int getArticles() throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "POSS3",
+            "getProducts",
+            new HashMap<String, String>() {{
+                put("fun_id", Integer.toString(foundationId));
+            }},
+            new String[]{
+                "sale"
+            }
+        );
+    }
+
+    public int getCategories() throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "POSS3",
+            "getCategories",
+            new HashMap<String, String>() {{
+                put("fun_id", Integer.toString(foundationId));
+            }},
+            new String[]{
+                "sale"
+            }
+        );
+    }
+
+    public int getFoundations() throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
         return request(
             "POSS3",
             "getFundations",
@@ -91,6 +138,9 @@ public class NemopaySession {
     }
 
     public int registerApp(final String name, final String description, final String service) throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
         int reponseCode = request(
             "KEY",
             "registerApplication",
@@ -101,10 +151,10 @@ public class NemopaySession {
             }}
         );
 
-        if (reponseCode != 200 || !this.request.isJsonResponse())
+        if (reponseCode != 200 || !this.request.isJSONResponse())
             throw new Exception("Not created");
 
-        JsonNode response = this.request.getJsonResponse();
+        JsonNode response = this.request.getJSONResponse();
         if (response.has("app_key"))
             this.key = response.get("app_key").textValue();
         else
@@ -116,7 +166,7 @@ public class NemopaySession {
     public int loginApp(final String key, CASConnexion casConnexion) throws Exception {
         int reponseCode = loginApp(key);
 
-        JsonNode response = this.request.getJsonResponse();
+        JsonNode response = this.request.getJSONResponse();
         if (response.has("config") && response.get("config").has("cas_url"))
             casConnexion.setUrl(response.get("config").get("cas_url").textValue());
         else
@@ -134,8 +184,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not authentified");
 
@@ -151,6 +201,9 @@ public class NemopaySession {
     }
 
     public int loginBadge(final String idBadge, final String pin) throws Exception {
+        if (!isRegistered())
+            throw new Exception("Not registered");
+
         int reponseCode = request(
             "POSS3",
             "loginBadge2",
@@ -164,8 +217,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not connected");
 
@@ -190,8 +243,8 @@ public class NemopaySession {
         );
 
         JsonNode response;
-        if (reponseCode == 200 && this.request.isJsonResponse())
-            response = this.request.getJsonResponse();
+        if (reponseCode == 200 && this.request.isJSONResponse())
+            response = this.request.getJSONResponse();
         else
             throw new Exception("Not connected");
 

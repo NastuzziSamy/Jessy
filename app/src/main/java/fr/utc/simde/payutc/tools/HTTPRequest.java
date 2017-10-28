@@ -4,6 +4,8 @@ package fr.utc.simde.payutc.tools;
  * Created by Samy on 24/10/2017.
  */
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +15,7 @@ import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -26,7 +29,11 @@ public class HTTPRequest {
     private static final String LOG_TAG = "_HTTPRequest";
     private String url;
     private HttpURLConnection request;
-    private String response;
+
+    private String responseType;
+    private String StringResponse;
+    private JsonNode JSONResponse;
+    private Bitmap BitmapResponse;
 
     private Map<String, String> postArgs;
     private Map<String, String> getArgs;
@@ -35,7 +42,8 @@ public class HTTPRequest {
     public HTTPRequest(final String url) {
         this.url = url;
         this.request = null;
-        this.response = "";
+        this.responseType = "string";
+        this.StringResponse = "";
         this.postArgs = new HashMap<String, String>();
         this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
@@ -55,14 +63,14 @@ public class HTTPRequest {
 
         try {
             this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
-            this.request.setRequestMethod("GET");
-            this.request.setRequestProperty("Cookie", getCookiesHeader());
+            //this.request.setRequestMethod("GET");
+            //this.request.setRequestProperty("User-Agent", "Application PayUTC");
+            //this.request.setRequestProperty("Cookie", getCookiesHeader());
             this.request.setUseCaches(false);
-            this.request.setDoOutput(true);
+            this.request.setDoInput(true);
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
             generateResponse();
-            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
             try {
@@ -104,7 +112,6 @@ public class HTTPRequest {
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
             generateResponse();
-            Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", response: " + this.getResponse());
         }
         catch (Exception e) {
             try {
@@ -160,47 +167,94 @@ public class HTTPRequest {
         return "";
     }
 
-    protected void generateResponse() throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(this.request.getInputStream(), "UTF-8"));
-        StringBuilder builder = new StringBuilder();
-        String inputLine;
+    protected void generateResponse() throws Exception {
+        InputStream inputStream = this.request.getInputStream();
 
-        while ((inputLine = in.readLine()) != null)
-            builder.append(inputLine);
-
-        in.close();
-
-        this.response = builder.toString();
-    }
-
-    public Boolean isJsonResponse() throws Exception {
-        if (request == null)
-            return null;
-
-        if (request.getContentType().equals("application/json")) {
+        this.responseType = "string";
+        if (this.request.getContentType().contains("image/")) {
             try {
-                new ObjectMapper().readTree(this.response);
-                return true;
-            } catch (IOException e) {
+                this.BitmapResponse = BitmapFactory.decodeStream(inputStream);
+                this.responseType = "image";
+            }
+            catch (Exception e) {
+                this.BitmapResponse = null;
                 throw new Exception("Malformed JSON");
             }
         }
         else {
-            return false;
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            StringBuilder builder = new StringBuilder();
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null) {
+                builder.append(inputLine);
+            }
+
+            in.close();
+            this.StringResponse = builder.toString();
+
+            if (this.request.getContentType().equals("application/json")) {
+                try {
+                    this.JSONResponse = new ObjectMapper().readTree(this.StringResponse);
+                    this.responseType = "JSON";
+                }
+                catch (Exception e) {
+                    this.JSONResponse = null;
+                    throw new Exception("Malformed JSON");
+                }
+            }
         }
+
+        Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", type: " + this.responseType + (this.responseType == "image" ? "" : ", response: " + this.getResponse()));
     }
 
-    public JsonNode getJsonResponse() throws IOException, JSONException {
-        try {
-            return new ObjectMapper().readTree(this.response);
-        }
-        catch (Exception e) {
-            Log.e(LOG_TAG, "error: " + e.getMessage());
-            return null;
-        }
+    public Boolean isJSONResponse() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        return this.responseType.equals("JSON");
     }
 
-    public String getResponse() throws IOException { return response; }
+    public Boolean isImageResponse() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        return this.responseType.equals("image");
+    }
+
+    public String getResponseType() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        return this.responseType;
+    }
+
+    public JsonNode getJSONResponse() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        if (!this.responseType.equals("JSON"))
+            throw new Exception("Not a JSON response");
+
+        return this.JSONResponse;
+    }
+
+    public Bitmap getImageResponse() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        if (!this.responseType.equals("image"))
+            throw new Exception("Not an image response");
+
+        return this.BitmapResponse;
+    }
+
+    public String getResponse() throws Exception {
+        if (this.request == null)
+            throw new Exception("No request");
+
+        return this.StringResponse;
+    }
 
     protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
     protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {

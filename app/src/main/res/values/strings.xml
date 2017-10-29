@@ -23,6 +23,7 @@
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
     <string name="article">Article</string>
     <string name="service">Le service</string>
+    <string name="realized">Réalisé à</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
     <string name="error_view">Une erreur a empêché la création de la vue</string>

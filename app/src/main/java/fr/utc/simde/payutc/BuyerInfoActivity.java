@@ -63,7 +63,7 @@ public class BuyerInfoActivity extends BaseActivity {
             this.textBuyerName.setText(buyerInfo.get("firstname").textValue() + " " + buyerInfo.get("lastname").textValue());
             this.textSolde.setText("Solde: " + String.format("%.2f", new Float(buyerInfo.get("solde").intValue()) / 100.00f) + "€");
 
-            generatePurchases(buyerInfo.get("last_purchases"));
+            generatePurchases((ArrayNode) buyerInfo.get("last_purchases"));
         } catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
             dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
@@ -80,7 +80,7 @@ public class BuyerInfoActivity extends BaseActivity {
 
     }
 
-    protected void generatePurchases(final JsonNode purchaseList) throws Exception {
+    protected void generatePurchases(final ArrayNode purchaseList) throws Exception {
         if (purchaseList.size() == 0) {
             String foundationName = nemopaySession.getFoundationName();
             TextView noPurchase = new TextView(this);
@@ -95,73 +95,111 @@ public class BuyerInfoActivity extends BaseActivity {
             this.linearLayout.addView(noPurchase);
         }
         else {
-            ArrayNode articleList = new ObjectMapper().createArrayNode();
-            Log.d(LOG_TAG, purchaseList.toString());
-            for (JsonNode purchase : purchaseList) {
-                articleList.add(new ObjectMapper().readTree("{\"name\":\"" + Integer.toString(purchase.get("obj_id").intValue()) + "\", " +
-                        "\"price\":" + Integer.toString(purchase.get("pur_price").intValue()) + ", " +
-                        "\"image_url\":\"\"}"));
-            }
-
-            Log.d(LOG_TAG, articleList.toString());
-
-            this.listAdapater = new ListAdapater(BuyerInfoActivity.this, articleList);
+            generateArticleList(purchaseList);
             this.listView = new ListView(this);
-            this.listView.setAdapter(this.listAdapater);
-
-            this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick (AdapterView parent, View view,int position, long id){
-                    JsonNode article = ((JsonNode) listAdapater.getArticle(position));
-                            /*
-                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
-                            alertDialogBuilder
-                                    .setTitle(R.string.username_dialog)
-                                    .setView(usernameView)
-                                    .setCancelable(false)
-                                    .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialogInterface, int id) {
-                                            if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
-                                                if (!usernameInput.getText().toString().equals(""))
-                                                    casConnexion.setUsername(usernameInput.getText().toString());
-
-                                                Toast.makeText(MainActivity.this, R.string.username_and_password_required, Toast.LENGTH_SHORT).show();
-                                                dialogInterface.cancel();
-                                                casDialog();
-                                            }
-                                            else {
-                                                try {
-                                                    connectWithCAS(usernameInput.getText().toString(), passwordInput.getText().toString());
-                                                } catch (Exception e) {
-                                                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                                                }
-                                                dialogInterface.cancel();
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialogInterface, int id) {
-                                            dialogInterface.cancel();
-                                        }
-                                    });
-
-                            dialog.createDialog(alertDialogBuilder, usernameInput.getText().toString().isEmpty() ? usernameInput : passwordInput);*/
-                }
-            });
-
-            this.listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
-
-            {
-                @Override
-                public boolean onItemLongClick (AdapterView < ? > adapterView, View view,
-                                                int position, long id){
-                    listAdapater.toast(position, Toast.LENGTH_LONG);
-
-                    return true;
-                }
-            });
 
             this.linearLayout.addView(listView);
         }
+    }
+
+    public void generateArticleList(final ArrayNode purchaseList) {
+        dialog.startLoading(this, getString(R.string.information_collection), getString(R.string.article_list_collecting));
+
+        new Thread() {
+            @Override
+            public void run() {
+                ArrayNode articleFoundationList = new ObjectMapper().createArrayNode();
+                if (nemopaySession.getFoundationId() != -1) {
+                    try {
+                        int responseCode = nemopaySession.getArticles();
+                        Thread.sleep(100);
+
+                        // Toute une série de vérifications avant de lancer l'activité
+                        final HTTPRequest request = nemopaySession.getRequest();
+                        articleFoundationList = (ArrayNode) request.getJSONResponse();
+
+                        for (final JsonNode article : articleFoundationList) {
+                            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                                throw new Exception("Unexpected JSON");
+                        }
+                    } catch (final Exception e) {
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+                                dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.article_list_collecting), e.getMessage());
+                            }
+                        });
+                    }
+                }
+
+                final ArrayNode articleList = new ObjectMapper().createArrayNode();
+                Boolean hasRight = true; //
+                for (JsonNode purchase : purchaseList) {
+                    int articleId = purchase.get("obj_id").intValue();
+
+                    Boolean isIn = false;
+                    for (JsonNode article : articleFoundationList) {
+                        if (article.get("id").intValue() == articleId) {
+                            ((ObjectNode) article).put("info", getString(R.string.realized) + " " + purchase.get("pur_date").textValue().substring(purchase.get("pur_date").textValue().length() - 8));
+                            articleList.add(article);
+
+                            isIn = true;
+                            break;
+                        }
+                    }
+
+                    if (!isIn) {
+                        try {
+                            articleList.add(new ObjectMapper().readTree("{" +
+                                "\"name\":\"" + "N°: " + Integer.toString(purchase.get("obj_id").intValue()) + "\", " +
+                                "\"price\":" + Integer.toString(purchase.get("pur_price").intValue()) + ", " +
+                                "\"info\":\"Non annulable\", " +
+                                "\"image_url\":\"\"}"
+                            ));
+                        }
+                        catch (Exception e) {
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+                                    dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int id) {
+                                            finish();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            listAdapater = new ListAdapater(BuyerInfoActivity.this, articleList);
+                            listView.setAdapter(listAdapater);
+                            dialog.stopLoading();
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                            dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                    finish();
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        }.start();
     }
 }

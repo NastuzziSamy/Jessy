@@ -54,6 +54,11 @@ public class ListAdapater extends ArticlesAdapter {
         TextView priceText = view.findViewById(R.id.text_price);
         priceText.setText(String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
 
+        if (article.has("info")) {
+            TextView infoText = view.findViewById(R.id.text_info);
+            infoText.setText(article.get("info").textValue());
+        }
+
         setImage(imageView, article.get("image_url").textValue(), position);
         setClickView(position);
 

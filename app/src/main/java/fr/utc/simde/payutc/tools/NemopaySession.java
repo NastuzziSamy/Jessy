@@ -36,6 +36,8 @@ public class NemopaySession {
     private String serviceText;
     private String notFound;
     private String badRequest;
+    private String internalError;
+    private String errorRequest;
 
     private Map<String, String> cookies = new HashMap<String, String>();
     private final Map<String, String> getArgs = new HashMap<String, String>() {{
@@ -61,6 +63,8 @@ public class NemopaySession {
         this.serviceText = activity.getString(R.string.service);
         this.notFound = activity.getString(R.string.not_found);
         this.badRequest = activity.getString(R.string.bad_request);
+        this.internalError = activity.getString(R.string.internal_error);
+        this.errorRequest = activity.getString(R.string.error_request);
     }
 
     public Boolean isConnected() { return !this.session.isEmpty() && !this.username.isEmpty(); }
@@ -323,13 +327,17 @@ public class NemopaySession {
         int responseCode = this.request.post();
         this.cookies = request.getCookies();
 
-        if (responseCode == 500)
+        if (responseCode == 200)
+            return 200;
+        else if (responseCode == 403)
             throw new Exception(forbidden(rightsNeeded));
         else if (responseCode == 404)
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);
         else if (responseCode == 400)
             throw new Exception(this.serviceText + " " + service + " " + this.badRequest);
-
-        return responseCode;
+        else if (responseCode == 500 || responseCode == 503)
+            throw new Exception(this.serviceText + " " + service + " " + this.internalError);
+        else
+            throw new Exception(this.serviceText + " " + service + " " + this.errorRequest + " " + responseCode);
     }
 }

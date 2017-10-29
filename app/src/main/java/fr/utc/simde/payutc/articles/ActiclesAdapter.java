@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import fr.utc.simde.payutc.ArticleCategoryActivity;
 import fr.utc.simde.payutc.R;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 
@@ -27,41 +29,23 @@ import fr.utc.simde.payutc.tools.HTTPRequest;
  * Created by Samy on 28/10/2017.
  */
 
-public class ArticleAdapter extends BaseAdapter {
-    private static final String LOG_TAG = "_ArticleAdapter";
+abstract class ArticlesAdapter extends BaseAdapter {
+    private static final String LOG_TAG = "_ArticlesAdapter";
 
-    private Activity activity;
-    private JsonNode articleList;
-    private Bitmap[] imageList;
-    private Integer[] nbrClicksList;
-    private TextView[] clickViewList;
-    private int size;
+    protected Activity activity;
 
-    public ArticleAdapter(final Activity activity, final JsonNode articleList, final int nbrColumns) throws Exception {
+    protected Bitmap[] imageList;
+    protected Integer[] nbrClicksList;
+    protected TextView[] clickViewList;
+
+    protected JsonNode articleList;
+
+    public ArticlesAdapter(final Activity activity, final JsonNode articleList) throws Exception {
         this.activity = activity;
         this.articleList = articleList;
         this.imageList = new Bitmap[articleList.size()];
         this.nbrClicksList = new Integer[articleList.size()];
         this.clickViewList = new TextView[articleList.size()];
-
-        switch (nbrColumns) {
-            case 1:
-                this.size = 250;
-                break;
-            case 2:
-                this.size = 200;
-                break;
-            case 3:
-                this.size = 150;
-                break;
-            case 4:
-                this.size = 125;
-                break;
-            case 5:
-            default:
-                this.size = 100;
-                break;
-        }
 
         for (int i = 0; i < this.nbrClicksList.length; i++)
             this.nbrClicksList[i] = 0;
@@ -83,32 +67,7 @@ public class ArticleAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
-        JsonNode article = this.articleList.get(position);
-
-        if (view == null) {
-            LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
-            view = layoutInflater.inflate(R.layout.fragment_article, null);
-        }
-
-        ImageView imageView = view.findViewById(R.id.image_article);
-
-        if (clickViewList[position] == null)
-            clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
-
-        TextView textView = view.findViewById(R.id.text_article);
-
-        int imageSize = this.size;
-        RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(imageSize, imageSize);
-        imageView.setLayoutParams(parms);
-        setImage(imageView, article.get("image_url").textValue(), position);
-
-        setClickView(position);
-
-        textView.setText(article.get("name").textValue());
-
-        return view;
-    }
+    public View getView(int position, View view, ViewGroup viewGroup) { return view; }
 
     public void setClickView(final int position) {
         if (this.clickViewList[position] != null) {

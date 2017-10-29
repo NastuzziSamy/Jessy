@@ -22,6 +22,7 @@
         <activity android:name=".BaseActivity" />
         <activity android:name=".FoundationListActivity" />
         <activity android:name=".ArticleCategoryActivity" />
+        <activity android:name=".BuyerInfoActivity" />
     </application>
 
 </manifest>

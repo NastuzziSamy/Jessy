@@ -18,21 +18,22 @@ import fr.utc.simde.payutc.R;
  * Created by Samy on 27/10/2017.
  */
 
-public class ArticleGroupFragment implements TabHost.TabContentFactory {
+public class GroupFragment implements TabHost.TabContentFactory {
     private static final String LOG_TAG = "_ArticleGroupFragment";
-
-    private LayoutInflater layoutInflater;
-    private View view;
-    private GridView gridView;
-    private ArticleAdapter articleAdapter;
 
     private int nbrColumns;
 
+    private LayoutInflater layoutInflater;
+    private View view;
+
+    private GridView gridView;
+
+    private ArticlesAdapter articlesAdapter;
     private ArticleCategoryActivity.Panier panier;
 
-    public ArticleGroupFragment(final Activity activity, final JsonNode articleList, ArticleCategoryActivity.Panier panier) throws Exception {
+    public GroupFragment(final Activity activity, final JsonNode articleList, ArticleCategoryActivity.Panier panier) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
-        this.view = this.layoutInflater.inflate(R.layout.fragment_article_group, null);
+        this.view = this.layoutInflater.inflate(R.layout.fragment_article_group_grid, null);
         this.gridView = this.view.findViewById(R.id.grid_articles);
 
         this.panier = panier;
@@ -40,30 +41,30 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
         setGridLayout(3);
         createArticles(activity, articleList);
 
-        gridView.setAdapter(this.articleAdapter);
+        this.gridView.setAdapter(this.articlesAdapter);
     }
 
     public void setGridLayout(final int nbrColumns) {
         this.nbrColumns = nbrColumns;
-        gridView.setNumColumns(nbrColumns);
+        this.gridView.setNumColumns(nbrColumns);
     }
 
     public void createArticles(final Activity activity, final JsonNode articleList) throws Exception {
-        this.articleAdapter = new ArticleAdapter(activity, articleList, this.nbrColumns);
+        this.articlesAdapter = new GridAdapter(activity, articleList, this.nbrColumns);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        this.gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
-                JsonNode article = ((JsonNode) articleAdapter.getArticle(position));
-                articleAdapter.onClick(position);
+                JsonNode article = ((JsonNode) articlesAdapter.getArticle(position));
+                articlesAdapter.onClick(position);
                 panier.addArticle(article.get("id").intValue(), article.get("price").intValue());
             }
         });
 
-        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        this.gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-                articleAdapter.toast(position, Toast.LENGTH_LONG);
+                articlesAdapter.toast(position, Toast.LENGTH_LONG);
 
                 return true;
             }
@@ -71,7 +72,7 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
     }
 
     public void clear() {
-        articleAdapter.clear();
+        articlesAdapter.clear();
     }
 
     @Override

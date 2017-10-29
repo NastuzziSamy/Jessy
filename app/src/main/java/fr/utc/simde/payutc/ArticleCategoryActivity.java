@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import fr.utc.simde.payutc.articles.ArticleGroupFragment;
+import fr.utc.simde.payutc.articles.GroupFragment;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -30,7 +31,7 @@ public class ArticleCategoryActivity extends BaseActivity {
 
     private Panier panier;
 
-    private List<ArticleGroupFragment> articleGroupFragmentList;
+    private List<GroupFragment> groupFragmentList;
     private int nbrCategories;
 
     public class Panier {
@@ -47,11 +48,13 @@ public class ArticleCategoryActivity extends BaseActivity {
         }
 
         public void setText() {
-            if (this.totalPrice == 0)
+            if (this.articleList.size() == 0)
                 this.textView.setText("Panier vide");
             else
                 this.textView.setText("Total: " + String.format("%.2f", new Float(totalPrice) / 100.00f) + "€");
         }
+
+        public List<Integer> getArticleList() { return this.articleList; }
 
         public void addArticle(final int id, final int price) {
             this.articleList.add(id);
@@ -65,6 +68,10 @@ public class ArticleCategoryActivity extends BaseActivity {
 
             this.totalPrice = 0;
             setText();
+        }
+
+        public Boolean isEmpty() {
+            return this.articleList.isEmpty();
         }
     }
 
@@ -80,7 +87,7 @@ public class ArticleCategoryActivity extends BaseActivity {
         this.tabHost = findViewById(R.id.tab_categories);
         this.tabHost.setup();
 
-        this.articleGroupFragmentList = new ArrayList<ArticleGroupFragment>();
+        this.groupFragmentList = new ArrayList<GroupFragment>();
         this.nbrCategories = 0;
 
         try {
@@ -107,8 +114,8 @@ public class ArticleCategoryActivity extends BaseActivity {
         this.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (ArticleGroupFragment articleGroupFragment : articleGroupFragmentList)
-                    articleGroupFragment.clear();
+                for (GroupFragment groupFragment : groupFragmentList)
+                    groupFragment.clear();
 
                 panier.clear();
             }
@@ -116,7 +123,16 @@ public class ArticleCategoryActivity extends BaseActivity {
     }
 
     @Override
-    protected void onIdentification(String idBadge) {}
+    protected void onIdentification(final String badgeId) {
+        if (this.panier.isEmpty())
+            startBuyerInfoActivity(ArticleCategoryActivity.this, badgeId);
+        else
+            pay(badgeId);
+    }
+
+    protected void pay(final String badgeId) {
+        Toast.makeText(this, "A faire payer", Toast.LENGTH_LONG).show();
+    }
 
     protected void createCategories(final JsonNode categoryList, final JsonNode articleList) throws Exception {
         HashMap<Integer, ArrayList<JsonNode>> articlesPerCategory = new HashMap<Integer, ArrayList<JsonNode>>();
@@ -148,13 +164,13 @@ public class ArticleCategoryActivity extends BaseActivity {
     }
 
     protected void createNewCategory(final String name, final JsonNode articleList) throws Exception {
-        ArticleGroupFragment articleGroupFragment = new ArticleGroupFragment(ArticleCategoryActivity.this, articleList, this.panier);
+        GroupFragment articleGroupFragment = new GroupFragment(ArticleCategoryActivity.this, articleList, this.panier);
 
         TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
         newTabSpec.setIndicator(name);
         newTabSpec.setContent(articleGroupFragment);
 
-        this.articleGroupFragmentList.add(articleGroupFragment);
+        this.groupFragmentList.add(articleGroupFragment);
 
         this.tabHost.addTab(newTabSpec);
         nbrCategories++;

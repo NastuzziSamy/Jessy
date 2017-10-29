@@ -6,13 +6,12 @@
     android:gravity="center_horizontal"
     android:layout_rowWeight="1"
     android:orientation="vertical"
-    android:layout_marginTop="15dp"
-    android:layout_marginBottom="5dp"
     android:rowCount="2">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:layout_rowWeight="1">
 
         <ImageView
@@ -42,6 +41,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
         android:layout_rowWeight="1">
 
         <TextView

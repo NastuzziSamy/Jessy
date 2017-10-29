@@ -63,10 +63,9 @@ public class ArticleGroupFragment implements TabHost.TabContentFactory {
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-                JsonNode article = ((JsonNode) articleAdapter.getArticle(position));
-                Toast.makeText(activity, article.get("name").textValue() + ": " + String.format("%.2f", new Float(article.get("price").intValue()) / 100.00f) + "€", Toast.LENGTH_LONG).show();
+                articleAdapter.toast(position, Toast.LENGTH_LONG);
 
-                return false;
+                return true;
             }
         });
     }

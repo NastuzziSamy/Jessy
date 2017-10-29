@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -123,9 +123,15 @@ public class ArticleAdapter extends BaseAdapter {
         }
     }
 
+    public void toast(final int position, int lengthLong) {
+        Toast.makeText(this.activity, articleList.get(position).get("name").textValue() + ": " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€", lengthLong).show();
+    }
+
     public void onClick(final int position) {
         this.nbrClicksList[position]++;
+
         setClickView(position);
+        toast(position, Toast.LENGTH_SHORT);
     }
 
     public void clear() {
@@ -144,7 +150,7 @@ public class ArticleAdapter extends BaseAdapter {
 
         if (imageList[position] != null)
             imageView.setImageBitmap(imageList[position]);
-        else if (url != null && !url.equals("")) {/*
+        else if (url != null && !url.equals("")) {
             new Thread(){
                 @Override
                 public void run() {
@@ -164,8 +170,8 @@ public class ArticleAdapter extends BaseAdapter {
                         });
                     }
                 }
-            }.start();*/
-            new DownloadImageTask(imageView, imageList[position]).execute(url);
+            }.start();
+            //new DownloadImageTask(imageView, imageList[position]).execute(url);
         }
     }
 

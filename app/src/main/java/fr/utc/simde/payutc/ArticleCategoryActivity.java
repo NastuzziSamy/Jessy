@@ -3,7 +3,10 @@ package fr.utc.simde.payutc;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import fr.utc.simde.payutc.fragments.ArticleGroupFragment;
+import fr.utc.simde.payutc.articles.ArticleGroupFragment;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -21,18 +24,64 @@ import fr.utc.simde.payutc.fragments.ArticleGroupFragment;
 public class ArticleCategoryActivity extends BaseActivity {
     private static final String LOG_TAG = "_ArticleCategoryActivit";
 
-    private TabHost categoryTabList;
+    private ImageButton paramButton;
+    private ImageButton deleteButton;
+    private TabHost tabHost;
+
+    private Panier panier;
+
+    private List<ArticleGroupFragment> articleGroupFragmentList;
     private int nbrCategories;
+
+    public class Panier {
+        private int totalPrice;
+        private List<Integer> articleList = new ArrayList<Integer>();
+
+        private TextView textView;
+
+        public Panier(TextView textView) {
+            this.totalPrice = 0;
+            this.textView = textView;
+
+            setText();
+        }
+
+        public void setText() {
+            if (this.totalPrice == 0)
+                this.textView.setText("Panier vide");
+            else
+                this.textView.setText("Total: " + String.format("%.2f", new Float(totalPrice) / 100.00f) + "€");
+        }
+
+        public void addArticle(final int id, final int price) {
+            this.articleList.add(id);
+            this.totalPrice += price;
+
+            setText();
+        }
+
+        public void clear() {
+            this.articleList.clear();
+
+            this.totalPrice = 0;
+            setText();
+        }
+    }
 
     @Override
     public void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView (R.layout.activity_articles_category);
+        setContentView(R.layout.activity_article_category);
 
+        TextView textView = findViewById(R.id.text_price);
+        this.panier = new Panier(textView);
+        this.paramButton = findViewById(R.id.image_param);
+        this.deleteButton = findViewById(R.id.image_delete);
+        this.tabHost = findViewById(R.id.tab_categories);
+        this.tabHost.setup();
+
+        this.articleGroupFragmentList = new ArrayList<ArticleGroupFragment>();
         this.nbrCategories = 0;
-
-        this.categoryTabList = findViewById(R.id.tab_categories);
-        this.categoryTabList.setup();
 
         try {
             createCategories(new ObjectMapper().readTree(getIntent().getExtras().getString("categoryList")), new ObjectMapper().readTree(getIntent().getExtras().getString("articleList")));
@@ -54,6 +103,16 @@ public class ArticleCategoryActivity extends BaseActivity {
                 }
             });
         }
+
+        this.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (ArticleGroupFragment articleGroupFragment : articleGroupFragmentList)
+                    articleGroupFragment.clear();
+
+                panier.clear();
+            }
+        });
     }
 
     @Override
@@ -89,11 +148,15 @@ public class ArticleCategoryActivity extends BaseActivity {
     }
 
     protected void createNewCategory(final String name, final JsonNode articleList) throws Exception {
-        TabHost.TabSpec newTabSpec = this.categoryTabList.newTabSpec(name);
-        newTabSpec.setIndicator(name);
-        newTabSpec.setContent(new ArticleGroupFragment(ArticleCategoryActivity.this, articleList));
+        ArticleGroupFragment articleGroupFragment = new ArticleGroupFragment(ArticleCategoryActivity.this, articleList, this.panier);
 
-        this.categoryTabList.addTab(newTabSpec);
+        TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
+        newTabSpec.setIndicator(name);
+        newTabSpec.setContent(articleGroupFragment);
+
+        this.articleGroupFragmentList.add(articleGroupFragment);
+
+        this.tabHost.addTab(newTabSpec);
         nbrCategories++;
     }
 }

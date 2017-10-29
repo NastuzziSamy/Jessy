@@ -29,14 +29,20 @@ public class NemopaySession {
     private String foundationName;
 
     private HTTPRequest request;
-    private String[] rightsNeeded;
+
+    private String noRight;
+    private String noRights;
+    private String noRightsNeeded;
+    private String serviceText;
+    private String notFound;
+    private String badRequest;
 
     private Map<String, String> cookies = new HashMap<String, String>();
     private final Map<String, String> getArgs = new HashMap<String, String>() {{
         put("system_id", "payutc");
     }};
 
-    public NemopaySession(Activity activity) {
+    public NemopaySession(final Activity activity) {
         this.name = "";
         this.key = "";
         this.session = "";
@@ -48,6 +54,13 @@ public class NemopaySession {
         String[] values = activity.getResources().getStringArray(R.array.rights_values);
         for (int i = 0; i < Math.min(keys.length, values.length); ++i)
             this.allRights.put(keys[i], values[i]);
+
+        this.noRightsNeeded = activity.getString(R.string.no_need_rights);
+        this.noRight = activity.getString(R.string.no_right);
+        this.noRights = activity.getString(R.string.no_rights);
+        this.serviceText = activity.getString(R.string.service);
+        this.notFound = activity.getString(R.string.not_found);
+        this.badRequest = activity.getString(R.string.bad_request);
     }
 
     public Boolean isConnected() { return !this.session.isEmpty() && !this.username.isEmpty(); }
@@ -78,6 +91,24 @@ public class NemopaySession {
     public HTTPRequest getRequest() { return this.request; }
     public int getFoundationId() { return foundationId; }
     public String getFoundationName() { return foundationName; }
+
+    public int getBuyerInfo(final String badgeId) throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        return request(
+                "POSS3",
+                "getBuyerInfo",
+                new HashMap<String, String>() {{
+                    put("badge_id", badgeId);
+                    if (foundationId != -1)
+                        put("fun_id", Integer.toString(foundationId));
+                }},
+                new String[]{
+                        "sale"
+                }
+        );
+    }
 
     public int getArticles() throws Exception {
         if (!isConnected())
@@ -130,7 +161,7 @@ public class NemopaySession {
         );
     }
 
-    public int getCASUrl() throws IOException {
+    public int getCASUrl() throws Exception {
         return request(
             "POSS3",
             "getCasUrl"
@@ -200,7 +231,7 @@ public class NemopaySession {
         return reponseCode;
     }
 
-    public int loginBadge(final String idBadge, final String pin) throws Exception {
+    public int loginBadge(final String badgeId, final String pin) throws Exception {
         if (!isRegistered())
             throw new Exception("Not registered");
 
@@ -208,7 +239,7 @@ public class NemopaySession {
             "POSS3",
             "loginBadge2",
             new HashMap<String, String>() {{
-                put("badge_id", idBadge);
+                put("badge_id", badgeId);
                 put("pin", pin);
             }},
             new String[]{
@@ -258,16 +289,16 @@ public class NemopaySession {
         return reponseCode;
     }
 
-    public String needRights(Activity activity) {
+    public String forbidden(final String[] rightsNeeded) {
         String result;
-        if (this.rightsNeeded.length == 0)
-            return activity.getString(R.string.no_need_rights);
-        else if (this.rightsNeeded.length == 1)
-            result = activity.getString(R.string.no_right);
+        if (rightsNeeded.length == 0)
+            result = this.noRightsNeeded;
+        else if (rightsNeeded.length == 1)
+            result = this.noRight;
         else
-            result = activity.getString(R.string.no_rights);
+            result = this.noRights;
 
-        for (String right : this.rightsNeeded) {
+        for (String right : rightsNeeded) {
             if (allRights.containsKey(right))
                 result += " " + allRights.get(right) + ",";
             else {
@@ -279,20 +310,26 @@ public class NemopaySession {
         return result.substring(0, result.length() - 1) + ".";
     }
 
-    protected int request(final String method, final String service) throws IOException { return request(method, service, new HashMap<String, String>(), new String[]{}); }
-    protected int request(final String method, final String service, final String[] rightsNeeded) throws IOException { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
-    protected int request(final String method, final String service, final Map<String, String> postArgs) throws IOException { return request(method, service, postArgs, new String[]{}); }
-    protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws IOException {
+    protected int request(final String method, final String service) throws Exception { return request(method, service, new HashMap<String, String>(), new String[]{}); }
+    protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
+    protected int request(final String method, final String service, final Map<String, String> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
+    protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws Exception {
         Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
         this.request.setPost(postArgs);
         this.request.setCookies(this.cookies);
 
-        int reponseCode = this.request.post();
+        int responseCode = this.request.post();
         this.cookies = request.getCookies();
-        this.rightsNeeded = rightsNeeded;
 
-        return reponseCode;
+        if (responseCode == 500)
+            throw new Exception(forbidden(rightsNeeded));
+        else if (responseCode == 404)
+            throw new Exception(this.serviceText + " " + service + " " + this.notFound);
+        else if (responseCode == 400)
+            throw new Exception(this.serviceText + " " + service + " " + this.badRequest);
+
+        return responseCode;
     }
 }

@@ -69,6 +69,7 @@
     <string name="article_error_0">n\'a aucun article à vendre</string>
     <string name="article_error_get_list">Impossible de récupérer la liste des articles</string>
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
+    <string name="article">Article</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>

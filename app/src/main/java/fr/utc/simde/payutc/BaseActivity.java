@@ -3,6 +3,7 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +22,27 @@ public abstract class BaseActivity extends NFCActivity {
     protected static Dialog dialog;
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
+    protected static Config config;
+
+    protected class Config {
+        private SharedPreferences sharedPreferences;
+
+        private Boolean inGrid;
+
+        protected Config(final SharedPreferences sharedPreferences) {
+            this.sharedPreferences = sharedPreferences;
+            this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
+        }
+
+        public Boolean getInGrid() { return this.inGrid; }
+        public void setInGrid(final Boolean inGrid) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("config_in_grid", inGrid);
+            editor.apply();
+
+            this.inGrid = inGrid;
+        }
+    }
 
     protected void disconnect() {
         nemopaySession.disconnect();
@@ -99,6 +121,10 @@ public abstract class BaseActivity extends NFCActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("FoundationListActivity"))
+                                finish();
+
                             activity.startActivity(intent);
                         }
                     });
@@ -204,6 +230,10 @@ public abstract class BaseActivity extends NFCActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
+                                finish();
+
                             activity.startActivity(intent);
                         }
                     });
@@ -250,11 +280,16 @@ public abstract class BaseActivity extends NFCActivity {
                     if (!buyerInfo.has("lastname") || !buyerInfo.has("username") || !buyerInfo.has("firstname") || !buyerInfo.has("solde") || !buyerInfo.has("last_purchases") || !buyerInfo.get("last_purchases").isArray())
                         throw new Exception("Unexpected JSON");
 
+                    intent.putExtra("badgeId", badgeId);
                     intent.putExtra("buyerInfo", request.getResponse());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("BuyerInfoActivity"))
+                                finish();
+
                             activity.startActivity(intent);
                         }
                     });

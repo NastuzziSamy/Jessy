@@ -9,6 +9,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fr.utc.simde.payutc.R;
@@ -96,21 +97,64 @@ public class NemopaySession {
     public int getFoundationId() { return foundationId; }
     public String getFoundationName() { return foundationName; }
 
+    public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        return request(
+            "POSS3",
+            "cancel",
+            new HashMap<String, String>() {{
+                put("fun_id", Integer.toString(foundationId));
+                put("pur_id", Integer.toString(purchaseId));
+            }},
+            new String[]{
+                "sale"
+            }
+        );
+    }
+
+    public int setTransaction(final String badgeId, final List<Integer> articleList) throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        String articles = "";
+        for (Integer article : articleList)
+            articles += Integer.toString(article) + " ";
+
+        final String obj_ids = articles;
+        return request(
+            "POSS3",
+            "transaction",
+            new HashMap<String, String>() {{
+                put("fun_id", Integer.toString(foundationId));
+                put("badge_id", badgeId);
+                put("obj_ids", obj_ids);
+            }},
+            new String[]{
+                "sale"
+            }
+        );
+    }
+
     public int getBuyerInfo(final String badgeId) throws Exception {
         if (!isConnected())
             throw new Exception("Not connected");
 
         return request(
-                "POSS3",
-                "getBuyerInfo",
-                new HashMap<String, String>() {{
-                    put("badge_id", badgeId);
-                    if (foundationId != -1)
-                        put("fun_id", Integer.toString(foundationId));
-                }},
-                new String[]{
-                        "sale"
-                }
+            "POSS3",
+            "getBuyerInfo",
+            new HashMap<String, String>() {{
+                if (foundationId != -1)
+                    put("fun_id", Integer.toString(foundationId));
+                put("badge_id", badgeId);
+            }},
+            new String[]{
+                "sale"
+            }
         );
     }
 

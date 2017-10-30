@@ -33,22 +33,24 @@ public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";
 
-    private static SharedPreferences sharedPreferences;
-
     private static TextView AppConfigText;
     private static TextView AppRegisteredText;
     private static Button usernameButton;
+
+    private static SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
+
         dialog = new Dialog(MainActivity.this);
         nemopaySession = new NemopaySession(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
-        sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
-        
+        config = new Config(sharedPreferences);
+
         final String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
             setKey(key);

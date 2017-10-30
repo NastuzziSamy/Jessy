@@ -10,6 +10,7 @@
     <string name="pass">Continuer</string>
     <string name="erase">Effacer</string>
     <string name="cancel">Annuler</string>
+    <string name="do_nothing">Ne rien faire</string>
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
     <string name="app_not_registred">Appareil non enregistré</string>
@@ -24,6 +25,8 @@
     <string name="article">Article</string>
     <string name="service">Le service</string>
     <string name="realized">Réalisé à</string>
+    <string name="realized_by_other">Réalisé par une autre fondation</string>
+    <string name="paiement">Paiement</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
     <string name="error_view">Une erreur a empêché la création de la vue</string>
@@ -72,6 +75,10 @@
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
     <string name="buyer_info_collecting">Récupération des informations de la personne</string>
     <string name="no_purchases">Aucun article acheté dernièrement</string>
+    <string name="transaction_in_progress">Transaction en cours</string>
+    <string name="cancel_transaction">Annuler une transaction</string>
+    <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
+    <string name="transaction_canceled">L\'annulation a bien été effective</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>

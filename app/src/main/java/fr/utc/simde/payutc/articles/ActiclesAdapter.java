@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -38,9 +39,9 @@ abstract class ArticlesAdapter extends BaseAdapter {
     protected Integer[] nbrClicksList;
     protected TextView[] clickViewList;
 
-    protected JsonNode articleList;
+    protected ArrayNode articleList;
 
-    public ArticlesAdapter(final Activity activity, final JsonNode articleList) throws Exception {
+    public ArticlesAdapter(final Activity activity, final ArrayNode articleList) throws Exception {
         this.activity = activity;
         this.articleList = articleList;
         this.imageList = new Bitmap[articleList.size()];
@@ -90,7 +91,6 @@ abstract class ArticlesAdapter extends BaseAdapter {
         this.nbrClicksList[position]++;
 
         setClickView(position);
-        toast(position, Toast.LENGTH_SHORT);
     }
 
     public void clear() {

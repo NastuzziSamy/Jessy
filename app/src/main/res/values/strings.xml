@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="app_name">PayUTC</string>
     <string name="payutc">PayUTC</string>
     <string name="hello">Pour se connecter, clique sur\n le bouton ou scanne ton badge</string>
@@ -27,6 +27,7 @@
     <string name="realized">Réalisé à</string>
     <string name="realized_by_other">Réalisé par une autre fondation</string>
     <string name="paiement">Paiement</string>
+    <string name="author">&lt;/&gt; with &lt;3 by Samy</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
     <string name="error_view">Une erreur a empêché la création de la vue</string>

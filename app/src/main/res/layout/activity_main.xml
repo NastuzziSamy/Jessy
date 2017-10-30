@@ -54,6 +54,13 @@
         android:layout_alignParentBottom="true" >
 
         <TextView
+            android:id="@id+/textAuthor"
+            android:layout_width="fill_parent"
+            android:layout_heigh="wrap_content"
+            android:text="@string/author"
+            android:gravity="center" />
+
+        <TextView
         android:id="@+id/text_app_registered"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

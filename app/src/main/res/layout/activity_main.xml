@@ -48,26 +48,27 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true" >
 
         <TextView
-            android:id="@id+/textAuthor"
+            android:id="@+id/text_app_registered"
             android:layout_width="fill_parent"
-            android:layout_heigh="wrap_content"
-            android:text="@string/author"
-            android:gravity="center" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="italic"
+            android:text="@string/app_not_registred" />
 
         <TextView
-        android:id="@+id/text_app_registered"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textStyle="italic"
-        android:layout_margin="10dp"
-        android:text="@string/app_not_registred" />
-    </RelativeLayout>
+            android:id="@+id/text_author"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/author"
+            android:layout_marginBottom="10dp"
+            android:gravity="center" />
+    </LinearLayout>
 
 </RelativeLayout>

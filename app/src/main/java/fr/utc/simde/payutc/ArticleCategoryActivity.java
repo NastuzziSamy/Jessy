@@ -1,21 +1,26 @@
 package fr.utc.simde.payutc;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import fr.utc.simde.payutc.articles.ArticleGroupFragment;
+import fr.utc.simde.payutc.articles.GroupFragment;
+import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -30,7 +35,7 @@ public class ArticleCategoryActivity extends BaseActivity {
 
     private Panier panier;
 
-    private List<ArticleGroupFragment> articleGroupFragmentList;
+    private List<GroupFragment> groupFragmentList;
     private int nbrCategories;
 
     public class Panier {
@@ -47,11 +52,13 @@ public class ArticleCategoryActivity extends BaseActivity {
         }
 
         public void setText() {
-            if (this.totalPrice == 0)
+            if (this.articleList.size() == 0)
                 this.textView.setText("Panier vide");
             else
                 this.textView.setText("Total: " + String.format("%.2f", new Float(totalPrice) / 100.00f) + "€");
         }
+
+        public List<Integer> getArticleList() { return this.articleList; }
 
         public void addArticle(final int id, final int price) {
             this.articleList.add(id);
@@ -65,6 +72,10 @@ public class ArticleCategoryActivity extends BaseActivity {
 
             this.totalPrice = 0;
             setText();
+        }
+
+        public Boolean isEmpty() {
+            return this.articleList.isEmpty();
         }
     }
 
@@ -80,7 +91,7 @@ public class ArticleCategoryActivity extends BaseActivity {
         this.tabHost = findViewById(R.id.tab_categories);
         this.tabHost.setup();
 
-        this.articleGroupFragmentList = new ArrayList<ArticleGroupFragment>();
+        this.groupFragmentList = new ArrayList<GroupFragment>();
         this.nbrCategories = 0;
 
         try {
@@ -104,19 +115,114 @@ public class ArticleCategoryActivity extends BaseActivity {
             });
         }
 
+        this.paramButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                config.setInGrid(!config.getInGrid());
+                startCategoryArticlesActivity(ArticleCategoryActivity.this);
+            }
+        });
+
         this.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (ArticleGroupFragment articleGroupFragment : articleGroupFragmentList)
-                    articleGroupFragment.clear();
-
-                panier.clear();
+                clearPanier();
             }
         });
     }
 
     @Override
-    protected void onIdentification(String idBadge) {}
+    protected void onIdentification(final String badgeId) {
+        if (this.panier.isEmpty())
+            startBuyerInfoActivity(ArticleCategoryActivity.this, badgeId);
+        else
+            pay(badgeId);
+    }
+
+    public void clearPanier() {
+        for (GroupFragment groupFragment : groupFragmentList)
+            groupFragment.clear();
+
+        panier.clear();
+    }
+
+    public void setBackgroundColor(int color) {
+        this.tabHost.setBackgroundColor(color);
+
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2500);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tabHost.setBackgroundColor(getResources().getColor(R.color.white));
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                }
+
+            }
+        }.start();
+    }
+
+    protected void pay(final String badgeId) {
+        dialog.startLoading(this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_progress));
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.setTransaction(badgeId, panier.getArticleList());
+                    Thread.sleep(100);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+                            Toast.makeText(ArticleCategoryActivity.this, "Paiement effectué", Toast.LENGTH_LONG).show();
+                            setBackgroundColor(getResources().getColor(R.color.success));
+                            ((Vibrator) getSystemService(ArticleCategoryActivity.VIBRATOR_SERVICE)).vibrate(250);
+                            clearPanier();
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    try {
+                        final JsonNode response = nemopaySession.getRequest().getJSONResponse();
+
+                        if (response.has("error") && response.get("error").has("message")) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+                                    dialog.errorDialog(ArticleCategoryActivity.this, getString(R.string.paiement), response.get("error").get("message").textValue());
+                                    setBackgroundColor(getResources().getColor(R.color.error));
+                                    ((Vibrator) getSystemService(ArticleCategoryActivity.VIBRATOR_SERVICE)).vibrate(500);
+                                }
+                            });
+                        }
+                        else
+                            throw new Exception("");
+                    } catch (Exception e1) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+                                dialog.errorDialog(ArticleCategoryActivity.this, getString(R.string.paiement), e.getMessage());
+                                setBackgroundColor(getResources().getColor(R.color.error));
+                                ((Vibrator) getSystemService(ArticleCategoryActivity.VIBRATOR_SERVICE)).vibrate(500);
+                            }
+                        });
+                    }
+                }
+            }
+        }.start();
+    }
 
     protected void createCategories(final JsonNode categoryList, final JsonNode articleList) throws Exception {
         HashMap<Integer, ArrayList<JsonNode>> articlesPerCategory = new HashMap<Integer, ArrayList<JsonNode>>();
@@ -143,18 +249,18 @@ public class ArticleCategoryActivity extends BaseActivity {
             if (articlesForThisCategory == null || articlesForThisCategory.size() == 0)
                 continue;
 
-            createNewCategory(category.get("name").textValue(), new ObjectMapper().readTree(articlesForThisCategory.toString()));
+            createNewCategory(category.get("name").textValue(), (ArrayNode) new ObjectMapper().readTree(articlesForThisCategory.toString()));
         }
     }
 
-    protected void createNewCategory(final String name, final JsonNode articleList) throws Exception {
-        ArticleGroupFragment articleGroupFragment = new ArticleGroupFragment(ArticleCategoryActivity.this, articleList, this.panier);
+    protected void createNewCategory(final String name, final ArrayNode articleList) throws Exception {
+        GroupFragment articleGroupFragment = new GroupFragment(ArticleCategoryActivity.this, articleList, this.panier, this.config.getInGrid());
 
         TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
         newTabSpec.setIndicator(name);
         newTabSpec.setContent(articleGroupFragment);
 
-        this.articleGroupFragmentList.add(articleGroupFragment);
+        this.groupFragmentList.add(articleGroupFragment);
 
         this.tabHost.addTab(newTabSpec);
         nbrCategories++;

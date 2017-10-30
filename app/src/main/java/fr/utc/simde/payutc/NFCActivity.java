@@ -53,7 +53,7 @@ public abstract class NFCActivity extends Activity {
         this.registerReceiver(NFCReceiver, filter);
     }
 
-    protected abstract void onIdentification(final String idBadge);
+    protected abstract void onIdentification(final String badgeId);
 
     protected Boolean identifierIsAvailable() { return NFCAdapter != null; }
 
@@ -71,9 +71,9 @@ public abstract class NFCActivity extends Activity {
 
     protected void onNewIntent(Intent intent) {
         if (intent.getAction() != null && intent.getAction().equals(NFCAdapter.ACTION_TAG_DISCOVERED)) {
-            String idBadge = ByteArrayToHexString(((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)).getId());
-            Log.d(LOG_TAG, "ID: " + idBadge);
-            onIdentification(idBadge);
+            String badgeId = ByteArrayToHexString(((Tag) intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)).getId());
+            Log.d(LOG_TAG, "ID: " + badgeId);
+            onIdentification(badgeId);
         }
     }
 

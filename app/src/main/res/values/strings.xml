@@ -10,6 +10,7 @@
     <string name="pass">Continuer</string>
     <string name="erase">Effacer</string>
     <string name="cancel">Annuler</string>
+    <string name="do_nothing">Ne rien faire</string>
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
     <string name="app_not_registred">Appareil non enregistré</string>
@@ -18,9 +19,14 @@
     <string name="username">Login</string>
     <string name="password">Mot de passe</string>
     <string name="pin">Code PIN</string>
-    <string name="no_pin">Pas de PIN</string>
+    <string name="no_pin">Aucun PIN</string>
     <string name="pin_required">Code PIN requis !</string>
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
+    <string name="article">Article</string>
+    <string name="service">Le service</string>
+    <string name="realized">Réalisé à</string>
+    <string name="realized_by_other">Réalisé par une autre fondation</string>
+    <string name="paiement">Paiement</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
     <string name="error_view">Une erreur a empêché la création de la vue</string>
@@ -44,6 +50,7 @@
     <string name="badge_recognization">Authentification du badge</string>
     <string name="badge_error_no_rights">Impossible de vérifier le badge</string>
     <string name="badge_pin_error_not_recognized">Badge ou code PIN non reconnu</string>
+    <string name="badge_error_not_recognized">Badge non reconnu (compte PayUTC peut-être non existant)</string>
     <string name="badge_pin_not_initialized">Pour pouvoir se connecter via son badge, il est impératif d\'avoir configuré son code PIN sur https://pay.utc.fr/</string>
     <string name="nemopay_connection">Connexion à Nemopay</string>
     <string name="nemopay_authentification">Authentification de l\'application</string>
@@ -61,20 +68,26 @@
     <string name="already_connected">Déjà connecté sous</string>
     <string name="information_collection">Récupération d\'informations</string>
     <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
-    <string name="foundation_error_get_list">Impossible de récupérer la liste des fondations</string>
     <string name="category_list_collecting">Récupération des catégories</string>
     <string name="article_list_collecting">Récupération des articles</string>
     <string name="category_error_0">n\'a aucune catégorie</string>
-    <string name="category_error_get_list">Impossible de récupérer la liste des catégories</string>
     <string name="article_error_0">n\'a aucun article à vendre</string>
-    <string name="article_error_get_list">Impossible de récupérer la liste des articles</string>
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
-    <string name="article">Article</string>
+    <string name="buyer_info_collecting">Récupération des informations de la personne</string>
+    <string name="no_purchases">Aucun article acheté dernièrement</string>
+    <string name="transaction_in_progress">Transaction en cours</string>
+    <string name="cancel_transaction">Annuler une transaction</string>
+    <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
+    <string name="transaction_canceled">L\'annulation a bien été effective</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
     <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
+    <string name="not_found">n\'a pas réussi à trouver l\'élement souhaité</string>
+    <string name="bad_request">n\'a pas compris la requête reçue</string>
+    <string name="internal_error">a renvoyé une erreur interne (contacter un adminstrateur si cela se reproduit)</string>
+    <string name="error_request">a renvoyé l\'erreur HTTP suivante: </string>
     <string-array name="rights_keys">
         <item>Accès en lecture seule sur les paramètres</item>
         <item>add_free</item>

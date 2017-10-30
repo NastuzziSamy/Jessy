@@ -33,22 +33,24 @@ public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";
 
-    private static SharedPreferences sharedPreferences;
-
     private static TextView AppConfigText;
     private static TextView AppRegisteredText;
     private static Button usernameButton;
+
+    private static SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
+
         dialog = new Dialog(MainActivity.this);
         nemopaySession = new NemopaySession(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
-        sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
-        
+        config = new Config(sharedPreferences);
+
         final String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
             setKey(key);
@@ -78,9 +80,9 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onIdentification(final String idBadge) {
+    protected void onIdentification(final String badgeId) {
         if (!dialog.isShowing())
-            badgeDialog(idBadge);
+            badgeDialog(badgeId);
     }
 
     @Override
@@ -142,13 +144,9 @@ public class MainActivity extends BaseActivity {
             public void run() {
                 if (casConnexion.getUrl().equals("")) {
                     try {
-                        if (nemopaySession.getCASUrl() == 200) {
-                            Log.d(LOG_TAG, nemopaySession.getRequest().getResponse());
-                            String url = nemopaySession.getRequest().getResponse();
-                            casConnexion.setUrl(url.substring(1, url.length() - 1));
-                        }
-                        else
-                            throw new Exception("Impossible to get CAS url");
+                        nemopaySession.getCASUrl();
+                        String url = nemopaySession.getRequest().getResponse();
+                        casConnexion.setUrl(url.substring(1, url.length() - 1));
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "error: " + e.getMessage());
                     }
@@ -237,7 +235,7 @@ public class MainActivity extends BaseActivity {
         }.start();
     }
 
-    protected void connectWithBadge(final String idBadge, final String pin) {
+    protected void connectWithBadge(final String badgeId, final String pin) {
         if (!nemopaySession.isRegistered() || nemopaySession.isConnected())
             return;
 
@@ -246,11 +244,24 @@ public class MainActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    nemopaySession.loginBadge(idBadge, pin);
+                    nemopaySession.loginBadge(badgeId, pin);
                     Thread.sleep(100);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                        if (nemopaySession.getRequest().getResponseCode() == 400)
+                            dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
+                        else
+                            dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), e.getMessage());
+                        }
+                    });
                 }
+
+                if (!nemopaySession.isConnected())
+                    return;
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -258,12 +269,7 @@ public class MainActivity extends BaseActivity {
                         dialog.stopLoading();
 
                         try {
-                            if (nemopaySession.isConnected())
-                                startFoundationListActivity(MainActivity.this);
-                            else if (nemopaySession.getRequest().getResponseCode() == 400)
-                                dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
-                            else
-                                dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_error_no_rights) + ".\n" + nemopaySession.needRights(MainActivity.this));
+                            startFoundationListActivity(MainActivity.this);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
                         }
@@ -273,7 +279,7 @@ public class MainActivity extends BaseActivity {
         }).start();
     }
 
-    protected void badgeDialog(final String idBadge) {
+    protected void badgeDialog(final String badgeId) {
         if (!nemopaySession.isRegistered()) {
             dialog.errorDialog(MainActivity.this, getString(R.string.badge_connection), getString(R.string.badge_app_not_registered));
             return;
@@ -298,10 +304,10 @@ public class MainActivity extends BaseActivity {
                     if (pinInput.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, R.string.pin_required, Toast.LENGTH_SHORT).show();
                         dialogInterface.cancel();
-                        badgeDialog(idBadge);
+                        badgeDialog(badgeId);
                     }
                     else {
-                        connectWithBadge(idBadge, pinInput.getText().toString());
+                        connectWithBadge(badgeId, pinInput.getText().toString());
                         dialogInterface.cancel();
                     }
                 }

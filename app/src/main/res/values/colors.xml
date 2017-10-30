@@ -6,6 +6,6 @@
     <color name="add">#303F9F</color>
     <color name="remove">#FF1F1F</color>
     <color name="white">#EEEEEE</color>
-    <color name="success">#00EE00</color>
+    <color name="success">#32CD32</color>
     <color name="error">#EE0000</color>
 </resources>

@@ -47,7 +47,7 @@ public class FoundationListActivity extends BaseActivity {
     }
 
     @Override
-    protected void onIdentification(String idBadge) {}
+    protected void onIdentification(final String badgeId) {}
 
     @Override
     protected void onDestroy() {

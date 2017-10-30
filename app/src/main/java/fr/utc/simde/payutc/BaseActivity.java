@@ -3,6 +3,7 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +22,27 @@ public abstract class BaseActivity extends NFCActivity {
     protected static Dialog dialog;
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
+    protected static Config config;
+
+    protected class Config {
+        private SharedPreferences sharedPreferences;
+
+        private Boolean inGrid;
+
+        protected Config(final SharedPreferences sharedPreferences) {
+            this.sharedPreferences = sharedPreferences;
+            this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
+        }
+
+        public Boolean getInGrid() { return this.inGrid; }
+        public void setInGrid(final Boolean inGrid) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("config_in_grid", inGrid);
+            editor.apply();
+
+            this.inGrid = inGrid;
+        }
+    }
 
     protected void disconnect() {
         nemopaySession.disconnect();
@@ -54,11 +76,11 @@ public abstract class BaseActivity extends NFCActivity {
         new Thread() {
             @Override
             public void run() {
-                try { // Toute une série de vérifications avant de lancer l'activité
-                    if (nemopaySession.getFoundations() != 200)
-                        throw new Exception("HTTP Error: " + Integer.toString(nemopaySession.getRequest().getResponseCode()));
-
+                try {
+                    int responseCode = nemopaySession.getFoundations();
                     Thread.sleep(100);
+
+                    // Toute une série de vérifications avant de lancer l'activité
                     final HTTPRequest request = nemopaySession.getRequest();
                     final JsonNode foundationList = request.getJSONResponse();
 
@@ -99,20 +121,23 @@ public abstract class BaseActivity extends NFCActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("FoundationListActivity"))
+                                finish();
+
                             activity.startActivity(intent);
                         }
                     });
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.foundation_error_get_list));
+                            dialog.errorDialog(activity, getString(R.string.foundation_list_collecting), e.getMessage());
                         }
                     });
                 }
-
             }
         }.start();
     }
@@ -124,12 +149,11 @@ public abstract class BaseActivity extends NFCActivity {
         new Thread() {
             @Override
             public void run() {
-
-                try { // Toute une série de vérifications avant de lancer l'activité
-                    if (nemopaySession.getCategories() != 200)
-                        throw new Exception("HTTP Error: " + Integer.toString(nemopaySession.getRequest().getResponseCode()));
-
+                try {
+                    int responseCode = nemopaySession.getCategories();
                     Thread.sleep(100);
+
+                    // Toute une série de vérifications avant de lancer l'activité
                     final HTTPRequest request = nemopaySession.getRequest();
                     final JsonNode categoryList = request.getJSONResponse();
 
@@ -155,17 +179,15 @@ public abstract class BaseActivity extends NFCActivity {
                     }
 
                     intent.putExtra("categoryList", request.getResponse());
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.category_error_get_list));
+                            dialog.errorDialog(activity, getString(R.string.category_list_collecting), e.getMessage());
                         }
                     });
-
-                    return;
                 }
 
                 runOnUiThread(new Runnable() {
@@ -175,11 +197,11 @@ public abstract class BaseActivity extends NFCActivity {
                     }
                 });
 
-                try { // Toute une série de vérifications avant de lancer l'activité
-                    if (nemopaySession.getArticles() != 200)
-                    throw new Exception("HTTP Error: " + Integer.toString(nemopaySession.getRequest().getResponseCode()));
-
+                try {
+                    int responseCode = nemopaySession.getArticles();
                     Thread.sleep(100);
+
+                    // Toute une série de vérifications avant de lancer l'activité
                     final HTTPRequest request = nemopaySession.getRequest();
                     final JsonNode articleList = request.getJSONResponse();
 
@@ -208,20 +230,23 @@ public abstract class BaseActivity extends NFCActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
+                                finish();
+
                             activity.startActivity(intent);
                         }
                     });
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.article_error_get_list));
+                            dialog.errorDialog(activity, getString(R.string.article_list_collecting), e.getMessage());
                         }
                     });
                 }
-
             }
         }.start();
     }
@@ -232,5 +257,65 @@ public abstract class BaseActivity extends NFCActivity {
 
         // Plus tard, on pourra choisir quelle activité lancer
         startCategoryArticlesActivity(activity);
+    }
+
+    protected void startBuyerInfoActivity(final Activity activity, final String badgeId) {
+        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
+        final Intent intent = new Intent(activity, BuyerInfoActivity.class);
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.getBuyerInfo(badgeId);
+                    Thread.sleep(100);
+
+                    // Toute une série de vérifications avant de lancer l'activité
+                    final HTTPRequest request = nemopaySession.getRequest();
+                    final JsonNode buyerInfo = request.getJSONResponse();
+
+                    if (!request.isJSONResponse())
+                        throw new Exception("Malformed JSON");
+
+                    if (!buyerInfo.has("lastname") || !buyerInfo.has("username") || !buyerInfo.has("firstname") || !buyerInfo.has("solde") || !buyerInfo.has("last_purchases") || !buyerInfo.get("last_purchases").isArray())
+                        throw new Exception("Unexpected JSON");
+
+                    intent.putExtra("badgeId", badgeId);
+                    intent.putExtra("buyerInfo", request.getResponse());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            if (activity.getClass().getSimpleName().equals("BuyerInfoActivity"))
+                                finish();
+
+                            activity.startActivity(intent);
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    try {
+                        if (nemopaySession.getRequest().getResponseCode() == 404)
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.errorDialog(activity, getString(R.string.information_collection), getString(R.string.badge_error_not_recognized));
+                                }
+                            });
+                        else
+                            throw new Exception("");
+                    } catch (Exception e1) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.errorDialog(activity, getString(R.string.information_collection), e.getMessage());
+                            }
+                        });
+                    }
+                }
+            }
+        }.start();
     }
 }

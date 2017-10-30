@@ -70,14 +70,15 @@ public class HTTPRequest {
             this.request.setDoInput(true);
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
-            generateResponse();
+            generateResponse(this.request.getInputStream());
         }
         catch (Exception e) {
             try {
                 Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+                generateResponse(this.request.getErrorStream());
             }
             catch (Exception e2) {
-                Log.e(LOG_TAG, "error: " + e.getMessage());
+                Log.e(LOG_TAG, "error generating error message: " + e2.getMessage());
             }
         }
 
@@ -111,14 +112,15 @@ public class HTTPRequest {
             this.request.getOutputStream().write(post.getBytes());
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
-            generateResponse();
+            generateResponse(this.request.getInputStream());
         }
         catch (Exception e) {
             try {
                 Log.d(LOG_TAG, "code: " + Integer.toString(this.request.getResponseCode()) + ", error: " + e.getMessage());
+                generateResponse(this.request.getErrorStream());
             }
             catch (Exception e2) {
-                Log.e(LOG_TAG, "error: " + e.getMessage());
+                Log.e(LOG_TAG, "error generating error message: " + e2.getMessage());
             }
         }
 
@@ -167,9 +169,7 @@ public class HTTPRequest {
         return "";
     }
 
-    protected void generateResponse() throws Exception {
-        InputStream inputStream = this.request.getInputStream();
-
+    protected void generateResponse(InputStream inputStream) throws Exception {
         this.responseType = "string";
         if (this.request.getContentType().contains("image/")) {
             try {

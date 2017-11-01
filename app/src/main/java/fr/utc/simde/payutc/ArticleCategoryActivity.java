@@ -133,6 +133,9 @@ public class ArticleCategoryActivity extends BaseActivity {
 
     @Override
     protected void onIdentification(final String badgeId) {
+        if (dialog.isShowing())
+            return;
+
         if (this.panier.isEmpty())
             startBuyerInfoActivity(ArticleCategoryActivity.this, badgeId);
         else

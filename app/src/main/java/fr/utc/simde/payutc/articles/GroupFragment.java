@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 
 import fr.utc.simde.payutc.ArticleCategoryActivity;
+import fr.utc.simde.payutc.BaseActivity;
 import fr.utc.simde.payutc.R;
 
 /**
@@ -35,12 +36,14 @@ public class GroupFragment implements TabHost.TabContentFactory {
 
     private ArticlesAdapter articlesAdapter;
     private ArticleCategoryActivity.Panier panier;
+    private BaseActivity.Config config;
 
-    public GroupFragment(final Activity activity, final ArrayNode articleList, ArticleCategoryActivity.Panier panier, final Boolean inGrid) throws Exception {
+    public GroupFragment(final Activity activity, final ArrayNode articleList, final ArticleCategoryActivity.Panier panier, final BaseActivity.Config config) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
         this.panier = panier;
+        this.config = config;
 
-        if (inGrid) {
+        if (config.getInGrid()) {
             this.view = this.layoutInflater.inflate(R.layout.fragment_article_group_grid, null);
             this.gridView = this.view.findViewById(R.id.grid_articles);
             setGridLayout(3);
@@ -60,7 +63,7 @@ public class GroupFragment implements TabHost.TabContentFactory {
     }
 
     public void createArticleGrid(final Activity activity, final ArrayNode articleList) throws Exception {
-        this.articlesAdapter = new GridAdapter(activity, articleList, this.nbrColumns);
+        this.articlesAdapter = new GridAdapter(activity, articleList, this.nbrColumns, this.config.getPrintCotisant(), this.config.getPrint18());
 
         this.gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -84,7 +87,7 @@ public class GroupFragment implements TabHost.TabContentFactory {
     }
 
     public void createArticleList(final Activity activity, final ArrayNode articleList) throws Exception {
-        this.articlesAdapter = new ListAdapater(activity, articleList);
+        this.articlesAdapter = new ListAdapater(activity, articleList, this.config.getPrintCotisant(), this.config.getPrint18());
 
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -25,14 +25,18 @@ public abstract class BaseActivity extends NFCActivity {
     protected static CASConnexion casConnexion;
     protected static Config config;
 
-    protected class Config {
+    public class Config {
         private SharedPreferences sharedPreferences;
 
         private Boolean inGrid;
+        private Boolean printCotisant;
+        private Boolean print18;
 
         protected Config(final SharedPreferences sharedPreferences) {
             this.sharedPreferences = sharedPreferences;
             this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
+            this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
+            this.print18 = sharedPreferences.getBoolean("config_print_18", false);
         }
 
         public Boolean getInGrid() { return this.inGrid; }
@@ -42,6 +46,24 @@ public abstract class BaseActivity extends NFCActivity {
             editor.apply();
 
             this.inGrid = inGrid;
+        }
+
+        public Boolean getPrintCotisant() { return this.printCotisant; }
+        public void setPrintCotisant(final Boolean printCotisant) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("config_print_cotisant", printCotisant);
+            editor.apply();
+
+            this.printCotisant = printCotisant;
+        }
+
+        public Boolean getPrint18() { return this.print18; }
+        public void setPrint18(final Boolean print18) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("config_print_18", print18);
+            editor.apply();
+
+            this.print18 = print18;
         }
     }
 

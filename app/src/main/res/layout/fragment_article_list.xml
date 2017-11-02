@@ -54,6 +54,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/image_cotisant"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@mipmap/image_cotisant_round" />
+
+                <ImageView
+                    android:id="@+id/image_18"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@mipmap/image_18_round" />
+            </LinearLayout>
             <TextView
                 android:id="@+id/text_info"
                 android:layout_width="wrap_content"

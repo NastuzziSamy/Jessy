@@ -264,7 +264,7 @@ public class ArticleCategoryActivity extends BaseActivity {
     }
 
     protected void createNewCategory(final String name, final ArrayNode articleList) throws Exception {
-        GroupFragment articleGroupFragment = new GroupFragment(ArticleCategoryActivity.this, articleList, this.panier, this.config.getInGrid());
+        GroupFragment articleGroupFragment = new GroupFragment(ArticleCategoryActivity.this, articleList, this.panier, this.config);
 
         TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
         newTabSpec.setIndicator(name);

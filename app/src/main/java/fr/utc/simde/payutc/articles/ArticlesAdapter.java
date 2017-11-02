@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,8 @@ abstract class ArticlesAdapter extends BaseAdapter {
     private static final String LOG_TAG = "_ArticlesAdapter";
 
     protected Activity activity;
+    protected Boolean printCotisant;
+    protected Boolean print18;
 
     protected Bitmap[] imageList;
     protected Integer[] nbrClicksList;
@@ -41,8 +44,11 @@ abstract class ArticlesAdapter extends BaseAdapter {
 
     protected ArrayNode articleList;
 
-    public ArticlesAdapter(final Activity activity, final ArrayNode articleList) throws Exception {
+    public ArticlesAdapter(final Activity activity, final ArrayNode articleList, final Boolean printCotisant, final Boolean print18) throws Exception {
         this.activity = activity;
+        this.printCotisant = printCotisant;
+        this.print18 = print18;
+
         this.articleList = articleList;
         this.imageList = new Bitmap[articleList.size()];
         this.nbrClicksList = new Integer[articleList.size()];
@@ -85,6 +91,26 @@ abstract class ArticlesAdapter extends BaseAdapter {
 
     public void toast(final int position, int lengthLong) {
         Toast.makeText(this.activity, articleList.get(position).get("name").textValue() + ": " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€", lengthLong).show();
+    }
+
+    public void setInfos(JsonNode article, ImageView imageCotisant, ImageView image18) {
+        if (this.printCotisant) {
+            if (article.get("cotisant").booleanValue())
+                imageCotisant.setAlpha(1.0f);
+            else
+                imageCotisant.setAlpha(0.3f);
+        }
+        else
+            imageCotisant.setVisibility(View.GONE);
+
+        if (this.print18) {
+            if (article.get("alcool").booleanValue())
+                image18.setAlpha(1.0f);
+            else
+                image18.setAlpha(0.3f);
+        }
+        else
+            image18.setVisibility(View.GONE);
     }
 
     public void onClick(final int position) {

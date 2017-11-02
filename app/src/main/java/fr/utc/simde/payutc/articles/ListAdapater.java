@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +32,8 @@ import fr.utc.simde.payutc.tools.HTTPRequest;
 public class ListAdapater extends ArticlesAdapter {
     private static final String LOG_TAG = "_ListAdapter";
 
-    public ListAdapater(final Activity activity, final ArrayNode articleList) throws Exception {
-        super(activity, articleList);
+    public ListAdapater(final Activity activity, final ArrayNode articleList, final Boolean printCotisant, final Boolean print18) throws Exception {
+        super(activity, articleList, printCotisant, print18);
         Log.d(LOG_TAG, articleList.toString());
     }
 
@@ -58,6 +59,12 @@ public class ListAdapater extends ArticlesAdapter {
             if (article.has("info")) {
                 TextView infoText = view.findViewById(R.id.text_info);
                 infoText.setText(article.get("info").textValue());
+            }
+            else {
+                ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
+                ImageView image18 = view.findViewById(R.id.image_18);
+
+                setInfos(article, imageCotisant, image18);
             }
 
             setImage(imageView, article.get("image_url").textValue(), position);

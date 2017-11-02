@@ -1,10 +1,12 @@
 package fr.utc.simde.payutc.articles;
 
 import android.app.Activity;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,8 +24,8 @@ public class GridAdapter extends ArticlesAdapter {
 
     private int size;
 
-    public GridAdapter(final Activity activity, final ArrayNode articleList, final int nbrColumns) throws Exception {
-        super(activity, articleList);
+    public GridAdapter(final Activity activity, final ArrayNode articleList, final int nbrColumns, final Boolean printCotisant, final Boolean print18) throws Exception {
+        super(activity, articleList, printCotisant, print18);
 
         switch (nbrColumns) {
             case 1:
@@ -61,10 +63,18 @@ public class GridAdapter extends ArticlesAdapter {
             TextView textView = view.findViewById(R.id.text_article);
             textView.setText(article.get("name").textValue());
 
-            int imageSize = this.size;
-            RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(imageSize, imageSize);
+            RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
             imageView.setLayoutParams(parms);
 
+            ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
+            ImageView image18 = view.findViewById(R.id.image_18);
+
+            LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(36, 36);
+            imageParms.setMargins(0, this.size - 36, 0, 0);
+            imageCotisant.setLayoutParams(imageParms);
+            image18.setLayoutParams(imageParms);
+
+            setInfos(article, imageCotisant, image18);
             setImage(imageView, article.get("image_url").textValue(), position);
             setClickView(position);
         }

@@ -297,7 +297,7 @@ public class BuyerInfoActivity extends BaseActivity {
                     public void run() {
                         try {
                             lastArticleList = articleList;
-                            listAdapater = new ListAdapater(BuyerInfoActivity.this, articleList);
+                            listAdapater = new ListAdapater(BuyerInfoActivity.this, articleList, config.getPrintCotisant(), config.getPrint18());
                             listView.setAdapter(listAdapater);
                             dialog.stopLoading();
                         } catch (Exception e) {

@@ -31,6 +31,7 @@ public class NemopaySession {
 
     private HTTPRequest request;
 
+    private String notLogged;
     private String noRight;
     private String noRights;
     private String noRightsNeeded;
@@ -58,6 +59,7 @@ public class NemopaySession {
         for (int i = 0; i < Math.min(keys.length, values.length); ++i)
             this.allRights.put(keys[i], values[i]);
 
+        this.notLogged = activity.getString(R.string.no_longer_connected);
         this.noRightsNeeded = activity.getString(R.string.no_need_rights);
         this.noRight = activity.getString(R.string.no_right);
         this.noRights = activity.getString(R.string.no_rights);
@@ -389,8 +391,18 @@ public class NemopaySession {
 
         if (responseCode == 200)
             return 200;
-        else if (responseCode == 403)
-            throw new Exception(forbidden(rightsNeeded));
+        else if (responseCode == 403) {
+            try {
+                if (this.request.isJSONResponse()) {
+                    if (this.request.getJSONResponse().get("error").get("message").textValue().contains("must be logged"))
+                        throw new Exception(this.notLogged);
+                }
+            }
+            catch (Exception e) {}
+            finally {
+                throw new Exception(forbidden(rightsNeeded));
+            }
+        }
         else if (responseCode == 404)
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);
         else if (responseCode == 400)

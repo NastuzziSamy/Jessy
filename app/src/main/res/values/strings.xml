@@ -82,6 +82,7 @@
     <string name="cancel_transaction">Annuler une transaction</string>
     <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
     <string name="transaction_canceled">L\'annulation a bien été effective</string>
+    <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>

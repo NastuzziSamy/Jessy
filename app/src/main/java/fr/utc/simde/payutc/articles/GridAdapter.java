@@ -69,8 +69,8 @@ public class GridAdapter extends ArticlesAdapter {
             ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
             ImageView image18 = view.findViewById(R.id.image_18);
 
-            LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(36, 36);
-            imageParms.setMargins(0, this.size - 36, 0, 0);
+            LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(45, 45);
+            imageParms.setMargins(0, this.size - 45, 0, 0);
             imageCotisant.setLayoutParams(imageParms);
             image18.setLayoutParams(imageParms);
 

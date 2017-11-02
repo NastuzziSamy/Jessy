@@ -53,6 +53,36 @@ public abstract class NFCActivity extends Activity {
         this.registerReceiver(NFCReceiver, filter);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (identifierIsAvailable()) {
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            IntentFilter[] filters = {new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)};
+            String[][] techs = {{Ndef.class.getName()}};
+            NFCAdapter.enableForegroundDispatch(this, pendingIntent, filters, techs);
+
+            if (!NFCAdapter.isEnabled())
+                enableNFCDialog();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (identifierIsAvailable())
+            NFCAdapter.disableForegroundDispatch(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        this.unregisterReceiver(NFCReceiver);
+    }
+
     protected abstract void onIdentification(final String badgeId);
 
     protected Boolean identifierIsAvailable() { return NFCAdapter != null; }
@@ -75,33 +105,6 @@ public abstract class NFCActivity extends Activity {
             Log.d(LOG_TAG, "ID: " + badgeId);
             onIdentification(badgeId);
         }
-    }
-
-    protected void onResume() {
-        super.onResume();
-
-        if (identifierIsAvailable()) {
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-            IntentFilter[] filters = {new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)};
-            String[][] techs = {{Ndef.class.getName()}};
-            NFCAdapter.enableForegroundDispatch(this, pendingIntent, filters, techs);
-
-            if (!NFCAdapter.isEnabled())
-                enableNFCDialog();
-        }
-    }
-
-    protected void onPause() {
-        super.onPause();
-
-        if (identifierIsAvailable())
-            NFCAdapter.disableForegroundDispatch(this);
-    }
-
-    protected void onDestroy() {
-        super.onDestroy();
-
-        this.unregisterReceiver(NFCReceiver);
     }
 
     private final BroadcastReceiver NFCReceiver = new BroadcastReceiver() {

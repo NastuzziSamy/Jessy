@@ -18,6 +18,7 @@ import fr.utc.simde.payutc.R;
 
 public class Dialog {
     private static final String LOG_TAG = "_Dialog";
+
     private static Activity activity;
     private static AlertDialog alertDialog;
     private static AlertDialog.Builder alertDialogBuilder;
@@ -77,6 +78,7 @@ public class Dialog {
 
     public void infoDialog(final Activity activity, final String title, final String message) { errorDialog(activity, title, message, null); }
     public void infoDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onClickListener) {
+        this.activity = activity;
         this.alertDialogBuilder = new AlertDialog.Builder(activity);
         this.alertDialogBuilder
             .setTitle(title)
@@ -103,7 +105,8 @@ public class Dialog {
     }
 
     public void changeLoading(final String message) {
-        this.loading.setMessage(message);
+        if (this.loading != null)
+            this.loading.setMessage(message);
     }
 
     public void stopLoading() {

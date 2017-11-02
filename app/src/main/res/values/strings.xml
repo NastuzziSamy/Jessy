@@ -6,6 +6,7 @@
     <string name="ok">Ok</string>
     <string name="connexion">Se connecter</string>
     <string name="register">Enregistrer</string>
+    <string name="applicate">Appliquer</string>
     <string name="activate">Activer</string>
     <string name="pass">Continuer</string>
     <string name="erase">Effacer</string>
@@ -27,6 +28,9 @@
     <string name="realized">Réalisé à</string>
     <string name="realized_by_other">Réalisé par une autre fondation</string>
     <string name="paiement">Paiement</string>
+    <string name="configuration">Configuration</string>
+    <string name="list">Liste</string>
+    <string name="grid">Grille</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -83,6 +87,11 @@
     <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
     <string name="transaction_canceled">L\'annulation a bien été effective</string>
     <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
+
+    <string name="print_mode">Mode d\'affichage</string>
+    <string name="filters">Filtres d\'affichage</string>
+    <string name="print_cotisant">Afficher le filtre cotisant</string>
+    <string name="print_18">Afficher le filtre majeur</string>
 
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>

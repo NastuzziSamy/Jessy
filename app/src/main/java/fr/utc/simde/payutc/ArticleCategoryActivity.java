@@ -4,12 +4,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -118,8 +122,32 @@ public class ArticleCategoryActivity extends BaseActivity {
         this.paramButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                config.setInGrid(!config.getInGrid());
-                startCategoryArticlesActivity(ArticleCategoryActivity.this);
+                final View popupView = LayoutInflater.from(ArticleCategoryActivity.this).inflate(R.layout.dialog_config, null, false);
+                final ToggleButton gridOrList = popupView.findViewById(R.id.toggle_grid);
+                final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
+                final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
+
+                gridOrList.setChecked(config.getInGrid());
+                switchCotisant.setChecked(config.getPrintCotisant());
+                swtich18.setChecked(config.getPrint18());
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
+                alertDialogBuilder
+                    .setTitle(R.string.configuration)
+                    .setView(popupView)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            config.setInGrid(gridOrList.isChecked());
+                            config.setPrintCotisant(switchCotisant.isChecked());
+                            config.setPrint18(swtich18.isChecked());
+
+                            startCategoryArticlesActivity(ArticleCategoryActivity.this);
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder);
             }
         });
 

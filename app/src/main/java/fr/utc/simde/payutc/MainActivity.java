@@ -80,6 +80,13 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        disconnect();
+    }
+
+    @Override
     protected void onIdentification(final String badgeId) {
         if (!dialog.isShowing())
             badgeDialog(badgeId);

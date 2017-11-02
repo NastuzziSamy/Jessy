@@ -132,6 +132,13 @@ public class ArticleCategoryActivity extends BaseActivity {
     }
 
     @Override
+    public void onRestart() {
+        super.onRestart();
+
+        startCategoryArticlesActivity(ArticleCategoryActivity.this);
+    }
+
+    @Override
     protected void onIdentification(final String badgeId) {
         if (dialog.isShowing())
             return;

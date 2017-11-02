@@ -47,14 +47,14 @@ public class FoundationListActivity extends BaseActivity {
     }
 
     @Override
-    protected void onIdentification(final String badgeId) {}
+    public void onRestart() {
+        super.onRestart();
+
+        startFoundationListActivity(FoundationListActivity.this);
+    }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        disconnect();
-    }
+    protected void onIdentification(final String badgeId) {}
 
     protected void setFoundationList(final JsonNode foundationList) throws Exception {
         for (final JsonNode foundation : foundationList) {

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -61,7 +62,7 @@ public abstract class BaseActivity extends NFCActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(activity, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |  Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 activity.startActivity(intent);
             }
         });
@@ -134,7 +135,7 @@ public abstract class BaseActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.foundation_list_collecting), e.getMessage());
+                            fatal(activity, getString(R.string.foundation_list_collecting), e.getMessage());
                         }
                     });
                 }
@@ -185,7 +186,7 @@ public abstract class BaseActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.category_list_collecting), e.getMessage());
+                            fatal(activity, getString(R.string.category_list_collecting), e.getMessage());
                         }
                     });
                 }
@@ -243,7 +244,7 @@ public abstract class BaseActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(activity, getString(R.string.article_list_collecting), e.getMessage());
+                            fatal(activity, getString(R.string.article_list_collecting), e.getMessage());
                         }
                     });
                 }
@@ -310,7 +311,7 @@ public abstract class BaseActivity extends NFCActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                dialog.errorDialog(activity, getString(R.string.information_collection), e.getMessage());
+                                fatal(activity, getString(R.string.information_collection), e.getMessage());
                             }
                         });
                     }

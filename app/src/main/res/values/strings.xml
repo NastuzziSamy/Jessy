@@ -54,6 +54,8 @@
     <string name="badge_error_not_recognized">Badge non reconnu (compte PayUTC peut-être non existant)</string>
     <string name="badge_pin_not_initialized">Pour pouvoir se connecter via son badge, il est impératif d\'avoir configuré son code PIN sur https://pay.utc.fr/</string>
     <string name="nemopay_connection">Connexion à Nemopay</string>
+    <string name="nemopay_connection_verification">Vérification de la connexion à Nemopay</string>
+    <string name="nemopay_no_longer_connected">Application déconnectée. Nécessité de se reconnecter</string>
     <string name="nemopay_authentification">Authentification de l\'application</string>
     <string name="nemopay_registering">Enregistrement de l\'application</string>
     <string name="nemopay_already_registered">Application déjà authentifiée</string>

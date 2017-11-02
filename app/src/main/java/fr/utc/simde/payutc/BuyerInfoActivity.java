@@ -84,6 +84,13 @@ public class BuyerInfoActivity extends BaseActivity {
     }
 
     @Override
+    public void onRestart() {
+        super.onRestart();
+
+        startBuyerInfoActivity(BuyerInfoActivity.this, this.badgeId);
+    }
+
+    @Override
     protected void onIdentification(final String badgeId) { }
 
     protected void generatePurchases() throws Exception {

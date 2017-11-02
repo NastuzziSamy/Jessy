@@ -140,21 +140,37 @@ public class NemopaySession {
         );
     }
 
+    public int getBuyerInfoByLogin(final String login) throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        return request(
+                "POSS3",
+                "getBuyerInfoByLogin",
+                new HashMap<String, String>() {{
+                    put("login", login);
+                }},
+                new String[]{
+                    "sale"
+                }
+        );
+    }
+
     public int getBuyerInfo(final String badgeId) throws Exception {
         if (!isConnected())
             throw new Exception("Not connected");
 
         return request(
-            "POSS3",
-            "getBuyerInfo",
-            new HashMap<String, String>() {{
-                if (foundationId != -1)
-                    put("fun_id", Integer.toString(foundationId));
-                put("badge_id", badgeId);
-            }},
-            new String[]{
-                "sale"
-            }
+                "POSS3",
+                "getBuyerInfo",
+                new HashMap<String, String>() {{
+                    if (foundationId != -1)
+                        put("fun_id", Integer.toString(foundationId));
+                    put("badge_id", badgeId);
+                }},
+                new String[]{
+                        "sale"
+                }
         );
     }
 

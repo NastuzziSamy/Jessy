@@ -46,7 +46,6 @@ public class MainActivity extends BaseActivity {
 
         sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
 
-        dialog = new Dialog(MainActivity.this);
         nemopaySession = new NemopaySession(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -65,6 +66,13 @@ public abstract class BaseActivity extends NFCActivity {
 
             this.print18 = print18;
         }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        dialog = new Dialog(this);
     }
 
     protected void disconnect() {

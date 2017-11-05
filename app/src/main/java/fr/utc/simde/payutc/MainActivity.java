@@ -96,13 +96,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onRestart() {
-        super.onRestart();
-
-        startMainActivity(MainActivity.this);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
 

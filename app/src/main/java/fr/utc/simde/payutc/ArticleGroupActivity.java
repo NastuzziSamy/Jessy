@@ -181,13 +181,6 @@ public abstract class ArticleGroupActivity extends BaseActivity {
     }
 
     @Override
-    public void onRestart() {
-        super.onRestart();
-
-        startArticleGroupActivity(ArticleGroupActivity.this);
-    }
-
-    @Override
     protected void onIdentification(final String badgeId) {
         if (dialog.isShowing())
             return;

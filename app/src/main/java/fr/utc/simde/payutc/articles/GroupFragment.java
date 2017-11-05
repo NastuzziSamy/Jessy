@@ -18,6 +18,7 @@ import java.util.List;
 import fr.utc.simde.payutc.ArticleCategoryActivity;
 import fr.utc.simde.payutc.BaseActivity;
 import fr.utc.simde.payutc.R;
+import fr.utc.simde.payutc.tools.Config;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -36,9 +37,9 @@ public class GroupFragment implements TabHost.TabContentFactory {
 
     private ArticlesAdapter articlesAdapter;
     private ArticleCategoryActivity.Panier panier;
-    private BaseActivity.Config config;
+    private Config config;
 
-    public GroupFragment(final Activity activity, final ArrayNode articleList, final ArticleCategoryActivity.Panier panier, final BaseActivity.Config config) throws Exception {
+    public GroupFragment(final Activity activity, final ArrayNode articleList, final ArticleCategoryActivity.Panier panier, final Config config) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
         this.panier = panier;
         this.config = config;

@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,14 +19,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import fr.utc.simde.payutc.tools.CASConnexion;
+import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
@@ -33,8 +39,9 @@ public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";
 
-    private static TextView AppConfigText;
-    private static TextView AppRegisteredText;
+    private static TextView appNameText;
+    private static TextView appConfigText;
+    private static TextView appRegisteredText;
     private static Button usernameButton;
 
     private static SharedPreferences sharedPreferences;
@@ -54,11 +61,12 @@ public class MainActivity extends BaseActivity {
         if (!key.equals(""))
             setKey(key);
 
-        AppConfigText = findViewById(R.id.text_app_config);
-        AppRegisteredText = findViewById(R.id.text_app_registered);
+        appNameText = findViewById(R.id.text_app_name);
+        appConfigText = findViewById(R.id.text_app_config);
+        appRegisteredText = findViewById(R.id.text_app_registered);
         usernameButton = findViewById(R.id.button_username);
 
-        AppRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
+        appRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (!nemopaySession.isRegistered())
@@ -76,6 +84,22 @@ public class MainActivity extends BaseActivity {
                 casDialog();
             }
         });
+
+        setConfig();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        setConfig();
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+
+        startMainActivity(MainActivity.this);
     }
 
     @Override
@@ -96,6 +120,24 @@ public class MainActivity extends BaseActivity {
         super.unregister(activity);
 
         ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
+    }
+
+    protected void setConfig() {
+        if (config.getFoundationId() == -1) {
+            appNameText.setText(R.string.app_name);
+            appConfigText.setText("");
+        }
+        else {
+            String list = "";
+            Iterator<Map.Entry<String, JsonNode>> nodes = config.getGroupList().fields();
+
+            while (nodes.hasNext())
+                list += ", " + nodes.next().getValue().textValue();
+
+            appNameText.setText(config.getFoundationName());
+            appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
+            nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
+        }
     }
 
     protected void delKey() {

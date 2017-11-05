@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import fr.utc.simde.payutc.tools.CASConnexion;
+import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NemopaySession;
@@ -25,48 +26,6 @@ public abstract class BaseActivity extends NFCActivity {
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
     protected static Config config;
-
-    public class Config {
-        private SharedPreferences sharedPreferences;
-
-        private Boolean inGrid;
-        private Boolean printCotisant;
-        private Boolean print18;
-
-        protected Config(final SharedPreferences sharedPreferences) {
-            this.sharedPreferences = sharedPreferences;
-            this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
-            this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
-            this.print18 = sharedPreferences.getBoolean("config_print_18", false);
-        }
-
-        public Boolean getInGrid() { return this.inGrid; }
-        public void setInGrid(final Boolean inGrid) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("config_in_grid", inGrid);
-            editor.apply();
-
-            this.inGrid = inGrid;
-        }
-
-        public Boolean getPrintCotisant() { return this.printCotisant; }
-        public void setPrintCotisant(final Boolean printCotisant) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("config_print_cotisant", printCotisant);
-            editor.apply();
-
-            this.printCotisant = printCotisant;
-        }
-
-        public Boolean getPrint18() { return this.print18; }
-        public void setPrint18(final Boolean print18) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("config_print_18", print18);
-            editor.apply();
-
-            this.print18 = print18;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,16 +57,27 @@ public abstract class BaseActivity extends NFCActivity {
         dialog.fatalDialog(activity, title, message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(activity, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(intent);
+                startMainActivity(activity);
             }
         });
 
         disconnect();
     }
 
+    protected void startMainActivity(final Activity activity) {
+        disconnect();
+
+        Intent intent = new Intent(activity, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        activity.startActivity(intent);
+    }
+
     protected void startFoundationListActivity(final Activity activity) {
+        if (config.getFoundationId() != -1) {
+            startCategoryArticlesActivity(activity);
+            return;
+        }
+
         dialog.startLoading(activity, getString(R.string.information_collection), getString(R.string.foundation_list_collecting));
         final Intent intent = new Intent(activity, FoundationListActivity.class);
 

@@ -7,28 +7,58 @@
     android:orientation="vertical"
     tools:context="fr.utc.simde.payutc.MainActivity">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
+        android:text="@string/print_mode" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
         android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/radio_keyboard"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/print_mode" />
+            android:text="@string/keyboard" />
 
-        <ToggleButton
-            android:id="@+id/toggle_grid"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/radio_category"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:textOff="@string/list"
-            android:textOn="@string/grid" />
+            android:layout_weight="1"
+            android:text="@string/category" />
 
-    </LinearLayout>
+    </RadioGroup>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/grid" />
+
+        <RadioButton
+            android:id="@+id/radio_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/list" />
+
+    </RadioGroup>
 
     <TextView
         android:layout_width="match_parent"
@@ -53,4 +83,13 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:text="@string/print_18" />
+
+    <Button
+        android:id="@+id/button_config"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:text="@string/configurate" />
 </LinearLayout>

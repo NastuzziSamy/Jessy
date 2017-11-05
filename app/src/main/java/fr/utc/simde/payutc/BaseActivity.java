@@ -75,6 +75,13 @@ public abstract class BaseActivity extends NFCActivity {
         dialog = new Dialog(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        dialog.dismiss();
+    }
+
     protected void disconnect() {
         nemopaySession.disconnect();
         casConnexion.disconnect();

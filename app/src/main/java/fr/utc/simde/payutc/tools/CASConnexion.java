@@ -30,7 +30,7 @@ public class CASConnexion {
         this.ticket = "";
 
         if (this.url.isEmpty() || username.isEmpty() || password.isEmpty())
-            throw new RuntimeException("Elements required");
+            throw new Exception("Elements required");
 
         HTTPRequest request = new HTTPRequest(this.url + "v1/tickets/");
         request.addPost("username", username);
@@ -39,7 +39,7 @@ public class CASConnexion {
         if (request.post() == 201)
             this.location = request.getHeader("Location");
         else
-            throw new RuntimeException("Not Connected");
+            throw new Exception("Not Connected");
     }
 
     public void disconnect() {

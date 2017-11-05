@@ -74,7 +74,7 @@ public abstract class BaseActivity extends NFCActivity {
 
     protected void startFoundationListActivity(final Activity activity) {
         if (config.getFoundationId() != -1) {
-            startCategoryArticlesActivity(activity);
+            startArticleGroupActivity(activity);
             return;
         }
 
@@ -150,7 +150,7 @@ public abstract class BaseActivity extends NFCActivity {
         }.start();
     }
 
-    protected void startCategoryArticlesActivity(final Activity activity) {
+    protected void startArticleGroupActivity(final Activity activity) {
         dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.category_list_collecting));
         final Intent intent = new Intent(activity, ArticleCategoryActivity.class);
 
@@ -165,7 +165,7 @@ public abstract class BaseActivity extends NFCActivity {
                     final HTTPRequest request = nemopaySession.getRequest();
                     final JsonNode categoryList = request.getJSONResponse();
 
-                    if (!request.isJSONResponse() || !categoryList.isArray())
+                    if (!categoryList.isArray())
                         throw new Exception("Malformed JSON");
 
                     if (categoryList.size() == 0) {
@@ -186,7 +186,7 @@ public abstract class BaseActivity extends NFCActivity {
                             throw new Exception("Unexpected JSON");
                     }
 
-                    intent.putExtra("categoryList", request.getResponse());
+                    intent.putExtra("groupList", request.getResponse());
                 } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
@@ -263,8 +263,7 @@ public abstract class BaseActivity extends NFCActivity {
         nemopaySession.setFoundation(foundationId, foundationName);
         Log.d(LOG_TAG, String.valueOf(foundationId));
 
-        // Plus tard, on pourra choisir quelle activité lancer
-        startCategoryArticlesActivity(activity);
+        startArticleGroupActivity(activity);
     }
 
     protected void startBuyerInfoActivity(final Activity activity, final String badgeId) {

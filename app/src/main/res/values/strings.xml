@@ -79,8 +79,10 @@
     <string name="already_connected">Déjà connecté sous</string>
     <string name="information_collection">Récupération d\'informations</string>
     <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
+    <string name="keyboard_list_collecting">Récupération des claviers de caisse</string>
     <string name="category_list_collecting">Récupération des catégories</string>
     <string name="article_list_collecting">Récupération des articles</string>
+    <string name="keyboard_error_0">n\'a aucun clavier de caisse</string>
     <string name="category_error_0">n\'a aucune catégorie</string>
     <string name="article_error_0">n\'a aucun article à vendre</string>
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>

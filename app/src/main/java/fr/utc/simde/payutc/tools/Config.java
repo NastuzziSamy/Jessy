@@ -41,7 +41,7 @@ public class Config {
         }
 
         this.canCancel = sharedPreferences.getBoolean("config_can_cancel", true);
-        this.inKeyboard = sharedPreferences.getBoolean("config_in_keyboard", false);
+        this.inKeyboard = sharedPreferences.getBoolean("config_in_keyboard", true);
         this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
         this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
         this.print18 = sharedPreferences.getBoolean("config_print_18", false);

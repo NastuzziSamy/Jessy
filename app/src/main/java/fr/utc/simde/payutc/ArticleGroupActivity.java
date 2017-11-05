@@ -134,7 +134,12 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                 }
                 else {
                     final View popupView = LayoutInflater.from(ArticleGroupActivity.this).inflate(R.layout.dialog_config_restore, null, false);
+                    final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
+                    final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
                     final Button configButton = popupView.findViewById(R.id.button_config);
+
+                    switchCotisant.setChecked(config.getPrintCotisant());
+                    swtich18.setChecked(config.getPrint18());
 
                     configButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -152,8 +157,11 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                             .setTitle(R.string.configuration)
                             .setView(popupView)
                             .setCancelable(false)
-                            .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int id) {
+                                    config.setPrintCotisant(switchCotisant.isChecked());
+                                    config.setPrint18(swtich18.isChecked());
+
                                     startArticleGroupActivity(ArticleGroupActivity.this);
                                 }
                             })
@@ -193,36 +201,39 @@ public abstract class ArticleGroupActivity extends BaseActivity {
     protected abstract void createGroups(final JsonNode groupList, final JsonNode articleList) throws Exception;
 
     protected void configApp() {
-        dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(R.string.category_list_collecting));
+        dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting));
 
         new Thread() {
             @Override
             public void run() {
                 try {
-                    nemopaySession.getCategories();
+                    if (config.getInKeyboard())
+                        nemopaySession.getKeyboards();
+                    else
+                        nemopaySession.getCategories();
                     Thread.sleep(100);
 
                     final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode categoryList = request.getJSONResponse();
+                    final JsonNode groupList = request.getJSONResponse();
 
-                    if (!categoryList.isArray())
+                    if (!groupList.isArray())
                         throw new Exception("Malformed JSON");
 
-                    if (categoryList.size() == 0) {
+                    if (groupList == null || groupList.size() == 0) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
 
-                                dialog.errorDialog(ArticleGroupActivity.this, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                                dialog.errorDialog(ArticleGroupActivity.this, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(config.getInKeyboard() ? R.string.keyboard_error_0 : R.string.category_error_0));
                             }
                         });
 
                         return;
                     }
 
-                    for (final JsonNode category : categoryList) {
-                        if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                    for (final JsonNode group : groupList) {
+                        if (!group.has("id") || !group.has("name"))
                             throw new Exception("Unexpected JSON");
                     }
                 } catch (final Exception e) {
@@ -231,7 +242,7 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fatal(ArticleGroupActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                            fatal(ArticleGroupActivity.this, getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting), e.getMessage());
                         }
                     });
                 }
@@ -247,17 +258,20 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                         final Switch canCancelSwitch = popupView.findViewById(R.id.swtich_cancel);
                         canCancelSwitch.setChecked(config.getCanCancel());
 
-                        JsonNode categoryList;
+                        if (config.getInKeyboard())
+                            ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.keyboard_list);
+
+                        JsonNode groupList;
                         GroupAdapter groupAdapter = null;
                         try {
-                            categoryList = nemopaySession.getRequest().getJSONResponse();
-                            groupAdapter = new GroupAdapter(ArticleGroupActivity.this, categoryList);
+                            groupList = nemopaySession.getRequest().getJSONResponse();
+                            groupAdapter = new GroupAdapter(ArticleGroupActivity.this, groupList);
 
                             listView.setAdapter(groupAdapter);
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "error: " + e.getMessage());
 
-                            fatal(ArticleGroupActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                            fatal(ArticleGroupActivity.this, getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting), e.getMessage());
                         }
 
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleGroupActivity.this);
@@ -269,9 +283,10 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                                 .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialogInterface, int id) {
                                         config.setCanCancel(canCancelSwitch.isChecked());
+                                        JsonNode groupList = finalGroupAdapter.getList();
 
-                                        if (finalGroupAdapter.getList().size() == 0) {
-                                            Toast.makeText(ArticleGroupActivity.this, getString(R.string.category_0_selected), Toast.LENGTH_LONG).show();
+                                        if (groupList == null || groupList.size() == 0) {
+                                            Toast.makeText(ArticleGroupActivity.this, getString(config.getInKeyboard() ? R.string.keyboard_0_selected : R.string.category_0_selected), Toast.LENGTH_LONG).show();
                                             configApp();
                                         }
                                         else {

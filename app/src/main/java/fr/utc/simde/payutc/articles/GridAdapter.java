@@ -60,7 +60,7 @@ public class GridAdapter extends ArticlesAdapter {
             RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
             imageView.setLayoutParams(parms);
 
-            if (article.size() == 0)
+            if (article == null || article.size() == 0)
                 view.setVisibility(View.INVISIBLE);
             else {
                 if (clickViewList[position] == null)

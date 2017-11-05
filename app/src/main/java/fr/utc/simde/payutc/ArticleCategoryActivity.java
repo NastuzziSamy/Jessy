@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,8 +44,10 @@ public class ArticleCategoryActivity extends ArticleGroupActivity {
                 throw new Exception("Unexpected JSON");
 
             ArrayNode articlesForThisCategory = articlesPerCategory.get(category.get("id").intValue());
-            if (config.getFoundationId() != -1) if (!authorizedList.has(Integer.toString(category.get("id").intValue())))
-                continue;
+            if (config.getFoundationId() != -1) {
+                if (!authorizedList.has(Integer.toString(category.get("id").intValue())) || articlesForThisCategory == null)
+                    continue;
+            }
             else if (articlesForThisCategory == null || articlesForThisCategory.size() == 0)
                 continue;
 

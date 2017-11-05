@@ -188,6 +188,7 @@ public class ArticleCategoryActivity extends BaseActivity {
                         public void onClick(View view) {
                             config.setFoundation(-1, "");
                             config.setGroupList(new ObjectMapper().createObjectNode());
+                            config.setCanCancel(true);
 
                             startMainActivity(ArticleCategoryActivity.this);
                         }
@@ -288,14 +289,14 @@ public class ArticleCategoryActivity extends BaseActivity {
                         LayoutInflater layoutInflater = LayoutInflater.from(ArticleCategoryActivity.this);
                         View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
                         ListView listView = popupView.findViewById(R.id.list_groups);
+                        final Switch canCancelSwitch = popupView.findViewById(R.id.swtich_cancel);
+                        canCancelSwitch.setChecked(config.getCanCancel());
 
-                        JsonNode categoryList = null;
+                        JsonNode categoryList;
                         GroupAdapter groupAdapter = null;
                         try {
                             categoryList = nemopaySession.getRequest().getJSONResponse();
                             groupAdapter = new GroupAdapter(ArticleCategoryActivity.this, categoryList);
-
-                            final GroupAdapter finalGroupAdapter = groupAdapter;
 
                             listView.setAdapter(groupAdapter);
                         } catch (Exception e) {
@@ -307,11 +308,13 @@ public class ArticleCategoryActivity extends BaseActivity {
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
                         final GroupAdapter finalGroupAdapter = groupAdapter;
                         alertDialogBuilder
-                                .setTitle(R.string.category_list)
+                                .setTitle(R.string.configuration)
                                 .setView(popupView)
                                 .setCancelable(false)
                                 .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialogInterface, int id) {
+                                        config.setCanCancel(canCancelSwitch.isChecked());
+
                                         if (finalGroupAdapter.getList().size() == 0) {
                                             Toast.makeText(ArticleCategoryActivity.this, getString(R.string.category_0_selected), Toast.LENGTH_LONG).show();
                                             configApp();
@@ -323,7 +326,11 @@ public class ArticleCategoryActivity extends BaseActivity {
                                         }
                                     }
                                 })
-                                .setNegativeButton(R.string.cancel, null);
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialogInterface, int id) {
+                                        config.setCanCancel(true);
+                                    }
+                                });
 
                         dialog.createDialog(alertDialogBuilder);
                     }

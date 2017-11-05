@@ -22,6 +22,7 @@ public class Config {
     private Integer foundationId;
     private JsonNode groupList;
 
+    private Boolean canCancel;
     private Boolean inKeyboard;
     private Boolean inGrid;
     private Boolean printCotisant;
@@ -39,6 +40,7 @@ public class Config {
             Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
+        this.canCancel = sharedPreferences.getBoolean("config_can_cancel", true);
         this.inKeyboard = sharedPreferences.getBoolean("config_in_keyboard", false);
         this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
         this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
@@ -64,6 +66,15 @@ public class Config {
         editor.apply();
 
         this.groupList = groupList;
+    }
+
+    public Boolean getCanCancel() { return this.canCancel; }
+    public void setCanCancel(final Boolean canCancel) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("config_can_cancel", canCancel);
+        editor.apply();
+
+        this.canCancel = canCancel;
     }
 
     public Boolean getInKeyboard() { return this.inKeyboard; }

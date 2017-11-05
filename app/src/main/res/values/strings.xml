@@ -91,10 +91,13 @@
     <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
     <string name="transaction_canceled">L\'annulation a bien été effective</string>
     <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
-    <string name="category_list">Liste des catégories</string>
-    <string name="keyboard_list">Liste des claviers de caisse</string>
-    <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant tous les droits sur cette fondation peut reconfigurer l\'application par défaut</string>
+    <string name="category_list">Liste des catégories à afficher</string>
+    <string name="keyboard_list">Liste des claviers de caisse à afficher</string>
     <string name="category_0_selected">Aucune catégorie n\'a été sélectionnée</string>
+    <string name="keyboard_0_selected">Aucun clavier n\'a été sélectionnée</string>
+    <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant tous les droits sur cette fondation peut reconfigurer l\'application par défaut</string>
+    <string name="can_cancel">Permettre l\'annulation</string>
+    <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

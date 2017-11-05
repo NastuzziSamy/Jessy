@@ -8,22 +8,30 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import fr.utc.simde.payutc.articles.GroupAdapter;
 import fr.utc.simde.payutc.articles.GroupFragment;
+import fr.utc.simde.payutc.articles.ListAdapater;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
@@ -122,32 +130,169 @@ public class ArticleCategoryActivity extends BaseActivity {
         this.paramButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final View popupView = LayoutInflater.from(ArticleCategoryActivity.this).inflate(R.layout.dialog_config, null, false);
-                final ToggleButton gridOrList = popupView.findViewById(R.id.toggle_grid);
-                final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
-                final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
+                if (config.getFoundationId() == -1) {
+                    final View popupView = LayoutInflater.from(ArticleCategoryActivity.this).inflate(R.layout.dialog_config, null, false);
+                    final RadioButton radioKeyboard = popupView.findViewById(R.id.radio_keyboard);
+                    final RadioButton radioCategory = popupView.findViewById(R.id.radio_category);
+                    final RadioButton radioGrid = popupView.findViewById(R.id.radio_grid);
+                    final RadioButton radioList = popupView.findViewById(R.id.radio_list);
+                    final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
+                    final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
+                    final Button configButton = popupView.findViewById(R.id.button_config);
 
-                gridOrList.setChecked(config.getInGrid());
-                switchCotisant.setChecked(config.getPrintCotisant());
-                swtich18.setChecked(config.getPrint18());
+                    if (config.getInKeyboard())
+                        radioKeyboard.setChecked(true);
+                    else
+                        radioCategory.setChecked(true);
 
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
-                alertDialogBuilder
-                    .setTitle(R.string.configuration)
-                    .setView(popupView)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int id) {
-                            config.setInGrid(gridOrList.isChecked());
-                            config.setPrintCotisant(switchCotisant.isChecked());
-                            config.setPrint18(swtich18.isChecked());
+                    if (config.getInGrid())
+                        radioGrid.setChecked(true);
+                    else
+                        radioList.setChecked(true);
 
-                            startCategoryArticlesActivity(ArticleCategoryActivity.this);
+                    switchCotisant.setChecked(config.getPrintCotisant());
+                    swtich18.setChecked(config.getPrint18());
+
+                    configButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View view) {
+                            dialog.startLoading(ArticleCategoryActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.category_list_collecting));
+
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        nemopaySession.getCategories();
+                                        Thread.sleep(100);
+
+                                        final HTTPRequest request = nemopaySession.getRequest();
+                                        final JsonNode categoryList = request.getJSONResponse();
+
+                                        if (!categoryList.isArray())
+                                            throw new Exception("Malformed JSON");
+
+                                        if (categoryList.size() == 0) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    dialog.stopLoading();
+
+                                                    dialog.errorDialog(ArticleCategoryActivity.this, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                                                }
+                                            });
+
+                                            return;
+                                        }
+
+                                        for (final JsonNode category : categoryList) {
+                                            if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                                                throw new Exception("Unexpected JSON");
+                                        }
+                                    } catch (final Exception e) {
+                                        Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                                            }
+                                        });
+                                    }
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.stopLoading();
+
+                                            LayoutInflater layoutInflater = LayoutInflater.from(ArticleCategoryActivity.this);
+                                            View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
+                                            ListView listView = popupView.findViewById(R.id.list_groups);
+
+                                            JsonNode categoryList = null;
+                                            GroupAdapter groupAdapter = null;
+                                            try {
+                                                categoryList = nemopaySession.getRequest().getJSONResponse();
+                                                groupAdapter = new GroupAdapter(ArticleCategoryActivity.this, categoryList);
+
+                                                final GroupAdapter finalGroupAdapter = groupAdapter;
+
+                                                listView.setAdapter(groupAdapter);
+                                            } catch (Exception e) {
+                                                Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                                                fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                                            }
+
+                                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
+                                            final GroupAdapter finalGroupAdapter = groupAdapter;
+                                            alertDialogBuilder
+                                                    .setTitle(R.string.category_list)
+                                                    .setView(popupView)
+                                                    .setCancelable(false)
+                                                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialogInterface, int id) {
+                                                            config.setFoundation(nemopaySession.getFoundationId(), nemopaySession.getFoundationName());
+                                                            config.setGroupList(finalGroupAdapter.getList());
+                                                            startMainActivity(ArticleCategoryActivity.this);
+                                                        }
+                                                    })
+                                                    .setNegativeButton(R.string.cancel, null);
+
+                                            dialog.createDialog(alertDialogBuilder);
+                                        }
+                                    });
+                                }
+                            }.start();
                         }
-                    })
-                    .setNegativeButton(R.string.cancel, null);
+                    });
 
-                dialog.createDialog(alertDialogBuilder);
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
+                    alertDialogBuilder
+                        .setTitle(R.string.configuration)
+                        .setView(popupView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                config.setInKeyboard(radioKeyboard.isChecked());
+                                config.setInGrid(radioGrid.isChecked());
+                                config.setPrintCotisant(switchCotisant.isChecked());
+                                config.setPrint18(swtich18.isChecked());
+
+                                startCategoryArticlesActivity(ArticleCategoryActivity.this);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                    dialog.createDialog(alertDialogBuilder);
+                }
+                else {
+                    final View popupView = LayoutInflater.from(ArticleCategoryActivity.this).inflate(R.layout.dialog_config_restore, null, false);
+                    final Button configButton = popupView.findViewById(R.id.button_config);
+
+                    configButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            config.setFoundation(-1, "");
+                            config.setGroupList(new ObjectMapper().createObjectNode());
+
+                            startMainActivity(ArticleCategoryActivity.this);
+                        }
+                    });
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
+                    alertDialogBuilder
+                        .setTitle(R.string.configuration)
+                        .setView(popupView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                startCategoryArticlesActivity(ArticleCategoryActivity.this);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                    dialog.createDialog(alertDialogBuilder);
+                }
             }
         });
 
@@ -265,6 +410,8 @@ public class ArticleCategoryActivity extends BaseActivity {
     protected void createCategories(final JsonNode categoryList, final JsonNode articleList) throws Exception {
         HashMap<Integer, ArrayList<JsonNode>> articlesPerCategory = new HashMap<Integer, ArrayList<JsonNode>>();
         final int foundationId = nemopaySession.getFoundationId();
+        final JsonNode authorizedList = config.getGroupList();
+        Log.d(LOG_TAG, authorizedList.toString());
 
         for (final JsonNode article : articleList) {
             if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != foundationId)
@@ -283,8 +430,11 @@ public class ArticleCategoryActivity extends BaseActivity {
             if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != foundationId)
                 throw new Exception("Unexpected JSON");
 
+            Log.d(LOG_TAG, category.toString());
             ArrayList<JsonNode> articlesForThisCategory = articlesPerCategory.get(category.get("id").intValue());
-            if (articlesForThisCategory == null || articlesForThisCategory.size() == 0)
+            if (config.getFoundationId() != -1) if (!authorizedList.has(Integer.toString(category.get("id").intValue())))
+                continue;
+            else if (articlesForThisCategory == null || articlesForThisCategory.size() == 0)
                 continue;
 
             createNewCategory(category.get("name").textValue(), (ArrayNode) new ObjectMapper().readTree(articlesForThisCategory.toString()));

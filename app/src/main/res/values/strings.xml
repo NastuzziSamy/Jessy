@@ -94,6 +94,7 @@
     <string name="category_list">Liste des catégories</string>
     <string name="keyboard_list">Liste des claviers de caisse</string>
     <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant tous les droits sur cette fondation peut reconfigurer l\'application par défaut</string>
+    <string name="category_0_selected">Aucune catégorie n\'a été sélectionnée</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

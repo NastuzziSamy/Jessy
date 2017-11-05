@@ -52,31 +52,35 @@ public class GridAdapter extends ArticlesAdapter {
         JsonNode article = this.articleList.get(position);
 
         if (view == null) {
-            LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
-            view = layoutInflater.inflate(R.layout.fragment_article_grid, null);
+            if (article.size() == 0)
+                view = new View(this.activity);
+            else {
+                LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
+                view = layoutInflater.inflate(R.layout.fragment_article_grid, null);
 
-            ImageView imageView = view.findViewById(R.id.image_article);
+                ImageView imageView = view.findViewById(R.id.image_article);
 
-            if (clickViewList[position] == null)
-                clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
+                if (clickViewList[position] == null)
+                    clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
 
-            TextView textView = view.findViewById(R.id.text_article);
-            textView.setText(article.get("name").textValue());
+                TextView textView = view.findViewById(R.id.text_article);
+                textView.setText(article.get("name").textValue());
 
-            RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
-            imageView.setLayoutParams(parms);
+                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
+                imageView.setLayoutParams(parms);
 
-            ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
-            ImageView image18 = view.findViewById(R.id.image_18);
+                ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
+                ImageView image18 = view.findViewById(R.id.image_18);
 
-            LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(45, 45);
-            imageParms.setMargins(0, this.size - 45, 0, 0);
-            imageCotisant.setLayoutParams(imageParms);
-            image18.setLayoutParams(imageParms);
+                LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(45, 45);
+                imageParms.setMargins(0, this.size - 45, 0, 0);
+                imageCotisant.setLayoutParams(imageParms);
+                image18.setLayoutParams(imageParms);
 
-            setInfos(article, imageCotisant, image18);
-            setImage(imageView, article.get("image_url").textValue(), position);
-            setClickView(position);
+                setInfos(article, imageCotisant, image18);
+                setImage(imageView, article.get("image_url").textValue(), position);
+                setClickView(position);
+            }
         }
 
         return view;

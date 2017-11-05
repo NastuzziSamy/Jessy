@@ -83,9 +83,8 @@ public class Dialog {
         this.alertDialogBuilder
             .setTitle(title)
             .setMessage(message)
-            .setCancelable(true)
-            .setNegativeButton(R.string.ok, onClickListener)
-            .setOnDismissListener((DialogInterface.OnDismissListener) onClickListener);
+            .setCancelable(false)
+            .setNegativeButton(R.string.ok, onClickListener);
 
         createDialog();
     }

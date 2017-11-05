@@ -29,6 +29,9 @@
         <activity android:name=".FoundationListActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
+        <activity android:name=".ArticleKeyboardActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
         <activity android:name=".ArticleCategoryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />

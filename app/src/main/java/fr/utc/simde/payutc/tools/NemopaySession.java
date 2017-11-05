@@ -195,6 +195,25 @@ public class NemopaySession {
         );
     }
 
+    public int getKeyboards() throws Exception {
+        if (!isConnected())
+            throw new Exception("Not connected");
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+                "POSS3",
+                "getKeyboards",
+                new HashMap<String, String>() {{
+                    put("fun_id", Integer.toString(foundationId));
+                }},
+                new String[]{
+                        "sale"
+                }
+        );
+    }
+
     public int getCategories() throws Exception {
         if (!isConnected())
             throw new Exception("Not connected");

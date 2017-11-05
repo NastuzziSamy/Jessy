@@ -74,7 +74,7 @@ public abstract class BaseActivity extends NFCActivity {
 
     protected void startFoundationListActivity(final Activity activity) {
         if (config.getFoundationId() != -1) {
-            startCategoryArticlesActivity(activity);
+            startArticleGroupActivity(activity);
             return;
         }
 
@@ -150,50 +150,48 @@ public abstract class BaseActivity extends NFCActivity {
         }.start();
     }
 
-    protected void startCategoryArticlesActivity(final Activity activity) {
-        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.category_list_collecting));
-        final Intent intent = new Intent(activity, ArticleCategoryActivity.class);
+    protected void startArticleGroupActivity(final Activity activity) {
+        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting));
+        final Intent intent = new Intent(activity, config.getInKeyboard() ? ArticleKeyboardActivity.class : ArticleCategoryActivity.class);
 
         new Thread() {
             @Override
             public void run() {
                 try {
-                    int responseCode = nemopaySession.getCategories();
+                    if (config.getInKeyboard())
+                        nemopaySession.getKeyboards();
+                    else
+                        nemopaySession.getCategories();
                     Thread.sleep(100);
 
                     // Toute une série de vérifications avant de lancer l'activité
                     final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode categoryList = request.getJSONResponse();
+                    final JsonNode groupList = request.getJSONResponse();
 
-                    if (!request.isJSONResponse() || !categoryList.isArray())
+                    if (!groupList.isArray())
                         throw new Exception("Malformed JSON");
 
-                    if (categoryList.size() == 0) {
+                    if (groupList.size() == 0) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
 
-                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(config.getInKeyboard() ? R.string.keyboard_error_0 : R.string.category_error_0));
                             }
                         });
 
                         return;
                     }
 
-                    for (final JsonNode category : categoryList) {
-                        if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
-                            throw new Exception("Unexpected JSON");
-                    }
-
-                    intent.putExtra("categoryList", request.getResponse());
+                    intent.putExtra("groupList", request.getResponse());
                 } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fatal(activity, getString(R.string.category_list_collecting), e.getMessage());
+                            fatal(activity, getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting), e.getMessage());
                         }
                     });
                 }
@@ -239,7 +237,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
+                            if (activity.getClass().getSimpleName().equals("ArticleKeyboardActivity") || activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
                                 finish();
 
                             activity.startActivity(intent);
@@ -263,8 +261,7 @@ public abstract class BaseActivity extends NFCActivity {
         nemopaySession.setFoundation(foundationId, foundationName);
         Log.d(LOG_TAG, String.valueOf(foundationId));
 
-        // Plus tard, on pourra choisir quelle activité lancer
-        startCategoryArticlesActivity(activity);
+        startArticleGroupActivity(activity);
     }
 
     protected void startBuyerInfoActivity(final Activity activity, final String badgeId) {

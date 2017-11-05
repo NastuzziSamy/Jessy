@@ -1,6 +1,7 @@
 package fr.utc.simde.payutc.articles;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +20,7 @@ import fr.utc.simde.payutc.ArticleCategoryActivity;
 import fr.utc.simde.payutc.BaseActivity;
 import fr.utc.simde.payutc.R;
 import fr.utc.simde.payutc.tools.Config;
+import fr.utc.simde.payutc.tools.Panier;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -36,10 +38,11 @@ public class GroupFragment implements TabHost.TabContentFactory {
     private ListView listView;
 
     private ArticlesAdapter articlesAdapter;
-    private ArticleCategoryActivity.Panier panier;
+    private Panier panier;
     private Config config;
 
-    public GroupFragment(final Activity activity, final ArrayNode articleList, final ArticleCategoryActivity.Panier panier, final Config config) throws Exception {
+    public GroupFragment(final Activity activity, final ArrayNode articleList, final Panier panier, final Config config) throws Exception { new GroupFragment(activity, articleList, panier, config, 3); }
+    public GroupFragment(final Activity activity, final ArrayNode articleList, final Panier panier, final Config config, final int gridColumns) throws Exception {
         this.layoutInflater = LayoutInflater.from(activity);
         this.panier = panier;
         this.config = config;
@@ -47,7 +50,7 @@ public class GroupFragment implements TabHost.TabContentFactory {
         if (config.getInGrid()) {
             this.view = this.layoutInflater.inflate(R.layout.fragment_article_group_grid, null);
             this.gridView = this.view.findViewById(R.id.grid_articles);
-            setGridLayout(3);
+            setGridLayout(gridColumns);
             createArticleGrid(activity, articleList);
         }
         else {

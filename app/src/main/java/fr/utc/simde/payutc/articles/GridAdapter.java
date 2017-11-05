@@ -2,6 +2,7 @@ package fr.utc.simde.payutc.articles;
 
 import android.app.Activity;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,22 +53,21 @@ public class GridAdapter extends ArticlesAdapter {
         JsonNode article = this.articleList.get(position);
 
         if (view == null) {
+            LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
+            view = layoutInflater.inflate(R.layout.fragment_article_grid, null);
+
+            ImageView imageView = view.findViewById(R.id.image_article);
+            RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
+            imageView.setLayoutParams(parms);
+
             if (article.size() == 0)
-                view = new View(this.activity);
+                view.setVisibility(View.INVISIBLE);
             else {
-                LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
-                view = layoutInflater.inflate(R.layout.fragment_article_grid, null);
-
-                ImageView imageView = view.findViewById(R.id.image_article);
-
                 if (clickViewList[position] == null)
                     clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
 
                 TextView textView = view.findViewById(R.id.text_article);
                 textView.setText(article.get("name").textValue());
-
-                RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
-                imageView.setLayoutParams(parms);
 
                 ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
                 ImageView image18 = view.findViewById(R.id.image_18);

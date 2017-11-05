@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import fr.utc.simde.payutc.articles.GroupAdapter;
@@ -194,7 +193,7 @@ public abstract class ArticleGroupActivity extends BaseActivity {
     protected abstract void createGroups(final JsonNode groupList, final JsonNode articleList) throws Exception;
 
     protected void configApp() {
-        dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.category_list_collecting));
+        dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(R.string.category_list_collecting));
 
         new Thread() {
             @Override
@@ -380,8 +379,9 @@ public abstract class ArticleGroupActivity extends BaseActivity {
         }.start();
     }
 
-    protected void createNewGroup(final String name, final ArrayNode articleList) throws Exception {
-        GroupFragment articleGroupFragment = new GroupFragment(ArticleGroupActivity.this, articleList, this.panier, this.config);
+    protected void createNewGroup(final String name, final ArrayNode articleList) throws Exception { createNewGroup(name, articleList, 3); }
+    protected void createNewGroup(final String name, final ArrayNode articleList, int gridColumns) throws Exception {
+        GroupFragment articleGroupFragment = new GroupFragment(ArticleGroupActivity.this, articleList, this.panier, this.config, gridColumns);
 
         TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
         newTabSpec.setIndicator(name);

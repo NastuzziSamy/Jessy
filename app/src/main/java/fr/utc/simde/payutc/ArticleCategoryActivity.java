@@ -156,93 +156,7 @@ public class ArticleCategoryActivity extends BaseActivity {
                     configButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View view) {
-                            dialog.startLoading(ArticleCategoryActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.category_list_collecting));
-
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        nemopaySession.getCategories();
-                                        Thread.sleep(100);
-
-                                        final HTTPRequest request = nemopaySession.getRequest();
-                                        final JsonNode categoryList = request.getJSONResponse();
-
-                                        if (!categoryList.isArray())
-                                            throw new Exception("Malformed JSON");
-
-                                        if (categoryList.size() == 0) {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    dialog.stopLoading();
-
-                                                    dialog.errorDialog(ArticleCategoryActivity.this, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
-                                                }
-                                            });
-
-                                            return;
-                                        }
-
-                                        for (final JsonNode category : categoryList) {
-                                            if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
-                                                throw new Exception("Unexpected JSON");
-                                        }
-                                    } catch (final Exception e) {
-                                        Log.e(LOG_TAG, "error: " + e.getMessage());
-
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
-                                            }
-                                        });
-                                    }
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            dialog.stopLoading();
-
-                                            LayoutInflater layoutInflater = LayoutInflater.from(ArticleCategoryActivity.this);
-                                            View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
-                                            ListView listView = popupView.findViewById(R.id.list_groups);
-
-                                            JsonNode categoryList = null;
-                                            GroupAdapter groupAdapter = null;
-                                            try {
-                                                categoryList = nemopaySession.getRequest().getJSONResponse();
-                                                groupAdapter = new GroupAdapter(ArticleCategoryActivity.this, categoryList);
-
-                                                final GroupAdapter finalGroupAdapter = groupAdapter;
-
-                                                listView.setAdapter(groupAdapter);
-                                            } catch (Exception e) {
-                                                Log.e(LOG_TAG, "error: " + e.getMessage());
-
-                                                fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
-                                            }
-
-                                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
-                                            final GroupAdapter finalGroupAdapter = groupAdapter;
-                                            alertDialogBuilder
-                                                    .setTitle(R.string.category_list)
-                                                    .setView(popupView)
-                                                    .setCancelable(false)
-                                                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialogInterface, int id) {
-                                                            config.setFoundation(nemopaySession.getFoundationId(), nemopaySession.getFoundationName());
-                                                            config.setGroupList(finalGroupAdapter.getList());
-                                                            startMainActivity(ArticleCategoryActivity.this);
-                                                        }
-                                                    })
-                                                    .setNegativeButton(R.string.cancel, null);
-
-                                            dialog.createDialog(alertDialogBuilder);
-                                        }
-                                    });
-                                }
-                            }.start();
+                            configApp();
                         }
                     });
 
@@ -320,6 +234,102 @@ public class ArticleCategoryActivity extends BaseActivity {
             startBuyerInfoActivity(ArticleCategoryActivity.this, badgeId);
         else
             pay(badgeId);
+    }
+
+    protected void configApp() {
+        dialog.startLoading(ArticleCategoryActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.category_list_collecting));
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.getCategories();
+                    Thread.sleep(100);
+
+                    final HTTPRequest request = nemopaySession.getRequest();
+                    final JsonNode categoryList = request.getJSONResponse();
+
+                    if (!categoryList.isArray())
+                        throw new Exception("Malformed JSON");
+
+                    if (categoryList.size() == 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+
+                                dialog.errorDialog(ArticleCategoryActivity.this, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                            }
+                        });
+
+                        return;
+                    }
+
+                    for (final JsonNode category : categoryList) {
+                        if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != nemopaySession.getFoundationId())
+                            throw new Exception("Unexpected JSON");
+                    }
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.stopLoading();
+
+                        LayoutInflater layoutInflater = LayoutInflater.from(ArticleCategoryActivity.this);
+                        View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
+                        ListView listView = popupView.findViewById(R.id.list_groups);
+
+                        JsonNode categoryList = null;
+                        GroupAdapter groupAdapter = null;
+                        try {
+                            categoryList = nemopaySession.getRequest().getJSONResponse();
+                            groupAdapter = new GroupAdapter(ArticleCategoryActivity.this, categoryList);
+
+                            final GroupAdapter finalGroupAdapter = groupAdapter;
+
+                            listView.setAdapter(groupAdapter);
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                            fatal(ArticleCategoryActivity.this, getString(R.string.category_list_collecting), e.getMessage());
+                        }
+
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleCategoryActivity.this);
+                        final GroupAdapter finalGroupAdapter = groupAdapter;
+                        alertDialogBuilder
+                                .setTitle(R.string.category_list)
+                                .setView(popupView)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialogInterface, int id) {
+                                        if (finalGroupAdapter.getList().size() == 0) {
+                                            Toast.makeText(ArticleCategoryActivity.this, getString(R.string.category_0_selected), Toast.LENGTH_LONG).show();
+                                            configApp();
+                                        }
+                                        else {
+                                            config.setFoundation(nemopaySession.getFoundationId(), nemopaySession.getFoundationName());
+                                            config.setGroupList(finalGroupAdapter.getList());
+                                            startMainActivity(ArticleCategoryActivity.this);
+                                        }
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null);
+
+                        dialog.createDialog(alertDialogBuilder);
+                    }
+                });
+            }
+        }.start();
     }
 
     public void clearPanier() {

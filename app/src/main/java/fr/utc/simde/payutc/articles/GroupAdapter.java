@@ -70,9 +70,7 @@ public class GroupAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return this.groupList.size();
-    }
+    public int getCount() { return this.groupList.size(); }
 
     @Override
     public Object getItem(int position) { return 0; }

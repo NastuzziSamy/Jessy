@@ -101,7 +101,7 @@ public class NemopaySession {
 
     public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         return request(
             "POSS3",
@@ -118,7 +118,7 @@ public class NemopaySession {
 
     public int setTransaction(final String badgeId, final List<Integer> articleList) throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (this.foundationId == -1)
             throw new Exception("No foundation set");
@@ -144,7 +144,7 @@ public class NemopaySession {
 
     public int getBuyerInfoByLogin(final String login) throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         return request(
                 "POSS3",
@@ -160,7 +160,7 @@ public class NemopaySession {
 
     public int getBuyerInfo(final String badgeId) throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         return request(
                 "POSS3",
@@ -178,7 +178,7 @@ public class NemopaySession {
 
     public int getArticles() throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (this.foundationId == -1)
             throw new Exception("No foundation set");
@@ -197,7 +197,7 @@ public class NemopaySession {
 
     public int getKeyboards() throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (this.foundationId == -1)
             throw new Exception("No foundation set");
@@ -216,7 +216,7 @@ public class NemopaySession {
 
     public int getCategories() throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (this.foundationId == -1)
             throw new Exception("No foundation set");
@@ -235,27 +235,27 @@ public class NemopaySession {
 
     public int getFoundations() throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         return request(
             "POSS3",
             "getFundations",
-            new String[]{
+        new String[]{
                 "sale"
-            }
+        }
         );
     }
 
     public int getCASUrl() throws Exception {
         return request(
-            "POSS3",
-            "getCasUrl"
+                "POSS3",
+                "getCasUrl"
         );
     }
 
     public int registerApp(final String name, final String description, final String service) throws Exception {
         if (!isConnected())
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         int reponseCode = request(
             "KEY",
@@ -303,7 +303,7 @@ public class NemopaySession {
         if (reponseCode == 200 && this.request.isJSONResponse())
             response = this.request.getJSONResponse();
         else
-            throw new Exception("Not authentified");
+            throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("name")) {
             this.session = response.get("sessionid").textValue();
@@ -318,7 +318,7 @@ public class NemopaySession {
 
     public int loginBadge(final String badgeId, final String pin) throws Exception {
         if (!isRegistered())
-            throw new Exception("Not registered");
+            throw new Exception(this.notLogged);
 
         int reponseCode = request(
             "POSS3",
@@ -336,7 +336,7 @@ public class NemopaySession {
         if (reponseCode == 200 && this.request.isJSONResponse())
             response = this.request.getJSONResponse();
         else
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("username")) {
             this.session = response.get("sessionid").textValue();
@@ -362,7 +362,7 @@ public class NemopaySession {
         if (reponseCode == 200 && this.request.isJSONResponse())
             response = this.request.getJSONResponse();
         else
-            throw new Exception("Not connected");
+            throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("username")) {
             this.session = response.get("sessionid").textValue();

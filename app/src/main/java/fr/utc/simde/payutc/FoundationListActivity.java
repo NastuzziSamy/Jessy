@@ -47,13 +47,6 @@ public class FoundationListActivity extends BaseActivity {
     }
 
     @Override
-    public void onRestart() {
-        super.onRestart();
-
-        startFoundationListActivity(FoundationListActivity.this);
-    }
-
-    @Override
     protected void onIdentification(final String badgeId) {}
 
     protected void setFoundationList(final JsonNode foundationList) throws Exception {

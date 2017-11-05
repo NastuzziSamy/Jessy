@@ -56,16 +56,18 @@ public class ListAdapater extends ArticlesAdapter {
             TextView priceText = view.findViewById(R.id.text_price);
             priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
 
+            ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
+            ImageView image18 = view.findViewById(R.id.image_18);
+
             if (article.has("info")) {
                 TextView infoText = view.findViewById(R.id.text_info);
                 infoText.setText(article.get("info").textValue());
-            }
-            else {
-                ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
-                ImageView image18 = view.findViewById(R.id.image_18);
 
-                setInfos(article, imageCotisant, image18);
+                imageCotisant.setVisibility(View.GONE);
+                image18.setVisibility(View.GONE);
             }
+            else
+                setInfos(article, imageCotisant, image18);
 
             setImage(imageView, article.get("image_url").textValue(), position);
 

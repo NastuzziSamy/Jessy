@@ -3,7 +3,8 @@
     <string name="payutc">PayUTC</string>
     <string name="hello">Pour se connecter, clique sur\n le bouton ou scanne ton badge</string>
     <string name="ok">Ok</string>
-    <string name="connexion">Se connecter</string>
+    <string name="connect">Se connecter</string>
+    <string name="connection">Connexion</string>
     <string name="register">Enregistrer</string>
     <string name="applicate">Appliquer</string>
     <string name="reload">Recharger</string>
@@ -42,8 +43,10 @@
 
     <string name="nfc_not_available">NFC non disponible</string>
     <string name="nfc_not_enabled">NFC non activé</string>
-    <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone.</string>
-    <string name="nfc_accessibility">L\'application nécessite que le NFC soit activé pour fonctionner correctement.</string>
+    <string name="nfc_availability">L\'application nécessite que le NFC soit disponible sur le téléphone pour que celle-ci fonctionne correctement. Elle ne pourra donc être utilisée sur ce téléphone</string>
+    <string name="nfc_accessibility">L\'application nécessite que le NFC soit activé pour fonctionner correctement</string>
+    <string name="internet_not_available">L\'appareil n\'est pas connecté à internet</string>
+    <string name="internet_accessibility">L\'application nécessite d\'être connecté à internet pour fonctionner correctement.</string>
     <string name="cas_connection">Connexion via CAS</string>
     <string name="cas_in_url">Récupération du lien CAS</string>
     <string name="cas_in_connection">Connexion au CAS</string>

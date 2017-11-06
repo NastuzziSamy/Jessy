@@ -4,8 +4,11 @@ package fr.utc.simde.payutc.tools;
  * Created by Samy on 24/10/2017.
  */
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;

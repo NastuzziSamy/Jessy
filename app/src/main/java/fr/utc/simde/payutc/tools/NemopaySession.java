@@ -1,6 +1,9 @@
 package fr.utc.simde.payutc.tools;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -447,8 +450,9 @@ public class NemopaySession {
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);
         else if (responseCode == 400)
             throw new Exception(this.serviceText + " " + service + " " + this.badRequest);
-        else if (responseCode == 500 || responseCode == 503)
+        else if (responseCode == 500 || responseCode == 503) {
             throw new Exception(this.serviceText + " " + service + " " + this.internalError);
+        }
         else
             throw new Exception(this.serviceText + " " + service + " " + this.errorRequest + " " + responseCode);
     }

@@ -55,7 +55,7 @@ public class ArticleKeyboardActivity extends ArticleGroupActivity {
                         }
                     }
 
-                    if (!in)
+                    if (!in && config.getInGrid())
                         articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
                 }
                 else if (config.getInGrid())

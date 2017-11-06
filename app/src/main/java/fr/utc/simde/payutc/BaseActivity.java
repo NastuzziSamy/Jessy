@@ -3,7 +3,9 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.BaseAdapter;
@@ -20,6 +22,7 @@ import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.HTTPRequest;
+import fr.utc.simde.payutc.tools.InternetBroadcast;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
 /**
@@ -28,15 +31,21 @@ import fr.utc.simde.payutc.tools.NemopaySession;
 
 public abstract class BaseActivity extends NFCActivity {
     private static final String LOG_TAG = "_BaseActivity";
-    protected static Dialog dialog;
+
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
+    protected static InternetBroadcast internetBroadcast;
+
     protected static Config config;
+
+    protected static Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.internetBroadcast = new InternetBroadcast();
+        registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         dialog = new Dialog(this);
     }
 
@@ -44,6 +53,7 @@ public abstract class BaseActivity extends NFCActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        unregisterReceiver(this.internetBroadcast);
         dialog.dismiss();
     }
 

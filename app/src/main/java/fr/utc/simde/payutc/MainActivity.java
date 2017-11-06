@@ -3,10 +3,12 @@ package fr.utc.simde.payutc;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -356,7 +358,7 @@ public class MainActivity extends BaseActivity {
             .setTitle(R.string.badge_dialog)
             .setView(pinView)
             .setCancelable(false)
-            .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.connect, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int id) {
                     if (pinInput.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, R.string.pin_required, Toast.LENGTH_SHORT).show();
@@ -399,7 +401,7 @@ public class MainActivity extends BaseActivity {
             .setTitle(R.string.username_dialog)
             .setView(usernameView)
             .setCancelable(false)
-            .setPositiveButton(R.string.connexion, new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.connect, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int id) {
                     if (usernameInput.getText().toString().equals("") || passwordInput.getText().toString().equals("")) {
                         if (!usernameInput.getText().toString().equals(""))

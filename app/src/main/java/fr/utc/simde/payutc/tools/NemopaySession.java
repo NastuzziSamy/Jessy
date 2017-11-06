@@ -31,6 +31,7 @@ public class NemopaySession {
 
     private HTTPRequest request;
 
+    private String sessionNull;
     private String notLogged;
     private String noRight;
     private String noRights;
@@ -59,6 +60,7 @@ public class NemopaySession {
         for (int i = 0; i < Math.min(keys.length, values.length); ++i)
             this.allRights.put(keys[i], values[i]);
 
+        this.sessionNull = activity.getString(R.string.session_null);
         this.notLogged = activity.getString(R.string.no_longer_connected);
         this.noRightsNeeded = activity.getString(R.string.no_need_rights);
         this.noRight = activity.getString(R.string.no_right);
@@ -111,7 +113,7 @@ public class NemopaySession {
                 put("pur_id", Integer.toString(purchaseId));
             }},
             new String[]{
-                "sale"
+                "POSS3"
             }
         );
     }
@@ -137,8 +139,18 @@ public class NemopaySession {
                 put("obj_ids", obj_ids);
             }},
             new String[]{
-                "sale"
+                "POSS3"
             }
+        );
+    }
+
+    public int getAllMyRights() throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+                "USERRIGHT",
+                "getAllMyRights"
         );
     }
 
@@ -153,7 +165,7 @@ public class NemopaySession {
                     put("login", login);
                 }},
                 new String[]{
-                    "sale"
+                    "POSS3"
                 }
         );
     }
@@ -171,7 +183,7 @@ public class NemopaySession {
                     put("badge_id", badgeId);
                 }},
                 new String[]{
-                        "sale"
+                        "POSS3"
                 }
         );
     }
@@ -190,7 +202,7 @@ public class NemopaySession {
                 put("fun_id", Integer.toString(foundationId));
             }},
             new String[]{
-                "sale"
+                "POSS3"
             }
         );
     }
@@ -209,7 +221,7 @@ public class NemopaySession {
                     put("fun_id", Integer.toString(foundationId));
                 }},
                 new String[]{
-                        "sale"
+                        "POSS3"
                 }
         );
     }
@@ -228,7 +240,7 @@ public class NemopaySession {
                 put("fun_id", Integer.toString(foundationId));
             }},
             new String[]{
-                "sale"
+                "POSS3"
             }
         );
     }
@@ -241,7 +253,7 @@ public class NemopaySession {
             "POSS3",
             "getFundations",
         new String[]{
-                "sale"
+                "POSS3"
         }
         );
     }
@@ -306,6 +318,9 @@ public class NemopaySession {
             throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("name")) {
+            if (response.get("sessionid").textValue() == null)
+                throw new Exception(this.sessionNull);
+
             this.session = response.get("sessionid").textValue();
             this.name = response.get("name").textValue();
             this.key = key;
@@ -328,7 +343,7 @@ public class NemopaySession {
                 put("pin", pin);
             }},
             new String[]{
-                "sale"
+                "POSS3"
             }
         );
 
@@ -339,6 +354,9 @@ public class NemopaySession {
             throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("username")) {
+            if (response.get("sessionid").textValue() == null)
+                throw new Exception(this.sessionNull);
+
             this.session = response.get("sessionid").textValue();
             this.username = response.get("username").textValue();
         }
@@ -365,6 +383,9 @@ public class NemopaySession {
             throw new Exception(this.notLogged);
 
         if (response.has("sessionid") && response.has("username")) {
+            if (response.get("sessionid").textValue() == null)
+                throw new Exception(this.sessionNull);
+
             this.session = response.get("sessionid").textValue();
             this.username = response.get("username").textValue();
         }

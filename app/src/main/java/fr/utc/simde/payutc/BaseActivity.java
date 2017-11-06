@@ -6,9 +6,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
@@ -62,6 +68,60 @@ public abstract class BaseActivity extends NFCActivity {
         });
 
         disconnect();
+    }
+
+    protected void hasRights(final String titre, final String[] rightList, final Runnable runnable) {
+        dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    List<String> rights = Arrays.asList(rightList);
+                    List<String> sameRights = new ArrayList<String>();
+                    nemopaySession.getAllMyRights();
+                    Thread.sleep(100);
+
+                    JsonNode myRightList = nemopaySession.getRequest().getJSONResponse();
+
+                    if (myRightList.has("0")) {
+                        for (JsonNode myRight : myRightList.get("0")) {
+                            if (rights.contains(myRight.textValue()))
+                                sameRights.add(myRight.textValue());
+                        }
+                    }
+
+                    if (myRightList.has(String.valueOf(nemopaySession.getFoundationId()))) {
+                        for (JsonNode myRight : myRightList.get(String.valueOf(nemopaySession.getFoundationId()))) {
+                            if (rights.contains(myRight.textValue()))
+                                sameRights.add(myRight.textValue());
+                        }
+                    }
+
+                    if (rights.size() == sameRights.size())
+                        runOnUiThread(runnable);
+                    else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+                                dialog.errorDialog(BaseActivity.this, titre, nemopaySession.forbidden(rightList));
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+                            dialog.errorDialog(BaseActivity.this, getString(R.string.user_rights_list_collecting), getString(R.string.error_rights));
+                        }
+                    });
+                }
+
+            }
+        }.start();
     }
 
     protected void startMainActivity(final Activity activity) {

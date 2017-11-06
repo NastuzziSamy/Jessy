@@ -61,6 +61,7 @@
     <string name="badge_pin_error_not_recognized">Badge ou code PIN non reconnu</string>
     <string name="badge_error_not_recognized">Badge non reconnu (compte PayUTC peut-être non existant)</string>
     <string name="badge_pin_not_initialized">Pour pouvoir se connecter via son badge, il est impératif d\'avoir configuré son code PIN sur https://pay.utc.fr/</string>
+    <string name="session_null">La session n\'a pas été correctement initialisé. Il est nécessaire de se reconnecter</string>
     <string name="nemopay_connection">Connexion à Nemopay</string>
     <string name="nemopay_connection_verification">Vérification de la connexion à Nemopay</string>
     <string name="nemopay_no_longer_connected">Application déconnectée. Nécessité de se reconnecter</string>
@@ -87,6 +88,7 @@
     <string name="article_error_0">n\'a aucun article à vendre</string>
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
     <string name="buyer_info_collecting">Récupération des informations de la personne</string>
+    <string name="user_rights_list_collecting">Récupération des droits de la personne</string>
     <string name="no_purchases">Aucun article acheté dernièrement</string>
     <string name="transaction_in_progress">Transaction en cours</string>
     <string name="cancel_transaction">Annuler une transaction</string>
@@ -110,160 +112,32 @@
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
     <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
+    <string name="error_rights">Impossible de récupérer les droits de la personne</string>
     <string name="not_found">n\'a pas réussi à trouver l\'élement souhaité</string>
     <string name="bad_request">n\'a pas compris la requête reçue</string>
     <string name="internal_error">a renvoyé une erreur interne (contacter un adminstrateur si cela se reproduit)</string>
     <string name="error_request">a renvoyé l\'erreur HTTP suivante: </string>
     <string-array name="rights_keys">
-        <item>Accès en lecture seule sur les paramètres</item>
-        <item>add_free</item>
-        <item>offline_app</item>
-        <item>delegated_auth</item>
-        <item>social_network_auth</item>
-        <item>auto_topup</item>
-        <item>keyboard</item>
-        <item>widget_code</item>
-        <item>event_config</item>
-        <item>sys_config</item>
-        <item>transfer_consulting</item>
-        <item>access_control</item>
-        <item>offline_app_creation</item>
-        <item>user_creation</item>
-        <item>live_dashboard</item>
-        <item>transfert_ask</item>
-        <item>bill_ask</item>
-        <item>CB_transfert_ask</item>
-        <item>IBAN_transfert_ask</item>
-        <item>app_rights</item>
-        <item>user_rights</item>
-        <item>online_cashing</item>
-        <item>user_account_management</item>
-        <item>sync_management</item>
-        <item>accreditation_management</item>
-        <item>activity_management</item>
-        <item>app_management</item>
-        <item>article_management</item>
-        <item>blocking_management</item>
-        <item>blocked_card_management</item>
-        <item>place_config_management</item>
-        <item>group_management</item>
-        <item>delivry_management</item>
-        <item>prize_management</item>
-        <item>perso_message_management</item>
-        <item>currency_management</item>
-        <item>payment_method_management</item>
-        <item>partner_management</item>
-        <item>recharge_refund_period_management</item>
-        <item>refund_management</item>
-        <item>sys_refund_management</item>
-        <item>barcode_rule_management</item>
-        <item>wifi_management</item>
-        <item>mail_template_management</item>
-        <item>user_management</item>
-        <item>suitcase_management</item>
-        <item>sale_management</item>
-        <item>event_management</item>
-        <item>export_generation</item>
-        <item>file_importation</item>
-        <item>case_log</item>
-        <item>house_rental</item>
-        <item>external_login</item>
-        <item>staff_member</item>
-        <item>user_account_update</item>
-        <item>direct_recharge</item>
-        <item>ajax_recharg</item>
-        <item>recharge</item>
-        <item>username_recharge</item>
-        <item>inventories</item>
-        <item>catering_resume</item>
-        <item>stats</item>
-        <item>stocks</item>
-        <item>all_rights</item>
-        <item>treasury</item>
-        <item>online_payment_validation</item>
-        <item>sale</item>
-        <item>self_sale</item>
-        <item>transfer</item>
-        <item>access_control_history_visualisation</item>
-        <item>recharge_visualisation</item>
-        <item>sale_visualisation</item>
+        <item>SALESKEYBOARD</item>
+        <item>APPLICATIONRIGHT</item>
+        <item>USERRIGHT</item>
+        <item>GESAPPLICATIONS</item>
+        <item>GESUSERS</item>
+        <item>GESARTICLE</item>
+        <item>GESSALES</item>
+        <item>STAFF</item>
+        <item>POSS3</item>
     </string-array>
 
     <string-array name="rights_values">
-        <item>Accès en lecture seule sur les paramètres</item>
-        <item>Ajout de gratuités</item>
-        <item>Application hors ligne</item>
-        <item>Authentification déléguée</item>
-        <item>Authentification par réseau social</item>
-        <item>Auto Topup</item>
         <item>Clavier de caisse</item>
-        <item>Code du widget</item>
-        <item>Configuration des évènements</item>
-        <item>Configuration du système</item>
-        <item>Consultation des reversements système</item>
-        <item>Contrôle des accès</item>
-        <item>Création d\'application Offline.</item>
-        <item>Création de compte utilisateur</item>
-        <item>Dashboard Live</item>
-        <item>Demande de remboursement</item>
-        <item>Demander des factures</item>
-        <item>Demander des remboursements CB</item>
-        <item>Demander des remboursements IBAN</item>
         <item>Droits des applications</item>
         <item>Droits des utilisateurs</item>
-        <item>Encaissement en ligne</item>
-        <item>Gestion de compte utilisateur</item>
-        <item>Gestion de la synchro Weezevent</item>
-        <item>Gestion des accréditations</item>
-        <item>Gestion des activités</item>
         <item>Gestion des applications</item>
-        <item>Gestion des articles</item>
-        <item>Gestion des blocages</item>
-        <item>Gestion des cartes bloquées</item>
-        <item>Gestion des configurations de lieux</item>
-        <item>Gestion des groupes</item>
-        <item>Gestion des livraisons</item>
-        <item>Gestion des Lots à gagner</item>
-        <item>Gestion des messages personalisés</item>
-        <item>Gestion des monnaies</item>
-        <item>Gestion des moyens de paiement</item>
-        <item>Gestion des partenaires</item>
-        <item>Gestion des périodes de recharge/remboursement</item>
-        <item>Gestion des reversements</item>
-        <item>Gestion des reversements système</item>
-        <item>Gestion des règles pour les barcodes</item>
-        <item>Gestion des réseaux wifi</item>
-        <item>Gestion des template de mail</item>
         <item>Gestion des utilisateurs</item>
-        <item>Gestion des Valises de Nemopay</item>
+        <item>Gestion des articles</item>
         <item>Gestion des ventes</item>
-        <item>Gestion des événements</item>
-        <item>Génération d\'exports</item>
-        <item>Import de fichiers</item>
-        <item>Journal de caisse</item>
-        <item>Location de foyer</item>
-        <item>Login exterieur via login+pin</item>
         <item>Membre du staff</item>
-        <item>Mise à jour des utilisateurs par une appli</item>
-        <item>Recharge en direct</item>
-        <item>Recharge via ajax</item>
-        <item>Rechargement</item>
-        <item>Rechargement direct via username</item>
-        <item>Réaliser des inventaires</item>
-        <item>Résumé du catering</item>
-        <item>Statistiques</item>
-        <item>Stocks et entrepôts</item>
-        <item>Tous les droits</item>
-        <item>Trésorerie</item>
-        <item>Validation des paiements en ligne</item>
         <item>Vente physique</item>
-        <item>Vente physique self-service</item>
-        <item>Virement</item>
-        <item>Visualisation de l\'historique des contrôles d\'accès</item>
-        <item>Visualisation des sessions de recharge</item>
-        <item>Visualisation des sessions de vente</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

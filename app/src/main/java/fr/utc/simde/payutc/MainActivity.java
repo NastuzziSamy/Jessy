@@ -92,7 +92,14 @@ public class MainActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
 
+        disconnect();
         setConfig();
+
+        if (!nemopaySession.isRegistered()) {
+            final String key = sharedPreferences.getString("key", "");
+            if (!key.equals(""))
+                setKey(key);
+        }
     }
 
     @Override
@@ -254,9 +261,14 @@ public class MainActivity extends BaseActivity {
 
                 try {
                     nemopaySession.loginCas(casConnexion.getTicket(), service);
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                    try { // Des fois, la session est null
+                        nemopaySession.loginCas(casConnexion.getTicket(), service);
+                        Thread.sleep(100);
+                    } catch (Exception e1) {
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
+                    }
                 }
 
                 runOnUiThread(new Runnable() {
@@ -288,34 +300,38 @@ public class MainActivity extends BaseActivity {
                     nemopaySession.loginBadge(badgeId, pin);
                     Thread.sleep(100);
                 } catch (final Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                    try { // Des fois, la session est null
+                        nemopaySession.loginBadge(badgeId, pin);
+                        Thread.sleep(100);
+                    } catch (final Exception e1) {
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
 
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (nemopaySession.getRequest().getResponseCode() == 400)
+                                    dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
+                                else
+                                    dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), e.getMessage());
+                            }
+                        });
+                    }
+                }
+
+                if (nemopaySession.isConnected()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                        if (nemopaySession.getRequest().getResponseCode() == 400)
-                            dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), getString(R.string.badge_pin_error_not_recognized));
-                        else
-                            dialog.errorDialog(MainActivity.this, getString(R.string.badge_dialog), e.getMessage());
+                            dialog.stopLoading();
+
+                            try {
+                                startFoundationListActivity(MainActivity.this);
+                            } catch (Exception e) {
+                                Log.e(LOG_TAG, "error: " + e.getMessage());
+                            }
                         }
                     });
                 }
-
-                if (!nemopaySession.isConnected())
-                    return;
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.stopLoading();
-
-                        try {
-                            startFoundationListActivity(MainActivity.this);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "error: " + e.getMessage());
-                        }
-                    }
-                });
             }
         }).start();
     }

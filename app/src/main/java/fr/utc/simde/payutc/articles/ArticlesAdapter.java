@@ -40,6 +40,8 @@ abstract class ArticlesAdapter extends BaseAdapter {
 
     protected Bitmap[] imageList;
     protected Integer[] nbrClicksList;
+
+    protected View[] viewList;
     protected TextView[] clickViewList;
 
     protected ArrayNode articleList;
@@ -52,6 +54,8 @@ abstract class ArticlesAdapter extends BaseAdapter {
         this.articleList = articleList;
         this.imageList = new Bitmap[articleList.size()];
         this.nbrClicksList = new Integer[articleList.size()];
+
+        this.viewList = new View[articleList.size()];
         this.clickViewList = new TextView[articleList.size()];
 
         for (int i = 0; i < this.nbrClicksList.length; i++)

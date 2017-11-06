@@ -52,25 +52,24 @@ public class GridAdapter extends ArticlesAdapter {
     public View getView(int position, View view, ViewGroup viewGroup) {
         JsonNode article = this.articleList.get(position);
 
-        if (view == null) {
+        if (this.viewList[position] == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
-            view = layoutInflater.inflate(R.layout.fragment_article_grid, null);
+            this.viewList[position] = layoutInflater.inflate(R.layout.fragment_article_grid, null);
 
-            ImageView imageView = view.findViewById(R.id.image_article);
+            ImageView imageView = this.viewList[position].findViewById(R.id.image_article);
             RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(this.size, this.size);
             imageView.setLayoutParams(parms);
 
             if (article == null || article.size() == 0)
-                view.setVisibility(View.INVISIBLE);
+                this.viewList[position].setVisibility(View.INVISIBLE);
             else {
-                if (clickViewList[position] == null)
-                    clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
+                this.clickViewList[position] = this.viewList[position].findViewById(R.id.text_nbr_clicks);
 
-                TextView textView = view.findViewById(R.id.text_article);
+                TextView textView = this.viewList[position].findViewById(R.id.text_article);
                 textView.setText(article.get("name").textValue());
 
-                ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
-                ImageView image18 = view.findViewById(R.id.image_18);
+                ImageView imageCotisant = this.viewList[position].findViewById(R.id.image_cotisant);
+                ImageView image18 = this.viewList[position].findViewById(R.id.image_18);
 
                 LinearLayout.LayoutParams imageParms = new LinearLayout.LayoutParams(45, 45);
                 imageParms.setMargins(0, this.size - 45, 0, 0);
@@ -83,6 +82,6 @@ public class GridAdapter extends ArticlesAdapter {
             }
         }
 
-        return view;
+        return this.viewList[position];
     }
 }

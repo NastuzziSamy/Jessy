@@ -34,33 +34,31 @@ public class ListAdapater extends ArticlesAdapter {
 
     public ListAdapater(final Activity activity, final ArrayNode articleList, final Boolean printCotisant, final Boolean print18) throws Exception {
         super(activity, articleList, printCotisant, print18);
-        Log.d(LOG_TAG, articleList.toString());
     }
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         JsonNode article = this.articleList.get(position);
 
-        if (view == null) {
+        if (this.viewList[position] == null) {
             LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
-            view = layoutInflater.inflate(R.layout.fragment_article_list, null);
+            this.viewList[position] = layoutInflater.inflate(R.layout.fragment_article_list, null);
 
-            ImageView imageView = view.findViewById(R.id.image_article);
+            ImageView imageView = this.viewList[position].findViewById(R.id.image_article);
 
-            if (clickViewList[position] == null)
-                clickViewList[position] = view.findViewById(R.id.text_nbr_clicks);
+            clickViewList[position] = this.viewList[position].findViewById(R.id.text_nbr_clicks);
 
-            TextView nameText = view.findViewById(R.id.text_article);
+            TextView nameText = this.viewList[position].findViewById(R.id.text_article);
             nameText.setText(article.get("name").textValue());
 
-            TextView priceText = view.findViewById(R.id.text_price);
+            TextView priceText = this.viewList[position].findViewById(R.id.text_price);
             priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
 
-            ImageView imageCotisant = view.findViewById(R.id.image_cotisant);
-            ImageView image18 = view.findViewById(R.id.image_18);
+            ImageView imageCotisant = this.viewList[position].findViewById(R.id.image_cotisant);
+            ImageView image18 = this.viewList[position].findViewById(R.id.image_18);
 
             if (article.has("info")) {
-                TextView infoText = view.findViewById(R.id.text_info);
+                TextView infoText = this.viewList[position].findViewById(R.id.text_info);
                 infoText.setText(article.get("info").textValue());
 
                 imageCotisant.setVisibility(View.GONE);
@@ -78,7 +76,7 @@ public class ListAdapater extends ArticlesAdapter {
             setClickView(position);
         }
 
-        return view;
+        return this.viewList[position];
     }
 
     public void toast(final int position, int lengthLong) {

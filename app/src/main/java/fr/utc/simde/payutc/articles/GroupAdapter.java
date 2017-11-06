@@ -61,7 +61,6 @@ public class GroupAdapter extends BaseAdapter {
 
             ((LinearLayout) view).addView(checkBox);
 
-            Log.d(LOG_TAG, Integer.toString(position));
             if (this.checkBoxList[position] == null)
                 this.checkBoxList[position] = checkBox;
         }

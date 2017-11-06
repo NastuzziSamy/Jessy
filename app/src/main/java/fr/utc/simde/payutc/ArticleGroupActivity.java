@@ -109,7 +109,15 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                     configButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View view) {
-                            configApp();
+                            hasRights(getString(R.string.configurate_by_default), new String[]{
+                                    "STAFF",
+                                    "GESAPPLICATIONS"
+                            }, new Runnable() {
+                                @Override
+                                public void run() {
+                                    configApp();
+                                }
+                            });
                         }
                     });
 
@@ -144,11 +152,19 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                     configButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            config.setFoundation(-1, "");
-                            config.setGroupList(new ObjectMapper().createObjectNode());
-                            config.setCanCancel(true);
+                            hasRights(getString(R.string.configurate_by_default), new String[]{
+                                "STAFF",
+                                "GESAPPLICATIONS"
+                            }, new Runnable() {
+                                @Override
+                                public void run() {
+                                    config.setFoundation(-1, "");
+                                    config.setGroupList(new ObjectMapper().createObjectNode());
+                                    config.setCanCancel(true);
 
-                            startMainActivity(ArticleGroupActivity.this);
+                                    startMainActivity(ArticleGroupActivity.this);
+                                }
+                            });
                         }
                     });
 

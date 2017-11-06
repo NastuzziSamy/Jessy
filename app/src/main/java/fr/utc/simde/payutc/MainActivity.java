@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +36,7 @@ import java.util.Map;
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
+import fr.utc.simde.payutc.tools.InternetBroadcast;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
 public class MainActivity extends BaseActivity {
@@ -45,6 +47,8 @@ public class MainActivity extends BaseActivity {
     private static TextView appConfigText;
     private static TextView appRegisteredText;
     private static Button usernameButton;
+
+    protected static InternetBroadcast internetBroadcast;
 
     private static SharedPreferences sharedPreferences;
 
@@ -58,6 +62,9 @@ public class MainActivity extends BaseActivity {
         nemopaySession = new NemopaySession(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
+
+        this.internetBroadcast = new InternetBroadcast();
+        registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         final String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
@@ -108,6 +115,7 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        unregisterReceiver(this.internetBroadcast);
         disconnect();
     }
 

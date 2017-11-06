@@ -34,8 +34,6 @@ public abstract class BaseActivity extends NFCActivity {
 
     protected static NemopaySession nemopaySession;
     protected static CASConnexion casConnexion;
-    protected static InternetBroadcast internetBroadcast;
-
     protected static Config config;
 
     protected static Dialog dialog;
@@ -44,8 +42,6 @@ public abstract class BaseActivity extends NFCActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.internetBroadcast = new InternetBroadcast();
-        registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         dialog = new Dialog(this);
     }
 
@@ -53,7 +49,6 @@ public abstract class BaseActivity extends NFCActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(this.internetBroadcast);
         dialog.dismiss();
     }
 

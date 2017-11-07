@@ -3,16 +3,10 @@ package fr.utc.simde.payutc;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +16,6 @@ import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
 import fr.utc.simde.payutc.tools.HTTPRequest;
-import fr.utc.simde.payutc.tools.InternetBroadcast;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
 /**
@@ -144,7 +137,7 @@ public abstract class BaseActivity extends NFCActivity {
         }
 
         dialog.startLoading(activity, getString(R.string.information_collection), getString(R.string.foundation_list_collecting));
-        final Intent intent = new Intent(activity, FoundationListActivity.class);
+        final Intent intent = new Intent(activity, FoundationsOptionsActivity.class);
 
         new Thread() {
             @Override
@@ -195,7 +188,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("FoundationListActivity"))
+                            if (activity.getClass().getSimpleName().equals("FoundationsOptionsActivity"))
                                 finish();
 
                             activity.startActivity(intent);

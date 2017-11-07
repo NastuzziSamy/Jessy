@@ -1,6 +1,5 @@
 package fr.utc.simde.payutc;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -18,12 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-
-import fr.utc.simde.payutc.articles.GridAdapter;
-import fr.utc.simde.payutc.articles.ListAdapater;
+import fr.utc.simde.payutc.adapters.ListAdapater;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**

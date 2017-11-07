@@ -36,6 +36,8 @@
     <string name="category">Catégorie</string>
     <string name="grid">Grille</string>
     <string name="list">Liste</string>
+    <string name="foundations">Fondations</string>
+    <string name="options">Options</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -110,37 +112,4 @@
     <string name="filters">Filtres d\'affichage</string>
     <string name="print_cotisant">Afficher le filtre cotisant</string>
     <string name="print_18">Afficher le filtre majeur</string>
-
-    <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
-    <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
-    <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
-    <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
-    <string name="error_rights">Impossible de récupérer les droits de la personne</string>
-    <string name="not_found">n\'a pas réussi à trouver l\'élement souhaité</string>
-    <string name="bad_request">n\'a pas compris la requête reçue</string>
-    <string name="internal_error">a renvoyé une erreur interne (contacter un adminstrateur si cela se reproduit)</string>
-    <string name="error_request">a renvoyé l\'erreur HTTP suivante: </string>
-    <string-array name="rights_keys">
-        <item>SALESKEYBOARD</item>
-        <item>APPLICATIONRIGHT</item>
-        <item>USERRIGHT</item>
-        <item>GESAPPLICATIONS</item>
-        <item>GESUSERS</item>
-        <item>GESARTICLE</item>
-        <item>GESSALES</item>
-        <item>STAFF</item>
-        <item>POSS3</item>
-    </string-array>
-
-    <string-array name="rights_values">
-        <item>Clavier de caisse</item>
-        <item>Droits des applications</item>
-        <item>Droits des utilisateurs</item>
-        <item>Gestion des applications</item>
-        <item>Gestion des utilisateurs</item>
-        <item>Gestion des articles</item>
-        <item>Gestion des ventes</item>
-        <item>Membre du staff</item>
-        <item>Vente physique</item>
-    </string-array>
 </resources>

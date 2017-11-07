@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.utc.simde.payutc.articles.GroupAdapter;
-import fr.utc.simde.payutc.articles.GroupFragment;
+import fr.utc.simde.payutc.adapters.GroupAdapter;
+import fr.utc.simde.payutc.fragments.GroupFragment;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.Panier;
 

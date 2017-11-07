@@ -43,16 +43,7 @@ public class FoundationsAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {/*
-        LinearLayout linearLayout = new LinearLayout(this.activity);
-        TextView textView = new TextView(this.activity);
-
-        textView.setText(getFoundationName(position));
-        textView.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        linearLayout.addView(textView);
-
-        return linearLayout;*/
-
+    public View getView(int position, View view, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
         view = layoutInflater.inflate(R.layout.fragment_list, null);
 

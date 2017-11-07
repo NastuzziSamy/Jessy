@@ -32,6 +32,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
     ListView foundationList;
     ListView optionList;
 
+    String[] rightsNeeded;
+
     FoundationsAdapter foundationsAdapter;
 
     @Override
@@ -43,12 +45,15 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.foundationList = findViewById(R.id.list_foundations);
         this.optionList = findViewById(R.id.list_options);
 
+        this.rightsNeeded = getResources().getStringArray(R.array.options_rights);
+
         this.tabHost.setup();
         this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.foundations)).setIndicator(getString(R.string.foundations)).setContent(R.id.list_foundations));
         this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.options)).setIndicator(getString(R.string.options)).setContent(R.id.list_options));
 
         try {
             setFoundationList((ArrayNode) new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
+            setOptionList();
         } catch (Exception e) {
             Log.wtf(LOG_TAG, "error: " + e.getMessage());
             dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected), new DialogInterface.OnClickListener() {
@@ -64,17 +69,6 @@ public class FoundationsOptionsActivity extends BaseActivity {
     protected void onIdentification(final String badgeId) {}
 
     protected void setFoundationList(final ArrayNode foundationList) throws Exception {
-        /*ArrayList<String> arrlist = new ArrayList<String>();
-
-        for (final JsonNode foundation : foundationList) {
-            if (!foundation.has("name") || !foundation.has("fun_id"))
-                throw new Exception("Unexpected JSON");
-
-            arrlist.add(foundation.get("name").textValue());
-        }
-
-        this.foundationList.setAdapter(new ArrayAdapter<String>(FoundationsOptionsActivity.this, R.layout.fragment_list, arrlist));
-*/
         this.foundationsAdapter = new FoundationsAdapter(FoundationsOptionsActivity.this, foundationList);
 
         this.foundationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -94,5 +88,19 @@ public class FoundationsOptionsActivity extends BaseActivity {
         });
 
         this.foundationList.setAdapter(this.foundationsAdapter);
+    }
+
+    protected void setOptionList() {
+        this.optionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                hasRights(getString(R.string.user_rights_list_collecting), rightsNeeded[position].split(" "), new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.user_rights_list_collecting), "C'est ok !");
+                    }
+                });
+            }
+        });
     }
 }

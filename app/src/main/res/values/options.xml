@@ -4,7 +4,17 @@
         <item>Mode annulation</item>
         <item>Modifier les articles</item>
         <item>Lire une carte</item>
+        <item>Lire un QR Code</item>
         <item>Créer une cotisation extérieure</item>
         <item>Ajouter une carte</item>
+    </string-array>
+
+    <string-array name="options_rights">
+        <item>STAFF POSS3 GESSALES</item>
+        <item>GESARTICLE POSS3</item>
+        <item>STAFF</item>
+        <item>STAFF POSS3</item>
+        <item></item>
+        <item>STAFF POSS3</item>
     </string-array>
 </resources>

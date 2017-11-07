@@ -435,21 +435,23 @@ public class NemopaySession {
         if (responseCode == 200)
             return 200;
         else if (responseCode == 403) {
-            try {
-                if (this.request.isJSONResponse()) {
-                    if (this.request.getJSONResponse().get("error").get("message").textValue().contains("must be logged"))
-                        throw new Exception(this.notLogged);
-                }
+            if (this.request.isJSONResponse()) {
+                if (this.request.getJSONResponse().get("error").get("message").textValue().contains("must be logged"))
+                    throw new Exception(this.notLogged);
             }
-            catch (Exception e) {}
-            finally {
-                throw new Exception(forbidden(rightsNeeded));
-            }
+
+            throw new Exception(forbidden(rightsNeeded));
         }
         else if (responseCode == 404)
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);
-        else if (responseCode == 400)
+        else if (responseCode == 400) {
+            if (this.request.isJSONResponse()) {
+                if (this.request.getJSONResponse().has("error") && this.request.getJSONResponse().get("error").has("message"))
+                    throw new Exception(this.request.getJSONResponse().get("error").get("message").textValue());
+            }
+
             throw new Exception(this.serviceText + " " + service + " " + this.badRequest);
+        }
         else if (responseCode == 500 || responseCode == 503) {
             throw new Exception(this.serviceText + " " + service + " " + this.internalError);
         }

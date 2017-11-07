@@ -360,7 +360,7 @@ public abstract class BaseActivity extends NFCActivity {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     try {
-                        if (nemopaySession.getRequest().getResponseCode() == 404)
+                        if (nemopaySession.getRequest().getResponseCode() == 400)
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

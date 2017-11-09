@@ -1,6 +1,8 @@
 package fr.utc.simde.payutc.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ public class ListAdapater extends ArticlesAdapter {
         super(activity, articleList, printCotisant, print18);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         JsonNode article = this.articleList.get(position);
@@ -61,6 +64,9 @@ public class ListAdapater extends ArticlesAdapter {
                 nbrClicksList[position] = article.get("quantity").intValue();
             }
 
+            if (this.nbrClicksList[position] < 0)
+                priceText.setTextColor(Color.RED);
+
             setClickView(position);
         }
 
@@ -79,6 +85,9 @@ public class ListAdapater extends ArticlesAdapter {
             } else {
                 this.clickViewList[position].setText(Integer.toString(this.nbrClicksList[position]));
                 this.clickViewList[position].setAlpha(1.0f);
+
+                if (this.nbrClicksList[position] < 0)
+                    this.clickViewList[position].setBackgroundColor(Color.RED);
             }
         }
     }

@@ -61,11 +61,10 @@ public abstract class BaseActivity extends NFCActivity {
         dialog.fatalDialog(activity, title, message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                unregister(activity);
                 startMainActivity(activity);
             }
         });
-
-        disconnect();
     }
 
     protected void hasRights(final String titre, final String[] rightList, final Runnable runnable) {

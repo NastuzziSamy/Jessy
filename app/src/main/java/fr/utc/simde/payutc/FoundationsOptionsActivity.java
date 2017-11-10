@@ -1,12 +1,15 @@
 package fr.utc.simde.payutc;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -16,7 +19,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import fr.utc.simde.payutc.adapters.FoundationsAdapter;
 import fr.utc.simde.payutc.adapters.ListAdapater;
@@ -92,6 +98,62 @@ public class FoundationsOptionsActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (position == 2)
                     startReadCardInfoActivity(FoundationsOptionsActivity.this);
+                else if (position == 6)
+                    keyNemopayDialog();
+                else if (position == 7)
+                    keyGingerDialog();
+                else
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "A faire");
+            }
+        });
+    }
+
+    protected void keyNemopayDialog() {
+        hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
+            @Override
+            public void run() {
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                alertDialogBuilder
+                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                if (!keyInput.getText().toString().equals(""))
+                                    setNemopayKey(keyInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder, keyInput);
+            }
+        });
+    }
+
+    protected void keyGingerDialog() {
+        hasRights(getString(R.string.ginger), new String[]{}, new Runnable(){
+            @Override
+            public void run() {
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                alertDialogBuilder
+                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.ginger))
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                if (!keyInput.getText().toString().equals(""))
+                                    setGingerKey(keyInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder, keyInput);
             }
         });
     }

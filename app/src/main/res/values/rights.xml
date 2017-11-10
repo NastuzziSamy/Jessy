@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
+    <string name="ginger_no_rights">La clé donnée n\'a pas les droits</string>
     <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
     <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
     <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>

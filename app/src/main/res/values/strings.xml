@@ -1,6 +1,8 @@
 ﻿<resources>
     <string name="app_name">PayUTC</string>
     <string name="payutc">PayUTC</string>
+    <string name="nemopay">Nemopay</string>
+    <string name="ginger">Ginger</string>
     <string name="hello">Pour se connecter, clique sur\n le bouton ou scanne ton badge</string>
     <string name="ok">Ok</string>
     <string name="yes">Oui</string>
@@ -50,6 +52,7 @@
     <string name="tag_id">ID tag</string>
     <string name="tag">Numéro de badge</string>
     <string name="short_tag">Numéro raccourci</string>
+    <string name="type">Type</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -126,7 +129,9 @@
     <string name="can_cancel">Permettre l\'annulation</string>
     <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
     <string name="read_card_information">Informations de la carte</string>
+    <string name="read_new_card">Lire une carte</string>
     <string name="ginger_information">Informations de la part de Ginger</string>
+    <string name="ginger_no_key">Aucune clé n\'a été donnée</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

@@ -1,20 +1,31 @@
 package fr.utc.simde.payutc;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Dialog;
+import fr.utc.simde.payutc.tools.Ginger;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 import fr.utc.simde.payutc.tools.NemopaySession;
 
@@ -26,10 +37,13 @@ public abstract class BaseActivity extends NFCActivity {
     private static final String LOG_TAG = "_BaseActivity";
 
     protected static NemopaySession nemopaySession;
+    protected static Ginger ginger;
     protected static CASConnexion casConnexion;
     protected static Config config;
 
     protected static Dialog dialog;
+
+    protected static SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +108,7 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                     }
 
-                    if (rights.size() == sameRights.size())
+                    if ((rights.size() == sameRights.size()) || (myRightList.has("0") && rights.size() == 0))
                         runOnUiThread(runnable);
                     else {
                         runOnUiThread(new Runnable() {
@@ -382,11 +396,59 @@ public abstract class BaseActivity extends NFCActivity {
     }
 
     protected void startReadCardInfoActivity(final Activity activity) {
-        hasRights(getString(R.string.user_rights_list_collecting), getResources().getStringArray(R.array.options_rights)[2].split(" "), new Runnable() {
+        hasRights(getString(R.string.user_rights_list_collecting), new String[]{"STAFF", "POSS3", "GESUSERS"}, new Runnable() {
             @Override
             public void run() {dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
                 activity.startActivity(new Intent(activity, ReadCardInfoActivity.class));
             }
         });
+    }
+
+    protected void delKey() {
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.remove("key");
+        edit.apply();
+
+        unregister(BaseActivity.this);
+    }
+
+    protected void setNemopayKey(final String key) {
+        dialog.startLoading(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.loginApp(key, casConnexion);
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.stopLoading();
+
+                        if (nemopaySession.isRegistered()) {
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("key", key);
+                            editor.apply();
+
+                            ((TextView) findViewById(R.id.text_app_registered)).setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
+                        }
+                        else
+                            dialog.errorDialog(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                    }
+                });
+            }
+        }.start();
+    }
+
+    protected void setGingerKey(final String key) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("key_ginger", key);
+        editor.apply();
+
+        ginger.setKey(key);
     }
 }

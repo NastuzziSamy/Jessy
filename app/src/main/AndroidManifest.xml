@@ -39,7 +39,7 @@
         <activity android:name=".BuyerInfoActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".ReadCardInfoActivity"
+        <activity android:name=".CardManagementActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
     </application>

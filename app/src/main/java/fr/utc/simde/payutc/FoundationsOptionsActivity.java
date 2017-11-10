@@ -97,7 +97,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (position == 2)
-                    startReadCardInfoActivity(FoundationsOptionsActivity.this);
+                    startCardManagementActivity(FoundationsOptionsActivity.this);
                 else if (position == 6)
                     keyNemopayDialog();
                 else if (position == 7)

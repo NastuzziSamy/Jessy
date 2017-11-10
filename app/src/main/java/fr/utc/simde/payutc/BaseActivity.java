@@ -1,26 +1,18 @@
 package fr.utc.simde.payutc;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import fr.utc.simde.payutc.tools.CASConnexion;
 import fr.utc.simde.payutc.tools.Config;
@@ -395,11 +387,11 @@ public abstract class BaseActivity extends NFCActivity {
         }.start();
     }
 
-    protected void startReadCardInfoActivity(final Activity activity) {
+    protected void startCardManagementActivity(final Activity activity) {
         hasRights(getString(R.string.user_rights_list_collecting), new String[]{"STAFF", "POSS3", "GESUSERS"}, new Runnable() {
             @Override
             public void run() {dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
-                activity.startActivity(new Intent(activity, ReadCardInfoActivity.class));
+                activity.startActivity(new Intent(activity, CardManagementActivity.class));
             }
         });
     }

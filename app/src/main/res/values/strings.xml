@@ -48,7 +48,9 @@
     <string name="lastname">Nom</string>
     <string name="email">Email</string>
     <string name="adult">Adulte</string>
+    <string name="contribute">Cotiser</string>
     <string name="cotisant">Cotisant</string>
+    <string name="solde">Solde</string>
     <string name="tag_id">ID tag</string>
     <string name="tag">Numéro de badge</string>
     <string name="short_tag">Numéro raccourci</string>
@@ -75,6 +77,7 @@
     <string name="cas_error_service_connection">Erreur lors de la connexion au service depuis le CAS</string>
     <string name="cas_error_service_linking">Erreur lors de la connexion entre le CAS et le service</string>
     <string name="badge_connection">Connexion par badge</string>
+    <string name="badge_read">Lecture d\'un badge</string>
     <string name="badge_waiting">En attente de lecture d\'un badge</string>
     <string name="badge_app_not_registered">Il est nécessaire que l\'application soit enregistrée pour permettre la connexion via badge</string>
     <string name="badge_recognization">Authentification du badge</string>
@@ -92,7 +95,7 @@
     <string name="nemopay_error_registering">Application non enregistrée</string>
     <string name="nemopay_information">Informations de la part de Nemopay</string>
     <string name="key">Clé d\'application</string>
-    <string name="key_registration">Enregistrement de l\'appareil</string>
+    <string name="key_registration">Enregistrement de la clé</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>
     <string name="key_name">Nom - Date</string>
     <string name="key_description">Description</string>
@@ -111,7 +114,8 @@
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
     <string name="buyer_info_collecting">Récupération des informations de la personne</string>
     <string name="user_searching">Identification de la personne</string>
-    <string name="user_info_collecting">Identification de la personne</string>
+    <string name="user_nemopay_info_collecting">Identification de la personne auprès de Nemopay</string>
+    <string name="user_ginger_info_collecting">Identification de la personne auprès de Ginger</string>
     <string name="user_not_recognized">Personne non reconnue</string>
     <string name="user_rights_list_collecting">Récupération des droits de la personne</string>
     <string name="user_error_collecting">Impossible de récupérer les infos de la personne</string>
@@ -129,9 +133,11 @@
     <string name="can_cancel">Permettre l\'annulation</string>
     <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
     <string name="read_card_information">Informations de la carte</string>
-    <string name="read_new_card">Lire une carte</string>
+    <string name="add_new_card">Ajouter</string>
+    <string name="read_new_card">Lire</string>
     <string name="ginger_information">Informations de la part de Ginger</string>
     <string name="ginger_no_key">Aucune clé n\'a été donnée</string>
+    <string name="contribute_already">La personne est déjà cotisante</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

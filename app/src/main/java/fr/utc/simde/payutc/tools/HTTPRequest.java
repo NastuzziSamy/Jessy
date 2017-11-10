@@ -66,9 +66,6 @@ public class HTTPRequest {
 
         try {
             this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
-            //this.request.setRequestMethod("GET");
-            //this.request.setRequestProperty("User-Agent", "Application PayUTC");
-            //this.request.setRequestProperty("Cookie", getCookiesHeader());
             this.request.setUseCaches(false);
             this.request.setDoInput(true);
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
@@ -85,6 +82,7 @@ public class HTTPRequest {
             }
         }
 
+        this.request.disconnect();
         return getResponseCode();
     }
 
@@ -127,6 +125,7 @@ public class HTTPRequest {
             }
         }
 
+        this.request.disconnect();
         return getResponseCode();
     }
 

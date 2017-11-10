@@ -157,19 +157,51 @@ public class NemopaySession {
         );
     }
 
+    public int getUser(final int id) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "GESUSERS",
+            "getUser",
+            new HashMap<String, String>() {{
+                put("id", String.valueOf(id));
+            }},
+            new String[]{
+                "GESUSERS"
+            }
+        );
+    }
+
+    public int foundUser(final String username) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "GESUSERS",
+            "userAutocompleteUsername",
+            new HashMap<String, String>() {{
+                put("queryString", username);
+            }},
+            new String[]{
+                "GESUSERS"
+            }
+        );
+    }
+
     public int getBuyerInfoByLogin(final String login) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
         return request(
-                "POSS3",
-                "getBuyerInfoByLogin",
-                new HashMap<String, String>() {{
-                    put("login", login);
-                }},
-                new String[]{
-                    "POSS3"
-                }
+            "POSS3",
+            "getBuyerInfoByLogin",
+            new HashMap<String, String>() {{
+                put("login", login);
+            }},
+            new String[]{
+                "POSS3"
+            }
         );
     }
 
@@ -178,16 +210,16 @@ public class NemopaySession {
             throw new Exception(this.notLogged);
 
         return request(
-                "POSS3",
-                "getBuyerInfo",
-                new HashMap<String, String>() {{
-                    if (foundationId != -1)
-                        put("fun_id", Integer.toString(foundationId));
-                    put("badge_id", badgeId);
-                }},
-                new String[]{
-                        "POSS3"
-                }
+            "POSS3",
+            "getBuyerInfo",
+            new HashMap<String, String>() {{
+                if (foundationId != -1)
+                    put("fun_id", Integer.toString(foundationId));
+                put("badge_id", badgeId);
+            }},
+            new String[]{
+                    "POSS3"
+            }
         );
     }
 

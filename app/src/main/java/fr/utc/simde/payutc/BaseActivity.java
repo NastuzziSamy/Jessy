@@ -380,4 +380,13 @@ public abstract class BaseActivity extends NFCActivity {
             }
         }.start();
     }
+
+    protected void startReadCardInfoActivity(final Activity activity) {
+        hasRights(getString(R.string.user_rights_list_collecting), getResources().getStringArray(R.array.options_rights)[2].split(" "), new Runnable() {
+            @Override
+            public void run() {dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
+                activity.startActivity(new Intent(activity, ReadCardInfoActivity.class));
+            }
+        });
+    }
 }

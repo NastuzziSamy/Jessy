@@ -7,6 +7,7 @@
         <item>Lire un QR Code</item>
         <item>Créer une cotisation extérieure</item>
         <item>Ajouter une carte</item>
+        <item>Modifier les clés</item>
     </string-array>
 
     <string-array name="options_rights">
@@ -16,5 +17,6 @@
         <item>STAFF POSS3</item>
         <item></item>
         <item>STAFF POSS3</item>
+        <item></item>
     </string-array>
 </resources>

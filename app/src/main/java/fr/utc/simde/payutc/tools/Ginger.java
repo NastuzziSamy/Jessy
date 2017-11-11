@@ -3,7 +3,6 @@ package fr.utc.simde.payutc.tools;
 import android.app.Activity;
 import android.util.Log;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,13 +45,13 @@ public class Ginger {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int addCotisation(final String login, final String paid) throws Exception {
+    public int addCotisation(final String login, final String fin, final Integer paid) throws Exception {
         return request(
             login + "/cotisations",
             new HashMap<String, String>() {{
                 put("debut", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-                put("fin", (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31");
-                put("montant", paid);
+                put("fin", fin);
+                put("montant", Integer.toString(paid));
             }}
         );
     }

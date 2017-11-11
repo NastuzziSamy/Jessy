@@ -102,8 +102,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onRestart() {
+        super.onRestart();
 
         disconnect();
         setConfig();

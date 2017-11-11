@@ -3,9 +3,10 @@
     <string-array name="options">
         <item>Mode annulation</item>
         <item>Modifier les articles</item>
-        <item>Gestion des cartes/cotisations</item>
         <item>Lire un QR Code</item>
+        <item>Gestion des cartes/cotisations</item>
         <item>Modifier la clé Nemopay</item>
         <item>Modifier la clé Ginger</item>
+        <item>Configurer l\'appareil</item>
     </string-array>
 </resources>

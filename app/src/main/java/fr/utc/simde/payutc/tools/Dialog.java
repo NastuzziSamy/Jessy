@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import fr.utc.simde.payutc.MainActivity;
 import fr.utc.simde.payutc.R;
 
 /**
@@ -79,6 +77,7 @@ public class Dialog {
     public void infoDialog(final Activity activity, final String title, final String message) { errorDialog(activity, title, message, null); }
     public void infoDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onClickListener) {
         this.activity = activity;
+        dismiss();
         this.alertDialogBuilder = new AlertDialog.Builder(activity);
         this.alertDialogBuilder
             .setTitle(title)

@@ -1,31 +1,23 @@
 package fr.utc.simde.payutc;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
-import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.List;
 
 import fr.utc.simde.payutc.adapters.FoundationsAdapter;
-import fr.utc.simde.payutc.adapters.ListAdapater;
+import fr.utc.simde.payutc.adapters.OptionsAdapter;
 
 /**
  * Created by Samy on 26/10/2017.
@@ -39,6 +31,9 @@ public class FoundationsOptionsActivity extends BaseActivity {
     ListView optionList;
 
     FoundationsAdapter foundationsAdapter;
+    OptionsAdapter optionsAdapter;
+
+    List<String> allOptionList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +48,11 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.foundations)).setIndicator(getString(R.string.foundations)).setContent(R.id.list_foundations));
         this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.options)).setIndicator(getString(R.string.options)).setContent(R.id.list_options));
 
+        this.allOptionList = Arrays.asList(getResources().getStringArray(R.array.options));
+
         try {
             setFoundationList((ArrayNode) new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
-            setOptionList();
+            setOptionList((ArrayNode) new ObjectMapper().valueToTree(this.allOptionList));
         } catch (Exception e) {
             Log.wtf(LOG_TAG, "error: " + e.getMessage());
             dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_unexpected), new DialogInterface.OnClickListener() {
@@ -92,20 +89,26 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.foundationList.setAdapter(this.foundationsAdapter);
     }
 
-    protected void setOptionList() {
+    protected void setOptionList(ArrayNode optionList) throws Exception {
+        this.optionsAdapter = new OptionsAdapter(FoundationsOptionsActivity.this, optionList);
+
         this.optionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (position == 2)
+                final String text = optionsAdapter.getOptionName(position);
+
+                if (text.equals(allOptionList.get(3)))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
-                else if (position == 6)
+                else if (text.equals(allOptionList.get(4)))
                     keyNemopayDialog();
-                else if (position == 7)
+                else if (text.equals(allOptionList.get(5)))
                     keyGingerDialog();
                 else
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "A faire");
             }
         });
+
+        this.optionList.setAdapter(this.optionsAdapter);
     }
 
     protected void keyNemopayDialog() {

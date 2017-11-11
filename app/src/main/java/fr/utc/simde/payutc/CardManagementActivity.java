@@ -3,12 +3,20 @@ package fr.utc.simde.payutc;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Samy on 29/10/2017.
@@ -39,9 +47,9 @@ public class CardManagementActivity extends BaseActivity {
     TextView textTagGinger;
 
     String username;
-
     String badgeId;
-    Runnable toRun;
+    Integer solde;
+    Integer toRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,12 +86,7 @@ public class CardManagementActivity extends BaseActivity {
                     }
                 });
 
-                toRun = new Thread(){
-                    @Override
-                    public void run() {
-                        readCard();
-                    }
-                };
+                toRun = 1;
             }
         });
 
@@ -96,13 +99,7 @@ public class CardManagementActivity extends BaseActivity {
                     }
                 });
 
-                toRun = new Thread(){
-                    @Override
-                    public void run() {
-                    contributeCard();
-                    readCard();
-                    }
-                };
+                toRun = 2;
             }
         });
     }
@@ -111,7 +108,59 @@ public class CardManagementActivity extends BaseActivity {
     protected void onIdentification(final String badgeId) {
         if (this.toRun != null) {
             this.badgeId = badgeId;
-            this.toRun.run();
+
+            if (toRun == 1) {
+                dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
+
+                new Thread(){
+                    @Override
+                    public void run() {
+                        readCard();
+                    }
+                }.start();
+            }
+            else if (toRun == 2) {
+                dialog.dismiss();
+
+                final View view = getLayoutInflater().inflate(R.layout.dialog_contribute, null);
+                final RadioGroup radioGroup = view.findViewById(R.id.radio_type);
+                final RadioButton radioButton = view.findViewById(R.id.radio_student);
+                final EditText editText = view.findViewById(R.id.nbr_days);
+
+                radioButton.setChecked(true);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CardManagementActivity.this);
+                alertDialogBuilder
+                    .setTitle(R.string.contribute)
+                    .setView(view)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.contribute, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
+
+                            new Thread(){
+                                @Override
+                                public void run() {
+                                    int id = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
+
+                                    if (contributeCard(id == 3 ? new SimpleDateFormat("yyyy-MM-dd").format(new Date(new Date().getTime() + (Long.parseLong(String.valueOf(editText.getText())) * 86400000L))) : (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31", id < 2 ? 20 : 1))
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(CardManagementActivity.this, R.string.contribute_now, Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+
+                                    readCard();
+                                }
+                            }.start();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder, editText);
+            }
+
             this.toRun = null;
         }
     }
@@ -131,6 +180,8 @@ public class CardManagementActivity extends BaseActivity {
             this.textTagId.setText(Integer.toString(tagInfo.get("id").intValue()));
             this.textTag.setText(tagInfo.get("tag").textValue());
             this.textShortTag.setText(tagInfo.get("short_tag").textValue() == null ? getString(R.string.none) : tagInfo.get("short_tag").textValue());
+            this.textSolde.setText(String.format("%.2f", new Float(this.solde) / 100.00f) + "€");
+            this.textCotisantGinger.setTextColor(this.solde == 0 ? Color.RED : Color.BLUE);
 
             this.textUsernameGinger.setText(gingerInfo.get("login").textValue());
             this.textFirstnameGinger.setText(gingerInfo.get("prenom").textValue());
@@ -153,7 +204,7 @@ public class CardManagementActivity extends BaseActivity {
         }
     }
 
-    protected void contributeCard() {
+    protected Boolean contributeCard(final String fin, final Integer paid) {
         try {
             nemopaySession.getBuyerInfo(badgeId);
             Thread.sleep(100);
@@ -187,7 +238,7 @@ public class CardManagementActivity extends BaseActivity {
                 });
             }
 
-            return;
+            return false;
         }
 
         runOnUiThread(new Runnable() {
@@ -198,7 +249,7 @@ public class CardManagementActivity extends BaseActivity {
         });
 
         try {
-            ginger.addCotisation(username, "20");
+            ginger.addCotisation(username, fin, paid);
             Thread.sleep(100);
         } catch (final Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
@@ -229,8 +280,10 @@ public class CardManagementActivity extends BaseActivity {
                 });
             }
 
-            return;
+            return false;
         }
+
+        return true;
     }
 
     protected void readCard() {
@@ -245,7 +298,7 @@ public class CardManagementActivity extends BaseActivity {
                 throw new Exception("Unexpected JSON");
 
             username = nemopaySession.getRequest().getJSONResponse().get("username").textValue();
-            textSolde.setText(String.format("%.2f", new Float(buyerInfo.get("solde").intValue()) / 100.00f) + "€");
+            solde = buyerInfo.get("solde").intValue();
         } catch (final Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
 

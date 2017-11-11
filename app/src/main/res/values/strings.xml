@@ -55,6 +55,7 @@
     <string name="tag">Numéro de badge</string>
     <string name="short_tag">Numéro raccourci</string>
     <string name="type">Type</string>
+    <string name="day_s_">jour(s)</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -138,6 +139,12 @@
     <string name="ginger_information">Informations de la part de Ginger</string>
     <string name="ginger_no_key">Aucune clé n\'a été donnée</string>
     <string name="contribute_already">La personne est déjà cotisante</string>
+    <string name="contribute_now">Cotisation réalisée !</string>
+    <string name="contribute_choice">Type de cotisation</string>
+    <string name="contribute_student">Etudiant (20€)</string>
+    <string name="contribute_ext">Extérieur (20€)</string>
+    <string name="contribute_admin">Membre d\'honneur (0€)</string>
+    <string name="contribute_temp">Temporaire</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

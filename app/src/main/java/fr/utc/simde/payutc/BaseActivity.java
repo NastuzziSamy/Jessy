@@ -101,7 +101,13 @@ public abstract class BaseActivity extends NFCActivity {
                     }
 
                     if ((rights.size() == sameRights.size()) || (myRightList.has("0") && rights.size() == 0))
-                        runOnUiThread(runnable);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+                                runnable.run();
+                            }
+                        });
                     else {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -390,8 +396,8 @@ public abstract class BaseActivity extends NFCActivity {
     protected void startCardManagementActivity(final Activity activity) {
         hasRights(getString(R.string.user_rights_list_collecting), new String[]{"STAFF", "POSS3", "GESUSERS"}, new Runnable() {
             @Override
-            public void run() {dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
-                activity.startActivity(new Intent(activity, CardManagementActivity.class));
+            public void run() {
+            activity.startActivity(new Intent(activity, CardManagementActivity.class));
             }
         });
     }
@@ -412,26 +418,35 @@ public abstract class BaseActivity extends NFCActivity {
                 try {
                     nemopaySession.loginApp(key, casConnexion);
                     Thread.sleep(100);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            if (nemopaySession.isRegistered()) {
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("key", key);
+                                editor.apply();
+
+                                TextView textView = findViewById(R.id.text_app_registered);
+                                if (textView != null)
+                                    textView.setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
+                            }
+                            else
+                                dialog.errorDialog(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                        }
+                    });
                 } catch (Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
-                }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.stopLoading();
-
-                        if (nemopaySession.isRegistered()) {
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("key", key);
-                            editor.apply();
-
-                            ((TextView) findViewById(R.id.text_app_registered)).setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
-                        }
-                        else
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             dialog.errorDialog(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
-                    }
-                });
+                        }
+                    });
+                }
             }
         }.start();
     }

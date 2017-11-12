@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
+import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
 /**
@@ -51,15 +51,17 @@ public class FoundationsOptionsActivity extends BaseActivity {
 
         this.tabHost.setup();
 
-        if (config.getCanSell())
-            this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.foundations)).setIndicator(getString(R.string.foundations)).setContent(R.id.list_foundations));
-        this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.options)).setIndicator(getString(R.string.options)).setContent(R.id.list_options));
-
-        this.allOptionList = Arrays.asList(getResources().getStringArray(R.array.options));
-
         try {
-            if (config.getCanSell())
-                setFoundationList((ArrayNode) new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList")));
+            ArrayNode foundationList = (ArrayNode) new ObjectMapper().readTree(getIntent().getExtras().getString("foundationList"));
+
+            if (config.getCanSell() && foundationList.size() != 0)
+                this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.foundations)).setIndicator(getString(R.string.foundations)).setContent(R.id.list_foundations));
+            this.tabHost.addTab(this.tabHost.newTabSpec(getString(R.string.options)).setIndicator(getString(R.string.options)).setContent(R.id.list_options));
+
+            this.allOptionList = Arrays.asList(getResources().getStringArray(R.array.options));
+
+            if (config.getCanSell() && foundationList.size() != 0)
+                setFoundationList(foundationList);
 
             setOptionList(config.getOptionList().size() == 0 ? (ArrayNode) new ObjectMapper().valueToTree(this.allOptionList) : config.getOptionList());
         } catch (Exception e) {
@@ -77,7 +79,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.foundationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
-                startArticlesActivity(FoundationsOptionsActivity.this, foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position));
+                nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
+                startArticleGroupActivity(FoundationsOptionsActivity.this);
             }
         });
 
@@ -106,11 +109,11 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (isOption(position,0))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "A faire");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
                 else if (isOption(position,1))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "A faire");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
                 else if (isOption(position,2))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "A faire");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
                 else if (isOption(position,3))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position,4))
@@ -185,7 +188,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     final ListView listView = popupView.findViewById(R.id.list_groups);
                     final Switch canSellSwitch = popupView.findViewById(R.id.switch_cancel);
                     ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
-                    canSellSwitch.setText(R.string.print_foundations);
+                    canSellSwitch.setText(R.string.can_sell);
 
                     OptionChoicesAdapter allOptionsAdapter = null;
                     try {

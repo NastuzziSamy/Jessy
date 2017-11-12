@@ -1,17 +1,16 @@
 package fr.utc.simde.jessy.adapters;
 
 import android.app.Activity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 29/10/2017.
@@ -31,13 +30,11 @@ public class LocationsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-        if (view == null) {
-            view = new LinearLayout(this.activity);
-            TextView textView = new TextView(this.activity);
-            textView.setText(getLocationName(position));
+        LayoutInflater layoutInflater = LayoutInflater.from(this.activity);
+        view = layoutInflater.inflate(R.layout.fragment_list, null);
 
-            ((LinearLayout) view).addView(textView);
-        }
+        TextView textView = view.findViewById(R.id.text_element);
+        textView.setText(getLocationName(position));
 
         return view;
     }

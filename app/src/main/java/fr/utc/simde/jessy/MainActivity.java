@@ -5,8 +5,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
@@ -132,7 +131,7 @@ public class MainActivity extends BaseActivity {
         if (config.getFoundationId() != -1) {
             appNameText.setText(config.getFoundationName());
             appConfigText.setText(config.getLocationName());
-            nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
+            nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName(), config.getLocationId());
         }
         else if (config.getOptionList().size() != 0) {
             String list = "";
@@ -146,10 +145,12 @@ public class MainActivity extends BaseActivity {
 
             appNameText.setText(R.string.app_name);
             appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
+            nemopaySession.setFoundation(-1, "", -1);
         }
         else {
             appNameText.setText(R.string.app_name);
             appConfigText.setText("");
+            nemopaySession.setFoundation(-1, "", -1);
         }
     }
 

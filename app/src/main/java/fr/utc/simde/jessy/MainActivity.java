@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -132,7 +133,7 @@ public class MainActivity extends BaseActivity {
         if (config.getFoundationId() != -1) {
             appNameText.setText(config.getFoundationName());
             appConfigText.setText(config.getLocationName());
-            nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
+            nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName(), config.getLocationId());
         }
         else if (config.getOptionList().size() != 0) {
             String list = "";
@@ -146,10 +147,12 @@ public class MainActivity extends BaseActivity {
 
             appNameText.setText(R.string.app_name);
             appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
+            nemopaySession.setFoundation(-1, "", -1);
         }
         else {
             appNameText.setText(R.string.app_name);
             appConfigText.setText("");
+            nemopaySession.setFoundation(-1, "", -1);
         }
     }
 

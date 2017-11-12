@@ -100,7 +100,7 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                     }
 
-                    if ((rights.size() == sameRights.size()) || (rights.size() == 0 && myRightList.has("0") && myRightList.get("0").size() > 75)) // Si on a plus de 75 droits sur toutes les fondations, on estime qu'on a le full access
+                    if ((rights.size() == sameRights.size() && rights.size() != 0) || (rights.size() == 0 && myRightList.has("0") && myRightList.get("0").size() > 75)) // Si on a plus de 75 droits sur toutes les fondations, on estime qu'on a le full access
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -164,33 +164,9 @@ public abstract class BaseActivity extends NFCActivity {
                     if (!request.isJSONResponse() || !foundationList.isArray())
                         throw new Exception("Malformed JSON");
 
-                    if (foundationList.size() == 0) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.stopLoading();
-                                fatal(activity, getString(R.string.information_collection), nemopaySession.getUsername() + " " + getString(R.string.user_no_rights));
-                            }
-                        });
-
-                        return;
-                    }
-
                     for (final JsonNode foundation : foundationList) {
                         if (!foundation.has("name") || !foundation.has("fun_id"))
                             throw new Exception("Unexpected JSON");
-                    }
-
-                    if (foundationList.size() == 1) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.stopLoading();
-                                startArticlesActivity(activity, foundationList.get(0).get("fun_id").intValue(), foundationList.get(0).get("name").textValue());
-                            }
-                        });
-
-                        return;
                     }
 
                     intent.putExtra("foundationList", request.getResponse());
@@ -389,13 +365,6 @@ public abstract class BaseActivity extends NFCActivity {
                 }
             }
         }.start();
-    }
-
-    protected void startArticlesActivity(final Activity activity, final int foundationId, final String foundationName) {
-        nemopaySession.setFoundation(foundationId, foundationName);
-        Log.d(LOG_TAG, String.valueOf(foundationId));
-
-        startArticleGroupActivity(activity);
     }
 
     protected void startBuyerInfoActivity(final Activity activity, final String badgeId) {

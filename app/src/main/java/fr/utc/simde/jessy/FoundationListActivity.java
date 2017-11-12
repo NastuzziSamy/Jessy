@@ -67,7 +67,8 @@ public class FoundationListActivity extends BaseActivity {
 
         @Override
         public void onClick(View view) {
-            startArticlesActivity(FoundationListActivity.this, this.foundationId, this.foundationName);
+            nemopaySession.setFoundation(this.foundationId, this.foundationName, -1);
+            startArticleGroupActivity(FoundationListActivity.this);
         }
 
     };

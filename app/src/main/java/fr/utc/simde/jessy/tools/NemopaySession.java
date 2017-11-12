@@ -25,6 +25,7 @@ public class NemopaySession {
     private String username;
     private int foundationId;
     private String foundationName;
+    private int locationId;
 
     private HTTPRequest request;
 
@@ -32,7 +33,7 @@ public class NemopaySession {
     private String notLogged;
     private String noRight;
     private String noRights;
-    private String noRightsNeeded;
+    private String allRightsNeeded;
     private String serviceText;
     private String notFound;
     private String badRequest;
@@ -59,7 +60,7 @@ public class NemopaySession {
 
         this.sessionNull = activity.getString(R.string.session_null);
         this.notLogged = activity.getString(R.string.no_longer_connected);
-        this.noRightsNeeded = activity.getString(R.string.no_need_rights);
+        this.allRightsNeeded = activity.getString(R.string.all_rights_needed);
         this.noRight = activity.getString(R.string.no_right);
         this.noRights = activity.getString(R.string.no_rights);
         this.serviceText = activity.getString(R.string.service);
@@ -86,9 +87,10 @@ public class NemopaySession {
         disconnect();
     }
 
-    public void setFoundation(final int foundationId, final String foundationName) {
+    public void setFoundation(final int foundationId, final String foundationName, final int locationId) {
         this.foundationId = foundationId;
         this.foundationName = foundationName;
+        this.locationId = locationId;
     }
 
     public String getName() { return this.name; }
@@ -96,6 +98,7 @@ public class NemopaySession {
     public String getUsername() { return username; }
     public HTTPRequest getRequest() { return this.request; }
     public int getFoundationId() { return foundationId; }
+    public int getLocationId() { return locationId; }
     public String getFoundationName() { return foundationName; }
 
     public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception {
@@ -134,6 +137,9 @@ public class NemopaySession {
                 put("fun_id", Integer.toString(foundationId));
                 put("badge_id", badgeId);
                 put("obj_ids", obj_ids);
+
+                if (locationId != -1)
+                    put("location_id", Integer.toString(locationId));
             }},
             new String[]{
                 "POSS3"
@@ -442,7 +448,7 @@ public class NemopaySession {
     public String forbidden(final String[] rightsNeeded) {
         String result;
         if (rightsNeeded.length == 0)
-            result = this.noRightsNeeded;
+            return this.allRightsNeeded;
         else if (rightsNeeded.length == 1)
             result = this.noRight;
         else

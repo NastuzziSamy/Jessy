@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.payutc.tools.CASConnexion;
-import fr.utc.simde.payutc.tools.Config;
-import fr.utc.simde.payutc.tools.Dialog;
-import fr.utc.simde.payutc.tools.Ginger;
-import fr.utc.simde.payutc.tools.HTTPRequest;
-import fr.utc.simde.payutc.tools.NemopaySession;
+import fr.utc.simde.jessy.tools.CASConnexion;
+import fr.utc.simde.jessy.tools.Config;
+import fr.utc.simde.jessy.tools.Dialog;
+import fr.utc.simde.jessy.tools.Ginger;
+import fr.utc.simde.jessy.tools.HTTPRequest;
+import fr.utc.simde.jessy.tools.NemopaySession;
 
 /**
  * Created by Samy on 26/10/2017.

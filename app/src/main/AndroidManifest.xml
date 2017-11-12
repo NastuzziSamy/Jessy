@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.utc.simde.payutc">
+    package="fr.utc.simde.jessy">
 
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name="fr.utc.simde.jessy.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
 
@@ -24,22 +24,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BaseActivity"
+        <activity android:name="fr.utc.simde.jessy.BaseActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".FoundationsOptionsActivity"
+        <activity android:name="fr.utc.simde.jessy.FoundationsOptionsActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".ArticleKeyboardActivity"
+        <activity android:name="fr.utc.simde.jessy.ArticleKeyboardActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".ArticleCategoryActivity"
+        <activity android:name="fr.utc.simde.jessy.ArticleCategoryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".BuyerInfoActivity"
+        <activity android:name="fr.utc.simde.jessy.BuyerInfoActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".CardManagementActivity"
+        <activity android:name="fr.utc.simde.jessy.CardManagementActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
     </application>

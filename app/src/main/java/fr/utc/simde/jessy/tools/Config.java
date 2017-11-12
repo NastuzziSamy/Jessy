@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -6,9 +6,6 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by Samy on 04/11/2017.

@@ -79,7 +79,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.foundationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
-                startArticlesActivity(FoundationsOptionsActivity.this, foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position));
+                nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
+                startArticleGroupActivity(FoundationsOptionsActivity.this);
             }
         });
 

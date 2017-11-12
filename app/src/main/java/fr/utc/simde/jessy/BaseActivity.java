@@ -175,7 +175,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("FoundationsOptionsActivity"))
+                            if (activity instanceof FoundationsOptionsActivity)
                                 finish();
 
                             activity.startActivity(intent);
@@ -347,7 +347,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("ArticleKeyboardActivity") || activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
+                            if (activity instanceof ArticleGroupActivity)
                                 finish();
 
                             activity.startActivity(intent);
@@ -395,7 +395,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("BuyerInfoActivity"))
+                            if (activity instanceof BuyerInfoActivity)
                                 finish();
 
                             activity.startActivity(intent);

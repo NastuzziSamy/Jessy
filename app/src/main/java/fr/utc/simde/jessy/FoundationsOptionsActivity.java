@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
+import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
 /**
@@ -188,7 +188,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     final ListView listView = popupView.findViewById(R.id.list_groups);
                     final Switch canSellSwitch = popupView.findViewById(R.id.switch_cancel);
                     ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
-                    canSellSwitch.setText(R.string.print_foundations);
+                    canSellSwitch.setText(R.string.can_sell);
 
                     OptionChoicesAdapter allOptionsAdapter = null;
                     try {

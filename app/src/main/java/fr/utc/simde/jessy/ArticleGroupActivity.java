@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -23,10 +23,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.utc.simde.payutc.articles.GroupAdapter;
-import fr.utc.simde.payutc.articles.GroupFragment;
-import fr.utc.simde.payutc.tools.HTTPRequest;
-import fr.utc.simde.payutc.tools.Panier;
+import fr.utc.simde.jessy.adapters.GroupAdapter;
+import fr.utc.simde.jessy.fragments.GroupFragment;
+import fr.utc.simde.jessy.tools.HTTPRequest;
+import fr.utc.simde.jessy.tools.Panier;
 
 /**
  * Created by Samy on 27/10/2017.
@@ -115,7 +115,7 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                             }, new Runnable() {
                                 @Override
                                 public void run() {
-                                    configApp();
+                                    configDialog();
                                 }
                             });
                         }
@@ -209,7 +209,7 @@ public abstract class ArticleGroupActivity extends BaseActivity {
 
     protected abstract void createGroups(final JsonNode groupList, final JsonNode articleList) throws Exception;
 
-    protected void configApp() {
+    protected void configDialog() {
         dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting));
 
         new Thread() {
@@ -261,10 +261,10 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                     public void run() {
                         dialog.stopLoading();
 
-                        LayoutInflater layoutInflater = LayoutInflater.from(ArticleGroupActivity.this);
-                        View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
-                        ListView listView = popupView.findViewById(R.id.list_groups);
-                        final Switch canCancelSwitch = popupView.findViewById(R.id.swtich_cancel);
+                        final LayoutInflater layoutInflater = LayoutInflater.from(ArticleGroupActivity.this);
+                        final  View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
+                        final ListView listView = popupView.findViewById(R.id.list_groups);
+                        final Switch canCancelSwitch = popupView.findViewById(R.id.switch_cancel);
                         canCancelSwitch.setChecked(config.getCanCancel());
 
                         if (config.getInKeyboard())
@@ -296,7 +296,7 @@ public abstract class ArticleGroupActivity extends BaseActivity {
 
                                         if (groupList == null || groupList.size() == 0) {
                                             Toast.makeText(ArticleGroupActivity.this, getString(config.getInKeyboard() ? R.string.keyboard_0_selected : R.string.category_0_selected), Toast.LENGTH_LONG).show();
-                                            configApp();
+                                            configDialog();
                                         }
                                         else {
                                             config.setFoundation(nemopaySession.getFoundationId(), nemopaySession.getFoundationName());

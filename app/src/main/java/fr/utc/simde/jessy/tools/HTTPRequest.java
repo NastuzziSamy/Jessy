@@ -1,23 +1,17 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 /**
  * Created by Samy on 24/10/2017.
  */
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONException;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -66,9 +60,6 @@ public class HTTPRequest {
 
         try {
             this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
-            //this.request.setRequestMethod("GET");
-            //this.request.setRequestProperty("User-Agent", "Application PayUTC");
-            //this.request.setRequestProperty("Cookie", getCookiesHeader());
             this.request.setUseCaches(false);
             this.request.setDoInput(true);
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
@@ -85,6 +76,7 @@ public class HTTPRequest {
             }
         }
 
+        this.request.disconnect();
         return getResponseCode();
     }
 
@@ -127,6 +119,7 @@ public class HTTPRequest {
             }
         }
 
+        this.request.disconnect();
         return getResponseCode();
     }
 

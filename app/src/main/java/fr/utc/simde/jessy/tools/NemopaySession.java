@@ -1,21 +1,15 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -157,19 +151,51 @@ public class NemopaySession {
         );
     }
 
+    public int getUser(final int id) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "GESUSERS",
+            "getUser",
+            new HashMap<String, String>() {{
+                put("id", String.valueOf(id));
+            }},
+            new String[]{
+                "GESUSERS"
+            }
+        );
+    }
+
+    public int foundUser(final String username) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "GESUSERS",
+            "userAutocompleteUsername",
+            new HashMap<String, String>() {{
+                put("queryString", username);
+            }},
+            new String[]{
+                "GESUSERS"
+            }
+        );
+    }
+
     public int getBuyerInfoByLogin(final String login) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
         return request(
-                "POSS3",
-                "getBuyerInfoByLogin",
-                new HashMap<String, String>() {{
-                    put("login", login);
-                }},
-                new String[]{
-                    "POSS3"
-                }
+            "POSS3",
+            "getBuyerInfoByLogin",
+            new HashMap<String, String>() {{
+                put("login", login);
+            }},
+            new String[]{
+                "POSS3"
+            }
         );
     }
 
@@ -178,16 +204,16 @@ public class NemopaySession {
             throw new Exception(this.notLogged);
 
         return request(
-                "POSS3",
-                "getBuyerInfo",
-                new HashMap<String, String>() {{
-                    if (foundationId != -1)
-                        put("fun_id", Integer.toString(foundationId));
-                    put("badge_id", badgeId);
-                }},
-                new String[]{
-                        "POSS3"
-                }
+            "POSS3",
+            "getBuyerInfo",
+            new HashMap<String, String>() {{
+                if (foundationId != -1)
+                    put("fun_id", Integer.toString(foundationId));
+                put("badge_id", badgeId);
+            }},
+            new String[]{
+                    "POSS3"
+            }
         );
     }
 
@@ -423,7 +449,6 @@ public class NemopaySession {
     protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
     protected int request(final String method, final String service, final Map<String, String> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
     protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws Exception {
-        Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
         this.request.setPost(postArgs);
@@ -435,21 +460,23 @@ public class NemopaySession {
         if (responseCode == 200)
             return 200;
         else if (responseCode == 403) {
-            try {
-                if (this.request.isJSONResponse()) {
-                    if (this.request.getJSONResponse().get("error").get("message").textValue().contains("must be logged"))
-                        throw new Exception(this.notLogged);
-                }
+            if (this.request.isJSONResponse()) {
+                if (this.request.getJSONResponse().get("error").get("message").textValue().contains("must be logged"))
+                    throw new Exception(this.notLogged);
             }
-            catch (Exception e) {}
-            finally {
-                throw new Exception(forbidden(rightsNeeded));
-            }
+
+            throw new Exception(forbidden(rightsNeeded));
         }
         else if (responseCode == 404)
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);
-        else if (responseCode == 400)
+        else if (responseCode == 400) {
+            if (this.request.isJSONResponse()) {
+                if (this.request.getJSONResponse().has("error") && this.request.getJSONResponse().get("error").has("message"))
+                    throw new Exception(this.request.getJSONResponse().get("error").get("message").textValue());
+            }
+
             throw new Exception(this.serviceText + " " + service + " " + this.badRequest);
+        }
         else if (responseCode == 500 || responseCode == 503) {
             throw new Exception(this.serviceText + " " + service + " " + this.internalError);
         }

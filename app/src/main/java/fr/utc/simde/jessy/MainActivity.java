@@ -1,43 +1,36 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import fr.utc.simde.payutc.tools.CASConnexion;
-import fr.utc.simde.payutc.tools.Config;
-import fr.utc.simde.payutc.tools.Dialog;
-import fr.utc.simde.payutc.tools.InternetBroadcast;
-import fr.utc.simde.payutc.tools.NemopaySession;
+import fr.utc.simde.jessy.tools.CASConnexion;
+import fr.utc.simde.jessy.tools.Config;
+import fr.utc.simde.jessy.tools.Ginger;
+import fr.utc.simde.jessy.tools.InternetBroadcast;
+import fr.utc.simde.jessy.tools.NemopaySession;
+
+/**
+ * Created by Samy on 24/10/2017.
+ */
 
 public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
@@ -50,8 +43,6 @@ public class MainActivity extends BaseActivity {
 
     protected static InternetBroadcast internetBroadcast;
 
-    private static SharedPreferences sharedPreferences;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,15 +51,20 @@ public class MainActivity extends BaseActivity {
         sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
 
         nemopaySession = new NemopaySession(MainActivity.this);
+        ginger = new Ginger(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
 
         this.internetBroadcast = new InternetBroadcast();
         registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        final String key = sharedPreferences.getString("key", "");
+        String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
-            setKey(key);
+            setNemopayKey(key);
+
+        key = sharedPreferences.getString("key_ginger", "");
+        if (!key.equals(""))
+            setGingerKey(key);
 
         appNameText = findViewById(R.id.text_app_name);
         appConfigText = findViewById(R.id.text_app_config);
@@ -98,8 +94,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onRestart() {
+        super.onRestart();
 
         disconnect();
         setConfig();
@@ -107,7 +103,7 @@ public class MainActivity extends BaseActivity {
         if (!nemopaySession.isRegistered()) {
             final String key = sharedPreferences.getString("key", "");
             if (!key.equals(""))
-                setKey(key);
+                setNemopayKey(key);
         }
     }
 
@@ -133,66 +129,34 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void setConfig() {
-        if (config.getFoundationId() == -1) {
-            appNameText.setText(R.string.app_name);
-            appConfigText.setText("");
-        }
-        else {
+        if (config.getFoundationId() != -1) {
             String list = "";
-            Iterator<Map.Entry<String, JsonNode>> nodes = config.getGroupList().fields();
+            Iterator<Map.Entry<String, JsonNode>> foundations = config.getGroupList().fields();
 
-            while (nodes.hasNext())
-                list += ", " + nodes.next().getValue().textValue();
+            while (foundations.hasNext())
+                list += ", " + foundations.next().getValue().textValue();
 
             appNameText.setText(config.getFoundationName());
             appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
             nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
         }
-    }
+        else if (config.getOptionList().size() != 0) {
+            String list = "";
+            Iterator<JsonNode> options = config.getOptionList().elements();
 
-    protected void delKey() {
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.remove("key");
-        edit.apply();
+            if (config.getCanSell())
+                list = ", " + getString(R.string.sell);
 
-        unregister(MainActivity.this);
-    }
+            while (options.hasNext())
+                list += ", " + options.next().textValue();
 
-    protected void setKey(final String key) {
-        if (nemopaySession.isRegistered()) {
-            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_already_registered));
-            return;
+            appNameText.setText(R.string.app_name);
+            appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
         }
-
-        dialog.startLoading(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    nemopaySession.loginApp(key, casConnexion);
-                    Thread.sleep(100);
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.stopLoading();
-
-                        if (nemopaySession.isRegistered()) {
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("key", key);
-                            editor.apply();
-
-                            ((TextView) findViewById(R.id.text_app_registered)).setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
-                        }
-                        else
-                            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
-                    }
-                });
-            }
-        }.start();
+        else {
+            appNameText.setText(R.string.app_name);
+            appConfigText.setText("");
+        }
     }
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
@@ -448,47 +412,47 @@ public class MainActivity extends BaseActivity {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
-            .setTitle(R.string.key_registration)
-            .setView(keyView)
-            .setCancelable(false)
-            .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    if (nameInput.getText().toString().equals("")) {
-                        Toast.makeText(MainActivity.this, R.string.key_name_required, Toast.LENGTH_SHORT).show();
-                        dialogInterface.cancel();
-                        keyDialog();
-                    }
-                    else {
-                        dialogInterface.cancel();
+                .setTitle(R.string.key_registration)
+                .setView(keyView)
+                .setCancelable(false)
+                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        if (nameInput.getText().toString().equals("")) {
+                            Toast.makeText(MainActivity.this, R.string.key_name_required, Toast.LENGTH_SHORT).show();
+                            dialogInterface.cancel();
+                            keyDialog();
+                        }
+                        else {
+                            dialogInterface.cancel();
 
-                        final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_registering), true);
-                        loading.setCancelable(false);
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    nemopaySession.registerApp(nameInput.getText().toString() + (nameInput.getText().toString().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? "" : " - " + date), descriptionInput.getText().toString(), service);
-                                    Thread.sleep(100);
-                                } catch (Exception e) {
-                                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                                }
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        loading.dismiss();
-
-                                        if (nemopaySession.getKey().isEmpty())
-                                            dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
-                                        else
-                                            setKey(nemopaySession.getKey());
+                            final ProgressDialog loading = ProgressDialog.show(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_registering), true);
+                            loading.setCancelable(false);
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        nemopaySession.registerApp(nameInput.getText().toString() + (nameInput.getText().toString().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? "" : " - " + date), descriptionInput.getText().toString(), service);
+                                        Thread.sleep(100);
+                                    } catch (Exception e) {
+                                        Log.e(LOG_TAG, "error: " + e.getMessage());
                                     }
-                                });
-                            }
-                        }.start();
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            loading.dismiss();
+
+                                            if (nemopaySession.getKey().isEmpty())
+                                                dialog.errorDialog(MainActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                                            else
+                                                setNemopayKey(nemopaySession.getKey());
+                                        }
+                                    });
+                                }
+                            }.start();
+                        }
                     }
-                }
-            });
+                });
 
         dialog.createDialog(alertDialogBuilder, nameInput);
     }
@@ -504,7 +468,7 @@ public class MainActivity extends BaseActivity {
                 .setCancelable(false)
                 .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {
-                        setKey(keyInput.getText().toString());
+                        setNemopayKey(keyInput.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);

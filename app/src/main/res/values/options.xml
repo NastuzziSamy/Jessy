@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="options">
+        <item>Mode annulation</item>
+        <item>Modifier les articles</item>
+        <item>Lire un QR Code</item>
+        <item>Gestion des cartes/cotisations</item>
+        <item>Modifier la clé Nemopay</item>
+        <item>Modifier la clé Ginger</item>
+    </string-array>
+</resources>

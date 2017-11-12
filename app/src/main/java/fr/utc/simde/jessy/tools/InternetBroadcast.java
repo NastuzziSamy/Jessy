@@ -1,28 +1,19 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 /**
  * Created by Samy on 24/10/2017.
  */
 
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
-import android.nfc.tech.Ndef;
-import android.os.Bundle;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.widget.Toast;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 public class InternetBroadcast extends BroadcastReceiver {
 

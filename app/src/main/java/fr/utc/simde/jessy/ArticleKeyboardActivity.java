@@ -1,16 +1,10 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import fr.utc.simde.payutc.ArticleGroupActivity;
 
 /**
  * Created by Samy on 27/10/2017.

@@ -1,29 +1,25 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.payutc.tools.CASConnexion;
-import fr.utc.simde.payutc.tools.Config;
-import fr.utc.simde.payutc.tools.Dialog;
-import fr.utc.simde.payutc.tools.HTTPRequest;
-import fr.utc.simde.payutc.tools.InternetBroadcast;
-import fr.utc.simde.payutc.tools.NemopaySession;
+import fr.utc.simde.jessy.tools.CASConnexion;
+import fr.utc.simde.jessy.tools.Config;
+import fr.utc.simde.jessy.tools.Dialog;
+import fr.utc.simde.jessy.tools.Ginger;
+import fr.utc.simde.jessy.tools.HTTPRequest;
+import fr.utc.simde.jessy.tools.NemopaySession;
 
 /**
  * Created by Samy on 26/10/2017.
@@ -33,10 +29,13 @@ public abstract class BaseActivity extends NFCActivity {
     private static final String LOG_TAG = "_BaseActivity";
 
     protected static NemopaySession nemopaySession;
+    protected static Ginger ginger;
     protected static CASConnexion casConnexion;
     protected static Config config;
 
     protected static Dialog dialog;
+
+    protected static SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +67,10 @@ public abstract class BaseActivity extends NFCActivity {
         dialog.fatalDialog(activity, title, message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                unregister(activity);
                 startMainActivity(activity);
             }
         });
-
-        disconnect();
     }
 
     protected void hasRights(final String titre, final String[] rightList, final Runnable runnable) {
@@ -102,8 +100,14 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                     }
 
-                    if (rights.size() == sameRights.size())
-                        runOnUiThread(runnable);
+                    if ((rights.size() == sameRights.size()) || (rights.size() == 0 && myRightList.has("0") && myRightList.get("0").size() > 75)) // Si on a plus de 75 droits sur toutes les fondations, on estime qu'on a le full access
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.stopLoading();
+                                runnable.run();
+                            }
+                        });
                     else {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -144,7 +148,7 @@ public abstract class BaseActivity extends NFCActivity {
         }
 
         dialog.startLoading(activity, getString(R.string.information_collection), getString(R.string.foundation_list_collecting));
-        final Intent intent = new Intent(activity, FoundationListActivity.class);
+        final Intent intent = new Intent(activity, FoundationsOptionsActivity.class);
 
         new Thread() {
             @Override
@@ -195,7 +199,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("FoundationListActivity"))
+                            if (activity.getClass().getSimpleName().equals("FoundationsOptionsActivity"))
                                 finish();
 
                             activity.startActivity(intent);
@@ -367,7 +371,7 @@ public abstract class BaseActivity extends NFCActivity {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     try {
-                        if (nemopaySession.getRequest().getResponseCode() == 404)
+                        if (nemopaySession.getRequest().getResponseCode() == 400)
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -387,5 +391,71 @@ public abstract class BaseActivity extends NFCActivity {
                 }
             }
         }.start();
+    }
+
+    protected void startCardManagementActivity(final Activity activity) {
+        hasRights(getString(R.string.user_rights_list_collecting), new String[]{"STAFF", "POSS3", "GESUSERS"}, new Runnable() {
+            @Override
+            public void run() {
+            activity.startActivity(new Intent(activity, CardManagementActivity.class));
+            }
+        });
+    }
+
+    protected void delKey() {
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.remove("key");
+        edit.apply();
+
+        unregister(BaseActivity.this);
+    }
+
+    protected void setNemopayKey(final String key) {
+        dialog.startLoading(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.loginApp(key, casConnexion);
+                    Thread.sleep(100);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            if (nemopaySession.isRegistered()) {
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("key", key);
+                                editor.apply();
+
+                                TextView textView = findViewById(R.id.text_app_registered);
+                                if (textView != null)
+                                    textView.setText(nemopaySession.getName().substring(0, nemopaySession.getName().length() - (nemopaySession.getName().matches("^.* - ([0-9]{4})([/-])([0-9]{2})\\2([0-9]{2})$") ? 13 : 0)));
+                            }
+                            else
+                                dialog.errorDialog(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.errorDialog(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_error_registering));
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
+    protected void setGingerKey(final String key) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("key_ginger", key);
+        editor.apply();
+
+        ginger.setKey(key);
     }
 }

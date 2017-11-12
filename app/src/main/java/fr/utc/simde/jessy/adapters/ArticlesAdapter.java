@@ -1,18 +1,14 @@
-package fr.utc.simde.payutc.articles;
+package fr.utc.simde.jessy.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.AsyncTask;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,15 +19,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import fr.utc.simde.payutc.ArticleCategoryActivity;
-import fr.utc.simde.payutc.R;
-import fr.utc.simde.payutc.tools.HTTPRequest;
+import fr.utc.simde.jessy.tools.HTTPRequest;
 
 /**
  * Created by Samy on 28/10/2017.
  */
 
-abstract class ArticlesAdapter extends BaseAdapter {
+public abstract class ArticlesAdapter extends BaseAdapter {
     private static final String LOG_TAG = "_ArticlesAdapter";
 
     protected Activity activity;

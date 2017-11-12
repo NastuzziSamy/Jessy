@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,8 +22,10 @@ public class Config {
     private String foundationName;
     private Integer foundationId;
     private JsonNode groupList;
+    private ArrayNode optionList;
 
     private Boolean canCancel;
+    private Boolean canSell;
     private Boolean inKeyboard;
     private Boolean inGrid;
     private Boolean printCotisant;
@@ -40,7 +43,14 @@ public class Config {
             Log.e(LOG_TAG, "error: " + e.getMessage());
         }
 
+        try {
+            this.optionList = (ArrayNode) new ObjectMapper().readTree(sharedPreferences.getString("config_option_list", "[]"));
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "error: " + e.getMessage());
+        }
+
         this.canCancel = sharedPreferences.getBoolean("config_can_cancel", true);
+        this.canSell = sharedPreferences.getBoolean("config_can_sell", true);
         this.inKeyboard = sharedPreferences.getBoolean("config_in_keyboard", true);
         this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
         this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
@@ -68,6 +78,15 @@ public class Config {
         this.groupList = groupList;
     }
 
+    public ArrayNode getOptionList() { return this.optionList; }
+    public void setOptionList(final ArrayNode optionList) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("config_option_list", optionList.toString());
+        editor.apply();
+
+        this.optionList = optionList;
+    }
+
     public Boolean getCanCancel() { return this.canCancel; }
     public void setCanCancel(final Boolean canCancel) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -75,6 +94,15 @@ public class Config {
         editor.apply();
 
         this.canCancel = canCancel;
+    }
+
+    public Boolean getCanSell() { return this.canSell; }
+    public void setCanSell(final Boolean canSell) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("config_can_sell", canSell);
+        editor.apply();
+
+        this.canSell = canSell;
     }
 
     public Boolean getInKeyboard() { return this.inKeyboard; }

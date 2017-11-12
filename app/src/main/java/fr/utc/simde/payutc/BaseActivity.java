@@ -100,7 +100,7 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                     }
 
-                    if ((rights.size() == sameRights.size()) || (myRightList.has("0") && rights.size() == 0))
+                    if ((rights.size() == sameRights.size()) || (rights.size() == 0 && myRightList.has("0") && myRightList.get("0").size() > 75)) // Si on a plus de 75 droits sur toutes les fondations, on estime qu'on a le full access
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

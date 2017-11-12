@@ -137,20 +137,33 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void setConfig() {
-        if (config.getFoundationId() == -1) {
-            appNameText.setText(R.string.app_name);
-            appConfigText.setText("");
-        }
-        else {
+        if (config.getFoundationId() != -1) {
             String list = "";
-            Iterator<Map.Entry<String, JsonNode>> nodes = config.getGroupList().fields();
+            Iterator<Map.Entry<String, JsonNode>> foundations = config.getGroupList().fields();
 
-            while (nodes.hasNext())
-                list += ", " + nodes.next().getValue().textValue();
+            while (foundations.hasNext())
+                list += ", " + foundations.next().getValue().textValue();
 
             appNameText.setText(config.getFoundationName());
             appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
             nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
+        }
+        else if (config.getOptionList().size() != 0) {
+            String list = "";
+            Iterator<JsonNode> options = config.getOptionList().elements();
+
+            if (config.getCanSell())
+                list = ", " + getString(R.string.sell);
+
+            while (options.hasNext())
+                list += ", " + options.next().textValue();
+
+            appNameText.setText(R.string.app_name);
+            appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
+        }
+        else {
+            appNameText.setText(R.string.app_name);
+            appConfigText.setText("");
         }
     }
 

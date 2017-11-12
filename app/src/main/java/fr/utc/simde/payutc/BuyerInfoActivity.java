@@ -68,12 +68,7 @@ public class BuyerInfoActivity extends BaseActivity {
             generatePurchases();
         } catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
-            dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    finish();
-                }
-            });
+            fatal(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view));
         }
     }
 

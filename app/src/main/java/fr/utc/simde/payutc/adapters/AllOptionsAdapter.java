@@ -1,53 +1,37 @@
 package fr.utc.simde.payutc.adapters;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-
-import fr.utc.simde.payutc.ArticleCategoryActivity;
-import fr.utc.simde.payutc.R;
-import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
  * Created by Samy on 29/10/2017.
  */
 
-public class GroupAdapter extends BaseAdapter {
-    private static final String LOG_TAG = "_GroupAdapter";
+public class AllOptionsAdapter extends BaseAdapter {
+    private static final String LOG_TAG = "_AllOptionsAdapter";
 
     protected Activity activity;
 
-    protected JsonNode groupList;
+    protected ArrayNode optionList;
 
     protected CheckBox[] checkBoxList;
 
-    public GroupAdapter(final Activity activity, final JsonNode groupList) throws Exception {
+    public AllOptionsAdapter(final Activity activity, final ArrayNode optionList) throws Exception {
         this.activity = activity;
-        this.groupList = groupList;
-        this.checkBoxList = new CheckBox[groupList.size()];
+        this.optionList = optionList;
+        this.checkBoxList = new CheckBox[optionList.size()];
     }
 
     @Override
@@ -55,7 +39,7 @@ public class GroupAdapter extends BaseAdapter {
         if (view == null) {
             view = new LinearLayout(this.activity);
             CheckBox checkBox = new CheckBox(this.activity);
-            checkBox.setText(this.groupList.get(position).get("name").textValue());
+            checkBox.setText(this.optionList.get(position).textValue());
 
             ((LinearLayout) view).addView(checkBox);
 
@@ -67,7 +51,7 @@ public class GroupAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() { return this.groupList.size(); }
+    public int getCount() { return this.optionList.size(); }
 
     @Override
     public Object getItem(int position) { return 0; }
@@ -75,17 +59,17 @@ public class GroupAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) { return position; }
 
-    public JsonNode getList() {
-        ObjectNode groupList = new ObjectMapper().createObjectNode();
+    public ArrayNode getList() {
+        ArrayNode optionList = new ObjectMapper().createArrayNode();
 
-        Integer i = 0;
+        int i = 0;
         for (CheckBox checkBox : this.checkBoxList) {
             if (checkBox.isChecked())
-                groupList.put(Integer.toString(this.groupList.get(i).get("id").intValue()), this.groupList.get(i).get("name").textValue());
+                optionList.add(this.optionList.get(i).textValue());
 
             i++;
         }
 
-        return groupList;
+        return optionList;
     }
 }

@@ -1,9 +1,5 @@
 package fr.utc.simde.jessy;
 
-/**
- * Created by Samy on 24/10/2017.
- */
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -19,6 +15,10 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
+
+/**
+ * Created by Samy on 24/10/2017.
+ */
 
 public abstract class NFCActivity extends Activity {
     private static final String	LOG_TAG = "_NFCActivity";

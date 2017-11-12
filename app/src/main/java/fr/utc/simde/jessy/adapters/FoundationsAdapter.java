@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.adapters;
+package fr.utc.simde.jessy.adapters;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 28/10/2017.

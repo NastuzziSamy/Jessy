@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.fragments;
+package fr.utc.simde.jessy.fragments;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 
-import fr.utc.simde.payutc.R;
-import fr.utc.simde.payutc.adapters.ArticlesAdapter;
-import fr.utc.simde.payutc.adapters.GridAdapter;
-import fr.utc.simde.payutc.adapters.ListAdapater;
-import fr.utc.simde.payutc.tools.Config;
-import fr.utc.simde.payutc.tools.Panier;
+import fr.utc.simde.jessy.R;
+import fr.utc.simde.jessy.adapters.ArticlesAdapter;
+import fr.utc.simde.jessy.adapters.GridAdapter;
+import fr.utc.simde.jessy.adapters.ListAdapater;
+import fr.utc.simde.jessy.tools.Config;
+import fr.utc.simde.jessy.tools.Panier;
 
 /**
  * Created by Samy on 27/10/2017.

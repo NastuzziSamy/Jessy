@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.adapters;
+package fr.utc.simde.jessy.adapters;
 
 import android.app.Activity;
 import android.view.View;
@@ -7,13 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Samy on 29/10/2017.

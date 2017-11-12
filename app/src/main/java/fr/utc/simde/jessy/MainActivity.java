@@ -28,6 +28,10 @@ import fr.utc.simde.jessy.tools.Ginger;
 import fr.utc.simde.jessy.tools.InternetBroadcast;
 import fr.utc.simde.jessy.tools.NemopaySession;
 
+/**
+ * Created by Samy on 24/10/2017.
+ */
+
 public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";

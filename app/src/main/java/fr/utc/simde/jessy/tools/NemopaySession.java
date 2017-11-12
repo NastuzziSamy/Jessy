@@ -449,7 +449,6 @@ public class NemopaySession {
     protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
     protected int request(final String method, final String service, final Map<String, String> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
     protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws Exception {
-        Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
         this.request.setPost(postArgs);

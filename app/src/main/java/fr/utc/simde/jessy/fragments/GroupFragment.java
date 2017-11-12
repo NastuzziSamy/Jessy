@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-
 import fr.utc.simde.jessy.R;
 import fr.utc.simde.jessy.adapters.ArticlesAdapter;
 import fr.utc.simde.jessy.adapters.GridAdapter;

@@ -3,7 +3,6 @@ package fr.utc.simde.jessy.tools;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 

@@ -33,6 +33,8 @@ public class NemopaySession {
     private String notLogged;
     private String noRight;
     private String noRights;
+    private String noSuperRight;
+    private String noSuperRights;
     private String allRightsNeeded;
     private String serviceText;
     private String notFound;
@@ -63,6 +65,8 @@ public class NemopaySession {
         this.allRightsNeeded = activity.getString(R.string.all_rights_needed);
         this.noRight = activity.getString(R.string.no_right);
         this.noRights = activity.getString(R.string.no_rights);
+        this.noSuperRight = activity.getString(R.string.no_super_right);
+        this.noSuperRights = activity.getString(R.string.no_super_rights);
         this.serviceText = activity.getString(R.string.service);
         this.notFound = activity.getString(R.string.not_found);
         this.badRequest = activity.getString(R.string.bad_request);
@@ -218,7 +222,7 @@ public class NemopaySession {
                 put("badge_id", badgeId);
             }},
             new String[]{
-                    "POSS3"
+                "POSS3"
             }
         );
     }
@@ -445,14 +449,14 @@ public class NemopaySession {
         return reponseCode;
     }
 
-    public String forbidden(final String[] rightsNeeded) {
+    public String forbidden(final String[] rightsNeeded, final boolean needToBeSuper) {
         String result;
         if (rightsNeeded.length == 0)
             return this.allRightsNeeded;
         else if (rightsNeeded.length == 1)
-            result = this.noRight;
+            result = needToBeSuper ? this.noSuperRight : this.noRight;
         else
-            result = this.noRights;
+            result = needToBeSuper ? this.noSuperRights : this.noRights;
 
         for (String right : rightsNeeded) {
             if (allRights.containsKey(right))
@@ -486,7 +490,7 @@ public class NemopaySession {
                     throw new Exception(this.notLogged);
             }
 
-            throw new Exception(forbidden(rightsNeeded));
+            throw new Exception(forbidden(rightsNeeded, false));
         }
         else if (responseCode == 404)
             throw new Exception(this.serviceText + " " + service + " " + this.notFound);

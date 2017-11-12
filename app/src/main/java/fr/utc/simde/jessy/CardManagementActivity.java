@@ -23,7 +23,7 @@ import java.util.Date;
  */
 
 public class CardManagementActivity extends BaseActivity {
-    private static final String LOG_TAG = "CardManagementActivity";
+    private static final String LOG_TAG = "_CardManagementActivity";
 
     TextView textUserId;
     TextView textUsername;
@@ -120,45 +120,50 @@ public class CardManagementActivity extends BaseActivity {
                 }.start();
             }
             else if (toRun == 2) {
-                dialog.dismiss();
+                hasRights(getString(R.string.contribute), new String[]{"GESUSERS"}, true, new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
 
-                final View view = getLayoutInflater().inflate(R.layout.dialog_contribute, null);
-                final RadioGroup radioGroup = view.findViewById(R.id.radio_type);
-                final RadioButton radioButton = view.findViewById(R.id.radio_student);
-                final EditText editText = view.findViewById(R.id.nbr_days);
+                        final View view = getLayoutInflater().inflate(R.layout.dialog_contribute, null);
+                        final RadioGroup radioGroup = view.findViewById(R.id.radio_type);
+                        final RadioButton radioButton = view.findViewById(R.id.radio_student);
+                        final EditText editText = view.findViewById(R.id.nbr_days);
 
-                radioButton.setChecked(true);
+                        radioButton.setChecked(true);
 
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CardManagementActivity.this);
-                alertDialogBuilder
-                    .setTitle(R.string.contribute)
-                    .setView(view)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.contribute, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int id) {
-                            dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CardManagementActivity.this);
+                        alertDialogBuilder
+                                .setTitle(R.string.contribute)
+                                .setView(view)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.contribute, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialogInterface, int id) {
+                                        dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
 
-                            new Thread(){
-                                @Override
-                                public void run() {
-                                    int id = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
-
-                                    if (contributeCard(id == 3 ? new SimpleDateFormat("yyyy-MM-dd").format(new Date(new Date().getTime() + (Long.parseLong(String.valueOf(editText.getText())) * 86400000L))) : (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31", id < 2 ? 20 : 1))
-                                        runOnUiThread(new Runnable() {
+                                        new Thread(){
                                             @Override
                                             public void run() {
-                                                Toast.makeText(CardManagementActivity.this, R.string.contribute_now, Toast.LENGTH_LONG).show();
+                                                int id = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
+
+                                                if (contributeCard(id == 3 ? new SimpleDateFormat("yyyy-MM-dd").format(new Date(new Date().getTime() + (Long.parseLong(String.valueOf(editText.getText())) * 86400000L))) : (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31", id < 2 ? 20 : 1))
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            Toast.makeText(CardManagementActivity.this, R.string.contribute_now, Toast.LENGTH_LONG).show();
+                                                        }
+                                                    });
+
+                                                readCard();
                                             }
-                                        });
+                                        }.start();
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null);
 
-                                    readCard();
-                                }
-                            }.start();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null);
-
-                dialog.createDialog(alertDialogBuilder, editText);
+                        dialog.createDialog(alertDialogBuilder, editText);
+                    }
+                });
             }
 
             this.toRun = null;
@@ -180,8 +185,8 @@ public class CardManagementActivity extends BaseActivity {
             this.textTagId.setText(Integer.toString(tagInfo.get("id").intValue()));
             this.textTag.setText(tagInfo.get("tag").textValue());
             this.textShortTag.setText(tagInfo.get("short_tag").textValue() == null ? getString(R.string.none) : tagInfo.get("short_tag").textValue());
-            this.textSolde.setText(String.format("%.2f", new Float(this.solde) / 100.00f) + "€");
-            this.textCotisantGinger.setTextColor(this.solde == 0 ? Color.RED : Color.BLUE);
+            this.textSolde.setText(this.solde == null ? nemopaySession.forbidden(new String[]{"POSS3"}, false) : String.format("%.2f", new Float(this.solde) / 100.00f) + "€");
+            this.textSolde.setTextColor(this.solde == null || this.solde == 0 ? Color.RED : Color.BLUE);
 
             this.textUsernameGinger.setText(gingerInfo.get("login").textValue());
             this.textFirstnameGinger.setText(gingerInfo.get("prenom").textValue());
@@ -205,49 +210,6 @@ public class CardManagementActivity extends BaseActivity {
     }
 
     protected Boolean contributeCard(final String fin, final Integer paid) {
-        try {
-            nemopaySession.getBuyerInfo(badgeId);
-            Thread.sleep(100);
-
-            // Toute une série de vérifications avant de lancer l'activité
-            final JsonNode buyerInfo = nemopaySession.getRequest().getJSONResponse();
-
-            if (!buyerInfo.has("lastname") || !buyerInfo.has("username") || !buyerInfo.has("firstname") || !buyerInfo.has("solde") || !buyerInfo.has("last_purchases") || !buyerInfo.get("last_purchases").isArray())
-                throw new Exception("Unexpected JSON");
-
-            username = nemopaySession.getRequest().getJSONResponse().get("username").textValue();
-        } catch (final Exception e) {
-            Log.e(LOG_TAG, "error: " + e.getMessage());
-
-            try {
-                if (nemopaySession.getRequest().getResponseCode() == 400)
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.badge_error_not_recognized));
-                        }
-                    });
-                else
-                    throw new Exception("");
-            } catch (Exception e1) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        fatal(CardManagementActivity.this, getString(R.string.information_collection), e.getMessage());
-                    }
-                });
-            }
-
-            return false;
-        }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dialog.changeLoading(getResources().getString(R.string.user_ginger_info_collecting));
-            }
-        });
-
         try {
             ginger.addCotisation(username, fin, paid);
             Thread.sleep(100);
@@ -297,17 +259,64 @@ public class CardManagementActivity extends BaseActivity {
             if (!buyerInfo.has("lastname") || !buyerInfo.has("username") || !buyerInfo.has("firstname") || !buyerInfo.has("solde") || !buyerInfo.has("last_purchases") || !buyerInfo.get("last_purchases").isArray())
                 throw new Exception("Unexpected JSON");
 
-            username = nemopaySession.getRequest().getJSONResponse().get("username").textValue();
             solde = buyerInfo.get("solde").intValue();
         } catch (final Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
 
             try {
-                if (nemopaySession.getRequest().getResponseCode() == 400)
+                if (nemopaySession.getRequest().getResponseCode() == 400) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.badge_error_not_recognized));
+                        }
+                    });
+
+                    return;
+                }
+                if (nemopaySession.getRequest().getResponseCode() == 403)
+                    solde = null;
+                else
+                    throw new Exception("");
+            } catch (Exception e1) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fatal(CardManagementActivity.this, getString(R.string.information_collection), e.getMessage());
+                    }
+                });
+
+                return;
+            }
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.changeLoading(getResources().getString(R.string.user_ginger_info_collecting));
+            }
+        });
+
+        try {
+            ginger.getInfoFromBadge(badgeId);
+            Thread.sleep(100);
+
+            // Toute une série de vérifications avant de lancer l'activité
+            final JsonNode gingerInfo = new ObjectMapper().readTree(ginger.getRequest().getResponse()); // La réponse n'est pas considérée comme une réponse json.. (l'en-tête ne renvoie pas une application/json)
+
+            if (!gingerInfo.has("login") || !gingerInfo.has("nom") || !gingerInfo.has("prenom") || !gingerInfo.has("mail") || !gingerInfo.has("type") || !gingerInfo.has("is_adulte") || !gingerInfo.has("is_cotisant"))
+                throw new Exception("Unexpected JSON");
+
+            username = gingerInfo.get("login").textValue();
+        } catch (final Exception e) {
+            Log.e(LOG_TAG, "error: " + e.getMessage());
+
+            try {
+                if (ginger.getRequest().getResponseCode() == 404)
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_not_recognized));
                         }
                     });
                 else
@@ -327,7 +336,7 @@ public class CardManagementActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialog.changeLoading(getResources().getString(R.string.user_searching));
+                dialog.changeLoading(getResources().getString(R.string.information_collection));
             }
         });
 
@@ -368,6 +377,7 @@ public class CardManagementActivity extends BaseActivity {
 
         try {
             final JsonNode usersFounded = nemopaySession.getRequest().getJSONResponse();
+            final JsonNode gingerInfo = new ObjectMapper().readTree(ginger.getRequest().getResponse()); // La réponse n'est pas considérée comme une réponse json.. (l'en-tête ne renvoie pas une application/json)
 
             if (!usersFounded.has(0) || !usersFounded.get(0).has("id"))
                 throw new Exception(getString(R.string.user_not_recognized));
@@ -379,48 +389,6 @@ public class CardManagementActivity extends BaseActivity {
             final JsonNode userInfo = nemopaySession.getRequest().getJSONResponse();
 
             if (!userInfo.has("user") || !userInfo.has("tag"))
-                throw new Exception("Unexpected JSON");
-        } catch (final Exception e) {
-            Log.e(LOG_TAG, "error: " + e.getMessage());
-
-            try {
-                if (nemopaySession.getRequest().getResponseCode() == 400)
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_error_collecting));
-                        }
-                    });
-                else
-                    throw new Exception("");
-            } catch (Exception e1) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        fatal(CardManagementActivity.this, getString(R.string.information_collection), e.getMessage());
-                    }
-                });
-            }
-
-            return;
-        }
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dialog.changeLoading(getResources().getString(R.string.user_ginger_info_collecting));
-            }
-        });
-
-        try {
-            ginger.getInfoFromBadge(badgeId);
-            Thread.sleep(100);
-
-            // Toute une série de vérifications avant de lancer l'activité
-            final JsonNode userInfo = nemopaySession.getRequest().getJSONResponse();
-            final JsonNode gingerInfo = new ObjectMapper().readTree(ginger.getRequest().getResponse()); // La réponse n'est pas considérée comme une réponse json.. (l'en-tête ne renvoie pas une application/json)
-
-            if (!gingerInfo.has("login") || !gingerInfo.has("nom") || !gingerInfo.has("prenom") || !gingerInfo.has("mail") || !gingerInfo.has("type") || !gingerInfo.has("is_adulte") || !gingerInfo.has("is_cotisant"))
                 throw new Exception("Unexpected JSON");
 
             runOnUiThread(new Runnable() {
@@ -434,11 +402,11 @@ public class CardManagementActivity extends BaseActivity {
             Log.e(LOG_TAG, "error: " + e.getMessage());
 
             try {
-                if (ginger.getRequest().getResponseCode() == 404)
+                if (nemopaySession.getRequest().getResponseCode() == 400)
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_not_recognized));
+                            dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_error_collecting));
                         }
                     });
                 else

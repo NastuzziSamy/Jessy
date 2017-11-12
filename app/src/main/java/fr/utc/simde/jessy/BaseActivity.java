@@ -73,7 +73,8 @@ public abstract class BaseActivity extends NFCActivity {
         });
     }
 
-    protected void hasRights(final String titre, final String[] rightList, final Runnable runnable) {
+    protected void hasRights(final String title, final String[] rightList, final Runnable runnable) { hasRights(title, rightList, false, runnable);}
+    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnable) {
         dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
         new Thread() {
             @Override
@@ -93,10 +94,12 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                     }
 
-                    if (myRightList.has(String.valueOf(nemopaySession.getFoundationId()))) {
-                        for (JsonNode myRight : myRightList.get(String.valueOf(nemopaySession.getFoundationId()))) {
-                            if (rights.contains(myRight.textValue()))
-                                sameRights.add(myRight.textValue());
+                    if (!needToBeSuper) {
+                        for (JsonNode foundation : myRightList) {
+                            for (JsonNode myRight : foundation) {
+                                if (rights.contains(myRight.textValue()) && !sameRights.contains(myRight.textValue()))
+                                    sameRights.add(myRight.textValue());
+                            }
                         }
                     }
 
@@ -113,7 +116,7 @@ public abstract class BaseActivity extends NFCActivity {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
-                                dialog.errorDialog(BaseActivity.this, titre, nemopaySession.forbidden(rightList));
+                                dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));
                             }
                         });
                     }
@@ -175,7 +178,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("FoundationsOptionsActivity"))
+                            if (activity instanceof FoundationsOptionsActivity)
                                 finish();
 
                             activity.startActivity(intent);
@@ -347,7 +350,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("ArticleKeyboardActivity") || activity.getClass().getSimpleName().equals("ArticleCategoryActivity"))
+                            if (activity instanceof ArticleGroupActivity)
                                 finish();
 
                             activity.startActivity(intent);
@@ -395,7 +398,7 @@ public abstract class BaseActivity extends NFCActivity {
                         public void run() {
                             dialog.stopLoading();
 
-                            if (activity.getClass().getSimpleName().equals("BuyerInfoActivity"))
+                            if (activity instanceof BuyerInfoActivity)
                                 finish();
 
                             activity.startActivity(intent);
@@ -428,7 +431,7 @@ public abstract class BaseActivity extends NFCActivity {
     }
 
     protected void startCardManagementActivity(final Activity activity) {
-        hasRights(getString(R.string.user_rights_list_collecting), new String[]{"STAFF", "POSS3", "GESUSERS"}, new Runnable() {
+        hasRights(getString(R.string.user_rights_list_collecting), new String[]{"GESUSERS"}, true, new Runnable() {
             @Override
             public void run() {
             activity.startActivity(new Intent(activity, CardManagementActivity.class));

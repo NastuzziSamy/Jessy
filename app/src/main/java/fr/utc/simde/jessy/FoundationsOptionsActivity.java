@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
+import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
 /**
@@ -79,7 +79,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.foundationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
-                startArticlesActivity(FoundationsOptionsActivity.this, foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position));
+                nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
+                startArticleGroupActivity(FoundationsOptionsActivity.this);
             }
         });
 
@@ -108,7 +109,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (isOption(position,0))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.8");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
                 else if (isOption(position,1))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
                 else if (isOption(position,2))
@@ -187,7 +188,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     final ListView listView = popupView.findViewById(R.id.list_groups);
                     final Switch canSellSwitch = popupView.findViewById(R.id.switch_cancel);
                     ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
-                    canSellSwitch.setText(R.string.print_foundations);
+                    canSellSwitch.setText(R.string.can_sell);
 
                     OptionChoicesAdapter allOptionsAdapter = null;
                     try {

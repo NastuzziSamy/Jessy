@@ -214,78 +214,6 @@ public class ArticleGroupActivity extends BaseActivity {
             pay(badgeId);
     }
 
-    protected void createCategories(final JsonNode categoryList, final List<Integer> authorizedList, final JsonNode articleList) throws Exception {
-        HashMap<Integer, ArrayNode> articlesPerCategory = new HashMap<Integer, ArrayNode>();
-        final int foundationId = nemopaySession.getFoundationId();
-
-        for (final JsonNode article : articleList) {
-            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != foundationId)
-                throw new Exception("Unexpected JSON");
-
-            if (!article.get("active").booleanValue())
-                continue;
-
-            if (articlesPerCategory.containsKey(article.get("categorie_id").intValue()))
-                articlesPerCategory.get(article.get("categorie_id").intValue()).add(article);
-            else
-                articlesPerCategory.put(article.get("categorie_id").intValue(), new ObjectMapper().createArrayNode().add(article));
-        }
-
-        for (JsonNode category : categoryList) {
-            if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != foundationId)
-                throw new Exception("Unexpected JSON");
-
-            ArrayNode articlesForThisCategory = articlesPerCategory.get(category.get("id").intValue());
-            if (config.getFoundationId() != -1) if (!authorizedList.contains(category.get("id").intValue()) || articlesForThisCategory == null)
-                    continue;
-            else if (articlesForThisCategory == null || articlesForThisCategory.size() == 0)
-                continue;
-
-            createNewGroup(category.get("name").textValue(), articlesForThisCategory);
-        }
-    }
-
-    protected void createKeyboards(final JsonNode keyboardList, final List<Integer> authorizedList, final JsonNode articleList) throws Exception {
-        final int foundationId = nemopaySession.getFoundationId();
-
-        for (final JsonNode article : articleList) {
-            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != foundationId)
-                throw new Exception("Unexpected JSON");
-        }
-
-        for (JsonNode keyboard : keyboardList) {
-            ArrayNode articlesForThisKeyboard = new ObjectMapper().createArrayNode();
-
-            if (!keyboard.has("id") || !keyboard.has("name") || !keyboard.has("fun_id") || keyboard.get("fun_id").intValue() != foundationId || !keyboard.has("data") || !keyboard.get("data").has("items") || !keyboard.get("data").get("items").isArray() || !keyboard.get("data").has("nbColumns"))
-                throw new Exception("Unexpected JSON");
-
-            if (config.getFoundationId() != -1) if (!authorizedList.contains(keyboard.get("id").intValue()) || articlesForThisKeyboard == null)
-                continue;
-            else if (keyboard.get("data").get("items") == null || keyboard.get("data").get("items").size() == 0)
-                continue;
-
-            for (JsonNode article : keyboard.get("data").get("items")) {
-                if (article.has("itm_id")) {
-                    boolean in = false;
-                    for (JsonNode articleInList : articleList) {
-                        if (articleInList.get("id").intValue() == article.get("itm_id").intValue()) {
-                            articlesForThisKeyboard.add(articleInList);
-                            in = true;
-                            break;
-                        }
-                    }
-
-                    if (!in && config.getInGrid())
-                        articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
-                }
-                else if (config.getInGrid())
-                    articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
-            }
-
-            createNewGroup(keyboard.get("name").textValue(), articlesForThisKeyboard, keyboard.get("data").get("nbColumns").isInt() ? keyboard.get("data").get("nbColumns").intValue() : Integer.valueOf(keyboard.get("data").get("nbColumns").textValue()));
-        }
-    }
-
     protected void configDialog() {
         dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting));
 
@@ -354,6 +282,7 @@ public class ArticleGroupActivity extends BaseActivity {
                             listView.setOnItemClickListener(new ListView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    config.setCanCancel(canCancelSwitch.isChecked());
                                     config.setFoundation(nemopaySession.getFoundationId(), nemopaySession.getFoundationName());
                                     config.setLocation(locationAdapter.getLocationId(position), locationAdapter.getLocationName(position));
                                     startMainActivity(ArticleGroupActivity.this);
@@ -468,6 +397,85 @@ public class ArticleGroupActivity extends BaseActivity {
                 }
             }
         }.start();
+    }
+
+
+    protected void createCategories(final JsonNode categoryList, final List<Integer> authorizedList, final JsonNode articleList) throws Exception {
+        HashMap<Integer, ArrayNode> articlesPerCategory = new HashMap<Integer, ArrayNode>();
+        final int foundationId = nemopaySession.getFoundationId();
+
+        for (final JsonNode article : articleList) {
+            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != foundationId)
+                throw new Exception("Unexpected JSON");
+
+            if (!article.get("active").booleanValue())
+                continue;
+
+            if (articlesPerCategory.containsKey(article.get("categorie_id").intValue()))
+                articlesPerCategory.get(article.get("categorie_id").intValue()).add(article);
+            else
+                articlesPerCategory.put(article.get("categorie_id").intValue(), new ObjectMapper().createArrayNode().add(article));
+        }
+
+        for (JsonNode category : categoryList) {
+            if (!category.has("id") || !category.has("name") || !category.has("fundation_id") || category.get("fundation_id").intValue() != foundationId)
+                throw new Exception("Unexpected JSON");
+
+            ArrayNode articlesForThisCategory = articlesPerCategory.get(category.get("id").intValue());
+            if (config.getFoundationId() != -1) if (!authorizedList.contains(category.get("id").intValue()))
+                continue;
+            else if (articlesForThisCategory.size() == 0)
+                continue;
+
+            if (articlesForThisCategory == null)
+                continue;
+
+            createNewGroup(category.get("name").textValue(), articlesForThisCategory);
+        }
+    }
+
+    protected void createKeyboards(final JsonNode keyboardList, final List<Integer> authorizedList, final JsonNode articleList) throws Exception {
+        final int foundationId = nemopaySession.getFoundationId();
+
+        for (final JsonNode article : articleList) {
+            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != foundationId)
+                throw new Exception("Unexpected JSON");
+        }
+
+        for (JsonNode keyboard : keyboardList) {
+            ArrayNode articlesForThisKeyboard = new ObjectMapper().createArrayNode();
+
+            if (!keyboard.has("id") || !keyboard.has("name") || !keyboard.has("fun_id") || keyboard.get("fun_id").intValue() != foundationId || !keyboard.has("data") || !keyboard.get("data").has("items") || !keyboard.get("data").get("items").isArray() || !keyboard.get("data").has("nbColumns"))
+                throw new Exception("Unexpected JSON");
+
+            if (config.getFoundationId() != -1) if (!authorizedList.contains(keyboard.get("id").intValue()))
+                continue;
+            else if (articlesForThisKeyboard.size() == 0)
+                continue;
+
+            if (articlesForThisKeyboard == null)
+                continue;
+
+            for (JsonNode article : keyboard.get("data").get("items")) {
+                if (article.has("itm_id")) {
+                    boolean in = false;
+                    for (JsonNode articleInList : articleList) {
+                        if (articleInList.get("id").intValue() == article.get("itm_id").intValue()) {
+                            articlesForThisKeyboard.add(articleInList);
+                            in = true;
+                            break;
+                        }
+                    }
+
+                    if (!in && config.getInGrid())
+                        articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
+                }
+                else if (config.getInGrid())
+                    articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
+            }
+
+            createNewGroup(keyboard.get("name").textValue(), articlesForThisKeyboard, keyboard.get("data").get("nbColumns").isInt() ? keyboard.get("data").get("nbColumns").intValue() : Integer.valueOf(keyboard.get("data").get("nbColumns").textValue()));
+        }
     }
 
     protected void createNewGroup(final String name, final ArrayNode articleList) throws Exception { createNewGroup(name, articleList, 3); }

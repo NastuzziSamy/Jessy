@@ -27,7 +27,7 @@
         <activity android:name=".BaseActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".FoundationListActivity"
+        <activity android:name=".FoundationsOptionsActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name=".ArticleKeyboardActivity"
@@ -37,6 +37,9 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name=".BuyerInfoActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity android:name=".CardManagementActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
     </application>

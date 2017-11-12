@@ -1,8 +1,13 @@
 ﻿<resources>
     <string name="app_name">PayUTC</string>
     <string name="payutc">PayUTC</string>
+    <string name="nemopay">Nemopay</string>
+    <string name="ginger">Ginger</string>
     <string name="hello">Pour se connecter, clique sur\n le bouton ou scanne ton badge</string>
     <string name="ok">Ok</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="none">Aucun</string>
     <string name="connect">Se connecter</string>
     <string name="connection">Connexion</string>
     <string name="register">Enregistrer</string>
@@ -24,6 +29,7 @@
     <string name="no_pin">Aucun PIN</string>
     <string name="pin_required">Code PIN requis !</string>
     <string name="username_and_password_required">Login CAS et mot de passe requis !</string>
+    <string name="sell">Vente</string>
     <string name="article">Article</string>
     <string name="service">Le service</string>
     <string name="realized">Réalisé à</string>
@@ -36,6 +42,21 @@
     <string name="category">Catégorie</string>
     <string name="grid">Grille</string>
     <string name="list">Liste</string>
+    <string name="foundations">Fondations</string>
+    <string name="options">Options</string>
+    <string name="user_id">ID utilisateur</string>
+    <string name="firstname">Prenom</string>
+    <string name="lastname">Nom</string>
+    <string name="email">Email</string>
+    <string name="adult">Adulte</string>
+    <string name="contribute">Cotiser</string>
+    <string name="cotisant">Cotisant</string>
+    <string name="solde">Solde</string>
+    <string name="tag_id">ID tag</string>
+    <string name="tag">Numéro de badge</string>
+    <string name="short_tag">Numéro raccourci</string>
+    <string name="type">Type</string>
+    <string name="day_s_">jour(s)</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -58,6 +79,8 @@
     <string name="cas_error_service_connection">Erreur lors de la connexion au service depuis le CAS</string>
     <string name="cas_error_service_linking">Erreur lors de la connexion entre le CAS et le service</string>
     <string name="badge_connection">Connexion par badge</string>
+    <string name="badge_read">Lecture d\'un badge</string>
+    <string name="badge_waiting">En attente de lecture d\'un badge</string>
     <string name="badge_app_not_registered">Il est nécessaire que l\'application soit enregistrée pour permettre la connexion via badge</string>
     <string name="badge_recognization">Authentification du badge</string>
     <string name="badge_error_no_rights">Impossible de vérifier le badge</string>
@@ -72,8 +95,9 @@
     <string name="nemopay_registering">Enregistrement de l\'application</string>
     <string name="nemopay_already_registered">Application déjà authentifiée</string>
     <string name="nemopay_error_registering">Application non enregistrée</string>
+    <string name="nemopay_information">Informations de la part de Nemopay</string>
     <string name="key">Clé d\'application</string>
-    <string name="key_registration">Enregistrement de l\'appareil</string>
+    <string name="key_registration">Enregistrement de la clé</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>
     <string name="key_name">Nom - Date</string>
     <string name="key_description">Description</string>
@@ -91,7 +115,12 @@
     <string name="article_error_0">n\'a aucun article à vendre</string>
     <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
     <string name="buyer_info_collecting">Récupération des informations de la personne</string>
+    <string name="user_searching">Identification de la personne</string>
+    <string name="user_nemopay_info_collecting">Identification de la personne auprès de Nemopay</string>
+    <string name="user_ginger_info_collecting">Identification de la personne auprès de Ginger</string>
+    <string name="user_not_recognized">Personne non reconnue</string>
     <string name="user_rights_list_collecting">Récupération des droits de la personne</string>
+    <string name="user_error_collecting">Impossible de récupérer les infos de la personne</string>
     <string name="no_purchases">Aucun article acheté dernièrement</string>
     <string name="transaction_in_progress">Transaction en cours</string>
     <string name="cancel_transaction">Annuler une transaction</string>
@@ -100,47 +129,29 @@
     <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
     <string name="category_list">Liste des catégories à afficher</string>
     <string name="keyboard_list">Liste des claviers de caisse à afficher</string>
+    <string name="option_list">Liste des options à afficher</string>
     <string name="category_0_selected">Aucune catégorie n\'a été sélectionnée</string>
-    <string name="keyboard_0_selected">Aucun clavier n\'a été sélectionnée</string>
-    <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant tous les droits sur cette fondation peut reconfigurer l\'application par défaut</string>
+    <string name="keyboard_0_selected">Aucun clavier n\'a été sélectionné</string>
+    <string name="option_0_selected">Aucune option n\'a été sélectionnée</string>
+    <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant les droits peut reconfigurer l\'application par défaut</string>
     <string name="can_cancel">Permettre l\'annulation</string>
     <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
+    <string name="read_card_information">Informations de la carte</string>
+    <string name="add_new_card">Ajouter</string>
+    <string name="read_new_card">Lire</string>
+    <string name="ginger_information">Informations de la part de Ginger</string>
+    <string name="ginger_no_key">Aucune clé n\'a été donnée</string>
+    <string name="contribute_already">La personne est déjà cotisante</string>
+    <string name="contribute_now">Cotisation réalisée !</string>
+    <string name="contribute_choice">Type de cotisation</string>
+    <string name="contribute_student">Etudiant (20€)</string>
+    <string name="contribute_ext">Extérieur (20€)</string>
+    <string name="contribute_admin">Membre d\'honneur (0€)</string>
+    <string name="contribute_temp">Temporaire</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>
     <string name="print_cotisant">Afficher le filtre cotisant</string>
     <string name="print_18">Afficher le filtre majeur</string>
-
-    <string name="user_no_rights">n\'a aucun droit. L\'utilisateur a été automatiquement déconnecté</string>
-    <string name="no_right">Il est nécessaire d\'avoir au moins le droit suivant:</string>
-    <string name="no_rights">Il est nécessaire d\'avoir au moins les droits suivants:</string>
-    <string name="no_need_rights">Aucun droit spécifique n\'est nécessaire</string>
-    <string name="error_rights">Impossible de récupérer les droits de la personne</string>
-    <string name="not_found">n\'a pas réussi à trouver l\'élement souhaité</string>
-    <string name="bad_request">n\'a pas compris la requête reçue</string>
-    <string name="internal_error">a renvoyé une erreur interne (contacter un adminstrateur si cela se reproduit)</string>
-    <string name="error_request">a renvoyé l\'erreur HTTP suivante: </string>
-    <string-array name="rights_keys">
-        <item>SALESKEYBOARD</item>
-        <item>APPLICATIONRIGHT</item>
-        <item>USERRIGHT</item>
-        <item>GESAPPLICATIONS</item>
-        <item>GESUSERS</item>
-        <item>GESARTICLE</item>
-        <item>GESSALES</item>
-        <item>STAFF</item>
-        <item>POSS3</item>
-    </string-array>
-
-    <string-array name="rights_values">
-        <item>Clavier de caisse</item>
-        <item>Droits des applications</item>
-        <item>Droits des utilisateurs</item>
-        <item>Gestion des applications</item>
-        <item>Gestion des utilisateurs</item>
-        <item>Gestion des articles</item>
-        <item>Gestion des ventes</item>
-        <item>Membre du staff</item>
-        <item>Vente physique</item>
-    </string-array>
+    <string name="print_foundations">Afficher les différentes fondations</string>
 </resources>

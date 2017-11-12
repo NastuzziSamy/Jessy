@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.articles;
+package fr.utc.simde.payutc.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -52,12 +52,10 @@ public class GroupAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-        JsonNode group = this.groupList.get(position);
-
         if (view == null) {
             view = new LinearLayout(this.activity);
             CheckBox checkBox = new CheckBox(this.activity);
-            checkBox.setText(group.get("name").textValue());
+            checkBox.setText(this.groupList.get(position).get("name").textValue());
 
             ((LinearLayout) view).addView(checkBox);
 

@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.articles;
+package fr.utc.simde.payutc.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -31,7 +31,7 @@ import fr.utc.simde.payutc.tools.HTTPRequest;
  * Created by Samy on 28/10/2017.
  */
 
-abstract class ArticlesAdapter extends BaseAdapter {
+public abstract class ArticlesAdapter extends BaseAdapter {
     private static final String LOG_TAG = "_ArticlesAdapter";
 
     protected Activity activity;

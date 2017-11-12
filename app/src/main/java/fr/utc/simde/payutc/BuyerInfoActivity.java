@@ -1,6 +1,5 @@
 package fr.utc.simde.payutc;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -18,12 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-
-import fr.utc.simde.payutc.articles.GridAdapter;
-import fr.utc.simde.payutc.articles.ListAdapater;
+import fr.utc.simde.payutc.adapters.ListAdapater;
 import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
@@ -74,12 +68,7 @@ public class BuyerInfoActivity extends BaseActivity {
             generatePurchases();
         } catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
-            dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int id) {
-                    finish();
-                }
-            });
+            fatal(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view));
         }
     }
 
@@ -250,24 +239,26 @@ public class BuyerInfoActivity extends BaseActivity {
 
                 final ArrayNode articleList = new ObjectMapper().createArrayNode();
                 Boolean hasRight = true; //
-                for (JsonNode purchase : lastPurchaseList) {
-                    int articleId = purchase.get("obj_id").intValue();
 
-                    Boolean isIn = false;
-                    for (JsonNode article : articleFoundationList) {
-                        if (article.get("id").intValue() == articleId) {
-                            ((ObjectNode) article).put("info", getString(R.string.realized) + " " + purchase.get("pur_date").textValue().substring(purchase.get("pur_date").textValue().length() - 8));
-                            ((ObjectNode) article).put("quantity", Math.round(purchase.get("pur_qte").floatValue()));
-                            ((ObjectNode) article).put("purchase_id", purchase.get("pur_id").intValue());
-                            articleList.add(article);
+                try {
+                    for (JsonNode purchase : lastPurchaseList) {
+                        int articleId = purchase.get("obj_id").intValue();
 
-                            isIn = true;
-                            break;
+                        Boolean isIn = false;
+                        for (JsonNode article : articleFoundationList) {
+                            if (article.get("id").intValue() == articleId) {
+                                ObjectNode toAdd = (ObjectNode) new ObjectMapper().readTree(article.toString());
+                                toAdd.put("info", getString(R.string.realized) + " " + purchase.get("pur_date").textValue().substring(purchase.get("pur_date").textValue().length() - 8));
+                                toAdd.put("quantity", Math.round(purchase.get("pur_qte").floatValue()));
+                                toAdd.put("purchase_id", purchase.get("pur_id").intValue());
+                                articleList.add(toAdd);
+
+                                isIn = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (!isIn) {
-                        try {
+                        if (!isIn) {
                             articleList.add(new ObjectMapper().readTree("{" +
                                 "\"name\":\"" + "N°: " + Integer.toString(purchase.get("obj_id").intValue()) + "\", " +
                                 "\"price\":" + Integer.toString(purchase.get("pur_price").intValue()) + ", " +
@@ -277,23 +268,23 @@ public class BuyerInfoActivity extends BaseActivity {
                                 "\"image_url\":\"\"}"
                             ));
                         }
-                        catch (Exception e) {
-                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                    }
+                }
+                catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
 
-                            runOnUiThread(new Runnable() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+                            dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
                                 @Override
-                                public void run() {
-                                    dialog.stopLoading();
-                                    dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int id) {
-                                            finish();
-                                        }
-                                    });
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                    finish();
                                 }
                             });
                         }
-                    }
+                    });
                 }
 
                 runOnUiThread(new Runnable() {

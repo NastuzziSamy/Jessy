@@ -1,8 +1,6 @@
-package fr.utc.simde.payutc.articles;
+package fr.utc.simde.payutc.adapters;
 
 import android.app.Activity;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import fr.utc.simde.payutc.R;
+import fr.utc.simde.payutc.adapters.ArticlesAdapter;
 
 /**
  * Created by Samy on 29/10/2017.

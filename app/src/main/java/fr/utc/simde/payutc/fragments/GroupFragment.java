@@ -1,7 +1,6 @@
-package fr.utc.simde.payutc.articles;
+package fr.utc.simde.payutc.fragments;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,11 +13,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 
-import java.util.List;
-
-import fr.utc.simde.payutc.ArticleCategoryActivity;
-import fr.utc.simde.payutc.BaseActivity;
 import fr.utc.simde.payutc.R;
+import fr.utc.simde.payutc.adapters.ArticlesAdapter;
+import fr.utc.simde.payutc.adapters.GridAdapter;
+import fr.utc.simde.payutc.adapters.ListAdapater;
 import fr.utc.simde.payutc.tools.Config;
 import fr.utc.simde.payutc.tools.Panier;
 

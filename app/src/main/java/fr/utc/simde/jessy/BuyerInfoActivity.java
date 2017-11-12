@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import fr.utc.simde.payutc.adapters.ListAdapater;
-import fr.utc.simde.payutc.tools.HTTPRequest;
+import fr.utc.simde.jessy.adapters.ListAdapater;
+import fr.utc.simde.jessy.tools.HTTPRequest;
 
 /**
  * Created by Samy on 29/10/2017.

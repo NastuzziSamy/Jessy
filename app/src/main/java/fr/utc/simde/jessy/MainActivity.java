@@ -1,44 +1,36 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import fr.utc.simde.payutc.tools.CASConnexion;
-import fr.utc.simde.payutc.tools.Config;
-import fr.utc.simde.payutc.tools.Dialog;
-import fr.utc.simde.payutc.tools.Ginger;
-import fr.utc.simde.payutc.tools.InternetBroadcast;
-import fr.utc.simde.payutc.tools.NemopaySession;
+import fr.utc.simde.jessy.tools.CASConnexion;
+import fr.utc.simde.jessy.tools.Config;
+import fr.utc.simde.jessy.tools.Ginger;
+import fr.utc.simde.jessy.tools.InternetBroadcast;
+import fr.utc.simde.jessy.tools.NemopaySession;
+
+/**
+ * Created by Samy on 24/10/2017.
+ */
 
 public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";

@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -14,18 +14,15 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.payutc.adapters.AllOptionsAdapter;
-import fr.utc.simde.payutc.adapters.FoundationsAdapter;
-import fr.utc.simde.payutc.adapters.GroupAdapter;
-import fr.utc.simde.payutc.adapters.OptionsAdapter;
+import fr.utc.simde.jessy.adapters.AllOptionsAdapter;
+import fr.utc.simde.jessy.adapters.FoundationsAdapter;
+import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
 /**
  * Created by Samy on 26/10/2017.

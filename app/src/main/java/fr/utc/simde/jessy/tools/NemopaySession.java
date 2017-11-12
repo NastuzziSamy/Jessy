@@ -1,21 +1,15 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 24/10/2017.
@@ -455,7 +449,6 @@ public class NemopaySession {
     protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
     protected int request(final String method, final String service, final Map<String, String> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
     protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws Exception {
-        Log.d(LOG_TAG, "url: " + url + method + "/" + service);
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
         this.request.setPost(postArgs);

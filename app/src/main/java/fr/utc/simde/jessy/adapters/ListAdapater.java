@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.adapters;
+package fr.utc.simde.jessy.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 29/10/2017.

@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
 import android.graphics.Color;

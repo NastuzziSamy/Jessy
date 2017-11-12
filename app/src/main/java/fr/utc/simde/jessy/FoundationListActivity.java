@@ -1,6 +1,5 @@
-package fr.utc.simde.payutc;
+package fr.utc.simde.jessy;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,12 +9,6 @@ import android.widget.LinearLayout;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import fr.utc.simde.payutc.tools.HTTPRequest;
 
 /**
  * Created by Samy on 26/10/2017.

@@ -1,4 +1,4 @@
-package fr.utc.simde.payutc.tools;
+package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -8,7 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import fr.utc.simde.payutc.R;
+import fr.utc.simde.jessy.R;
 
 /**
  * Created by Samy on 25/10/2017.

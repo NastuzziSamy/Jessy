@@ -130,14 +130,8 @@ public class MainActivity extends BaseActivity {
 
     protected void setConfig() {
         if (config.getFoundationId() != -1) {
-            String list = "";
-            Iterator<Map.Entry<String, JsonNode>> foundations = config.getGroupList().fields();
-
-            while (foundations.hasNext())
-                list += ", " + foundations.next().getValue().textValue();
-
             appNameText.setText(config.getFoundationName());
-            appConfigText.setText(list.length() == 0 ? "" : list.substring(2));
+            appConfigText.setText(config.getLocationName());
             nemopaySession.setFoundation(config.getFoundationId(), config.getFoundationName());
         }
         else if (config.getOptionList().size() != 0) {

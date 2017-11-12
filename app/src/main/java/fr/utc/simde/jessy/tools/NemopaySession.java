@@ -236,22 +236,37 @@ public class NemopaySession {
         );
     }
 
+    public int getLocations() throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "POSS3",
+            "getSalesLocations",
+            new HashMap<String, String>() {{
+                if (foundationId != -1)
+                    put("fun_id", Integer.toString(foundationId));
+            }},
+            new String[]{
+                "POSS3"
+            }
+        );
+    }
+
     public int getKeyboards() throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
-        if (this.foundationId == -1)
-            throw new Exception("No foundation set");
-
         return request(
-                "POSS3",
-                "getKeyboards",
-                new HashMap<String, String>() {{
+            "POSS3",
+            "getKeyboards",
+            new HashMap<String, String>() {{
+                if (foundationId != -1)
                     put("fun_id", Integer.toString(foundationId));
-                }},
-                new String[]{
-                        "POSS3"
-                }
+            }},
+            new String[]{
+                "POSS3"
+            }
         );
     }
 

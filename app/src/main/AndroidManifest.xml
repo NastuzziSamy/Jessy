@@ -24,22 +24,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="fr.utc.simde.jessy.BaseActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
         <activity android:name="fr.utc.simde.jessy.FoundationsOptionsActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
-        <activity android:name="fr.utc.simde.jessy.ArticleKeyboardActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
-        <activity android:name="fr.utc.simde.jessy.ArticleCategoryActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name="fr.utc.simde.jessy.BuyerInfoActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name="fr.utc.simde.jessy.CardManagementActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity android:name="fr.utc.simde.jessy.ArticleGroupActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
     </application>

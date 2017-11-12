@@ -48,7 +48,7 @@ public class FoundationsAdapter extends BaseAdapter {
         view = layoutInflater.inflate(R.layout.fragment_list, null);
 
         TextView textView = view.findViewById(R.id.text_element);
-        textView.setText(this.foundationList.get(position).get("name").textValue());
+        textView.setText(getFoundationName(position));
 
         return view;
     }
@@ -62,6 +62,6 @@ public class FoundationsAdapter extends BaseAdapter {
     }
 
     public void toast(final int position) {
-        Toast.makeText(this.activity, String.valueOf(this.foundationList.get(position).get("fun_id").intValue()) + ": " + this.foundationList.get(position).get("name").textValue(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this.activity, String.valueOf(getFoundationId(position)) + ": " + getFoundationName(position), Toast.LENGTH_SHORT).show();
     }
 }

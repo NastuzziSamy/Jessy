@@ -22,18 +22,18 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/radio_keyboard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/keyboard" />
-
-        <RadioButton
             android:id="@+id/radio_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/category" />
+
+        <RadioButton
+            android:id="@+id/radio_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/keyboard" />
 
     </RadioGroup>
 

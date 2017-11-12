@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.utc.simde.jessy.adapters.AllOptionsAdapter;
+import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
@@ -187,9 +187,9 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
                     canSellSwitch.setText(R.string.print_foundations);
 
-                    AllOptionsAdapter allOptionsAdapter = null;
+                    OptionChoicesAdapter allOptionsAdapter = null;
                     try {
-                        allOptionsAdapter = new AllOptionsAdapter(FoundationsOptionsActivity.this, (ArrayNode) new ObjectMapper().valueToTree(allOptionList));
+                        allOptionsAdapter = new OptionChoicesAdapter(FoundationsOptionsActivity.this, (ArrayNode) new ObjectMapper().valueToTree(allOptionList));
 
                         listView.setAdapter(allOptionsAdapter);
                     } catch (Exception e) {
@@ -198,7 +198,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     }
 
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
-                    final AllOptionsAdapter finalAllOptionsAdapter = allOptionsAdapter;
+                    final OptionChoicesAdapter finalAllOptionsAdapter = allOptionsAdapter;
                     alertDialogBuilder
                             .setTitle(R.string.configuration)
                             .setView(popupView)

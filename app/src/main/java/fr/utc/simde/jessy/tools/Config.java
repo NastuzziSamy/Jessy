@@ -16,14 +16,15 @@ public class Config {
 
     private SharedPreferences sharedPreferences;
 
-    private String foundationName;
     private Integer foundationId;
-    private JsonNode groupList;
+    private String foundationName;
+    private Integer locationId;
+    private String locationName;
     private ArrayNode optionList;
 
     private Boolean canCancel;
     private Boolean canSell;
-    private Boolean inKeyboard;
+    private Boolean inCategory;
     private Boolean inGrid;
     private Boolean printCotisant;
     private Boolean print18;
@@ -31,14 +32,10 @@ public class Config {
     public Config(final SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
 
-        this.foundationName = sharedPreferences.getString("config_foundation_name", "");
         this.foundationId = sharedPreferences.getInt("config_foundation_id", -1);
-
-        try {
-            this.groupList = new ObjectMapper().readTree(sharedPreferences.getString("config_group_list", "{}"));
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "error: " + e.getMessage());
-        }
+        this.foundationName = sharedPreferences.getString("config_foundation_name", "");
+        this.locationId = sharedPreferences.getInt("config_location_id", -1);
+        this.locationName = sharedPreferences.getString("config_location_name", "");
 
         try {
             this.optionList = (ArrayNode) new ObjectMapper().readTree(sharedPreferences.getString("config_option_list", "[]"));
@@ -48,7 +45,7 @@ public class Config {
 
         this.canCancel = sharedPreferences.getBoolean("config_can_cancel", true);
         this.canSell = sharedPreferences.getBoolean("config_can_sell", true);
-        this.inKeyboard = sharedPreferences.getBoolean("config_in_keyboard", true);
+        this.inCategory = sharedPreferences.getBoolean("config_in_category", true);
         this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
         this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
         this.print18 = sharedPreferences.getBoolean("config_print_18", false);
@@ -66,13 +63,16 @@ public class Config {
         this.foundationName = foundationName;
     }
 
-    public JsonNode getGroupList() { return this.groupList; }
-    public void setGroupList(final JsonNode groupList) {
+    public Integer getLocationId() { return this.locationId; }
+    public String getLocationName() { return this.locationName; }
+    public void setLocation(final int locationId, final String locationName) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("config_group_list", groupList.toString());
+        editor.putInt("config_location_id", locationId);
+        editor.putString("config_location_name", locationName);
         editor.apply();
 
-        this.groupList = groupList;
+        this.locationId = locationId;
+        this.locationName = locationName;
     }
 
     public ArrayNode getOptionList() { return this.optionList; }
@@ -102,13 +102,13 @@ public class Config {
         this.canSell = canSell;
     }
 
-    public Boolean getInKeyboard() { return this.inKeyboard; }
-    public void setInKeyboard(final Boolean inKeyboard) {
+    public Boolean getInCategory() { return this.inCategory; }
+    public void setInCategory(final Boolean inCategory) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("config_in_keyboard", inKeyboard);
+        editor.putBoolean("config_in_category", inCategory);
         editor.apply();
 
-        this.inKeyboard = inKeyboard;
+        this.inCategory = inCategory;
     }
 
     public Boolean getInGrid() { return this.inGrid; }

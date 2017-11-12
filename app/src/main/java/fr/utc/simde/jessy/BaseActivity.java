@@ -154,7 +154,7 @@ public abstract class BaseActivity extends NFCActivity {
             @Override
             public void run() {
                 try {
-                    int responseCode = nemopaySession.getFoundations();
+                    nemopaySession.getFoundations();
                     Thread.sleep(100);
 
                     // Toute une série de vérifications avant de lancer l'activité
@@ -220,17 +220,82 @@ public abstract class BaseActivity extends NFCActivity {
     }
 
     protected void startArticleGroupActivity(final Activity activity) {
-        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting));
-        final Intent intent = new Intent(activity, config.getInKeyboard() ? ArticleKeyboardActivity.class : ArticleCategoryActivity.class);
+        dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), getString(R.string.location_list_collecting));
+        final Intent intent = new Intent(activity, ArticleGroupActivity.class);
 
         new Thread() {
             @Override
             public void run() {
                 try {
-                    if (config.getInKeyboard())
-                        nemopaySession.getKeyboards();
-                    else
+                    if (config.getLocationId() == -1) {
+                        intent.putExtra("categoryListAuthorized", new ArrayList<Integer>());
+                        intent.putExtra("keyboardListAuthorized", new ArrayList<Integer>());
+                    }
+                    else {
+                        nemopaySession.getLocations();
+                        Thread.sleep(100);
+
+                        // Toute une série de vérifications avant de lancer l'activité
+                        final HTTPRequest request = nemopaySession.getRequest();
+                        final JsonNode locationList = request.getJSONResponse();
+
+                        if (locationList == null || locationList.size() == 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+
+                                    fatal(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.location_error_0));
+                                }
+                            });
+
+                            return;
+                        }
+
+                        if (!locationList.isArray())
+                            throw new Exception("Malformed JSON");
+
+                        ArrayList<Integer> categoryListAuthorized = new ArrayList<Integer>();
+                        ArrayList<Integer> keyboardListAuthorized = new ArrayList<Integer>();
+                        for (final JsonNode location : locationList) {
+                            if (!location.has("id") || !location.has("name") || !location.has("enabled") || !location.has("categories") || !location.has("sales_keyboards"))
+                                throw new Exception("Unexpected JSON");
+
+                            if (location.get("id").intValue() == config.getLocationId()) {
+                                for (JsonNode category : location.get("categories"))
+                                    categoryListAuthorized.add(category.intValue());
+
+                                for (JsonNode keyboard : location.get("sales_keyboards"))
+                                    keyboardListAuthorized.add(keyboard.intValue());
+                            }
+                        }
+
+                        intent.putIntegerArrayListExtra("categoryListAuthorized", categoryListAuthorized);
+                        intent.putIntegerArrayListExtra("keyboardListAuthorized", keyboardListAuthorized);
+                    }
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(activity, getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.changeLoading(getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting));
+                    }
+                });
+
+                try {
+                    if (config.getInCategory())
                         nemopaySession.getCategories();
+                    else
+                        nemopaySession.getKeyboards();
                     Thread.sleep(100);
 
                     // Toute une série de vérifications avant de lancer l'activité
@@ -246,21 +311,21 @@ public abstract class BaseActivity extends NFCActivity {
                             public void run() {
                                 dialog.stopLoading();
 
-                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(config.getInKeyboard() ? R.string.keyboard_error_0 : R.string.category_error_0));
+                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(config.getInCategory() ? R.string.category_error_0 : R.string.keyboard_error_0));
                             }
                         });
 
                         return;
                     }
 
-                    intent.putExtra("groupList", request.getResponse());
+                    intent.putExtra(config.getInCategory() ? "categoryList" : "keyboardList", request.getResponse());
                 } catch (final Exception e) {
                     Log.e(LOG_TAG, "error: " + e.getMessage());
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fatal(activity, getString(config.getInKeyboard() ? R.string.keyboard_list_collecting : R.string.category_list_collecting), e.getMessage());
+                            fatal(activity, getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting), e.getMessage());
                         }
                     });
                 }

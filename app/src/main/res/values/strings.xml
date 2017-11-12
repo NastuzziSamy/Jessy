@@ -107,9 +107,11 @@
     <string name="already_connected">Déjà connecté sous</string>
     <string name="information_collection">Récupération d\'informations</string>
     <string name="foundation_list_collecting">Récupération de la liste des fondations</string>
+    <string name="location_list_collecting">Récupération des lieux de ventes</string>
     <string name="keyboard_list_collecting">Récupération des claviers de caisse</string>
     <string name="category_list_collecting">Récupération des catégories</string>
     <string name="article_list_collecting">Récupération des articles</string>
+    <string name="location_error_0">n\'a aucun lieu de vente</string>
     <string name="keyboard_error_0">n\'a aucun clavier de caisse</string>
     <string name="category_error_0">n\'a aucune catégorie</string>
     <string name="article_error_0">n\'a aucun article à vendre</string>
@@ -127,8 +129,7 @@
     <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
     <string name="transaction_canceled">L\'annulation a bien été effective</string>
     <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
-    <string name="category_list">Liste des catégories à afficher</string>
-    <string name="keyboard_list">Liste des claviers de caisse à afficher</string>
+    <string name="location_choice">Choisir un lieu de vente</string>
     <string name="option_list">Liste des options à afficher</string>
     <string name="category_0_selected">Aucune catégorie n\'a été sélectionnée</string>
     <string name="keyboard_0_selected">Aucun clavier n\'a été sélectionné</string>

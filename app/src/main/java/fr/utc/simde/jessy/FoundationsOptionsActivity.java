@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -102,7 +105,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
 
     protected void setOptionList(ArrayNode optionList) throws Exception {
         ArrayNode optionListAdded = (ArrayNode) new ObjectMapper().readTree(optionList.toString());
-        optionListAdded.add(getString(config.getOptionList().size() == 0 ? R.string.configurate : R.string.configurate_by_default));
+        optionListAdded.add(getString(R.string.configurate));
         this.optionsAdapter = new OptionsAdapter(FoundationsOptionsActivity.this, optionListAdded);
 
         this.optionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -179,67 +182,148 @@ public class FoundationsOptionsActivity extends BaseActivity {
     }
 
     protected void configDialog() {
-        hasRights(getString(R.string.configuration), new String[]{}, new Runnable(){
-            @Override
-            public void run() {
-                if (config.getOptionList().size() == 0) {
-                    final LayoutInflater layoutInflater = LayoutInflater.from(FoundationsOptionsActivity.this);
-                    final View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
-                    final ListView listView = popupView.findViewById(R.id.list_groups);
-                    final Switch canSellSwitch = popupView.findViewById(R.id.switch_cancel);
-                    ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
-                    canSellSwitch.setText(R.string.can_sell);
+        if (config.getFoundationId() == -1 && config.getOptionList().size() == 0) {
+            final View popupView = LayoutInflater.from(FoundationsOptionsActivity.this).inflate(R.layout.dialog_config, null, false);
+            final RadioButton radioKeyboard = popupView.findViewById(R.id.radio_keyboard);
+            final RadioButton radioCategory = popupView.findViewById(R.id.radio_category);
+            final RadioButton radioGrid = popupView.findViewById(R.id.radio_grid);
+            final RadioButton radioList = popupView.findViewById(R.id.radio_list);
+            final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
+            final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
+            final Button configButton = popupView.findViewById(R.id.button_config);
 
-                    OptionChoicesAdapter allOptionsAdapter = null;
-                    try {
-                        allOptionsAdapter = new OptionChoicesAdapter(FoundationsOptionsActivity.this, (ArrayNode) new ObjectMapper().valueToTree(allOptionList));
+            if (config.getInCategory())
+                radioCategory.setChecked(true);
+            else
+                radioKeyboard.setChecked(true);
 
-                        listView.setAdapter(allOptionsAdapter);
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, "error: " + e.getMessage());
-                        fatal(FoundationsOptionsActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view));
-                    }
+            if (config.getInGrid())
+                radioGrid.setChecked(true);
+            else
+                radioList.setChecked(true);
 
-                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
-                    final OptionChoicesAdapter finalAllOptionsAdapter = allOptionsAdapter;
-                    alertDialogBuilder
-                            .setTitle(R.string.configuration)
-                            .setView(popupView)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialogInterface, int id) {
-                                    config.setCanSell(canSellSwitch.isChecked());
-                                    ArrayNode optionList = finalAllOptionsAdapter.getList();
+            switchCotisant.setChecked(config.getPrintCotisant());
+            swtich18.setChecked(config.getPrint18());
 
-                                    if (optionList == null || optionList.size() == 0) {
-                                        Toast.makeText(FoundationsOptionsActivity.this, getString(R.string.option_0_selected), Toast.LENGTH_LONG).show();
-                                        configDialog();
-                                    }
-                                    else {
-                                        config.setOptionList(optionList);
-                                        startMainActivity(FoundationsOptionsActivity.this);
-                                    }
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialogInterface, int id) {
-                                    config.setCanSell(true);
-                                }
-                            });
-
-                    dialog.createDialog(alertDialogBuilder);
-                }
-                else {
-                    dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.configuration), getString(R.string.app_configurated), new DialogInterface.OnClickListener() {
+            configButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    hasRights(getString(R.string.configuration), new String[]{
+                            "STAFF",
+                            "GESAPPLICATIONS"
+                    }, new Runnable(){
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            config.setCanSell(true);
+                        public void run() {
+                            final LayoutInflater layoutInflater = LayoutInflater.from(FoundationsOptionsActivity.this);
+                            final View popupView = layoutInflater.inflate(R.layout.dialog_group, null);
+                            final ListView listView = popupView.findViewById(R.id.list_groups);
+                            final Switch canSellSwitch = popupView.findViewById(R.id.switch_cancel);
+                            ((TextView) popupView.findViewById(R.id.text_to_print)).setText(R.string.option_list);
+                            canSellSwitch.setText(R.string.can_sell);
+
+                            OptionChoicesAdapter allOptionsAdapter = null;
+                            try {
+                                allOptionsAdapter = new OptionChoicesAdapter(FoundationsOptionsActivity.this, (ArrayNode) new ObjectMapper().valueToTree(allOptionList));
+
+                                listView.setAdapter(allOptionsAdapter);
+                            } catch (Exception e) {
+                                Log.e(LOG_TAG, "error: " + e.getMessage());
+                                fatal(FoundationsOptionsActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view));
+                            }
+
+                            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                            final OptionChoicesAdapter finalAllOptionsAdapter = allOptionsAdapter;
+                            alertDialogBuilder
+                                    .setTitle(R.string.configuration)
+                                    .setView(popupView)
+                                    .setCancelable(false)
+                                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialogInterface, int id) {
+                                            config.setCanSell(canSellSwitch.isChecked());
+                                            ArrayNode optionList = finalAllOptionsAdapter.getList();
+
+                                            if (optionList == null || optionList.size() == 0) {
+                                                Toast.makeText(FoundationsOptionsActivity.this, getString(R.string.option_0_selected), Toast.LENGTH_LONG).show();
+                                                configDialog();
+                                            }
+                                            else {
+                                                config.setOptionList(optionList);
+                                                startMainActivity(FoundationsOptionsActivity.this);
+                                            }
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialogInterface, int id) {
+                                            config.setCanSell(true);
+                                        }
+                                    });
+
+                            dialog.createDialog(alertDialogBuilder);
+                        }
+                    });
+                }
+            });
+
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+            alertDialogBuilder
+                    .setTitle(R.string.configuration)
+                    .setView(popupView)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            config.setInCategory(radioCategory.isChecked());
+                            config.setInGrid(radioGrid.isChecked());
+                            config.setPrintCotisant(switchCotisant.isChecked());
+                            config.setPrint18(swtich18.isChecked());
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
+
+            dialog.createDialog(alertDialogBuilder);
+        }
+        else {
+            final View popupView = LayoutInflater.from(FoundationsOptionsActivity.this).inflate(R.layout.dialog_config_restore, null, false);
+            final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
+            final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
+            final Button configButton = popupView.findViewById(R.id.button_config);
+
+            switchCotisant.setChecked(config.getPrintCotisant());
+            swtich18.setChecked(config.getPrint18());
+
+            configButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    hasRights(getString(R.string.configurate_by_default), new String[]{
+                            "STAFF",
+                            "GESAPPLICATIONS"
+                    }, new Runnable() {
+                        @Override
+                        public void run() {
                             config.setOptionList(new ObjectMapper().createArrayNode());
+                            config.setCanSell(true);
+
                             startMainActivity(FoundationsOptionsActivity.this);
                         }
                     });
                 }
-            }
-        });
+            });
+
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+            alertDialogBuilder
+                    .setTitle(R.string.configuration)
+                    .setView(popupView)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            config.setPrintCotisant(switchCotisant.isChecked());
+                            config.setPrint18(swtich18.isChecked());
+
+                            startArticleGroupActivity(FoundationsOptionsActivity.this);
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
+
+            dialog.createDialog(alertDialogBuilder);
+        }
     }
 }

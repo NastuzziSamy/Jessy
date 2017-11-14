@@ -114,14 +114,18 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 if (isOption(position,0))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
                 else if (isOption(position,1))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
+                else if (isOption(position,2))
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
+                else if (isOption(position,1))
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
                 else if (isOption(position,2))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
-                else if (isOption(position,3))
-                    startCardManagementActivity(FoundationsOptionsActivity.this);
-                else if (isOption(position,4))
-                    keyNemopayDialog();
                 else if (isOption(position,5))
+                    startCardManagementActivity(FoundationsOptionsActivity.this);
+                else if (isOption(position,6))
+                    keyNemopayDialog();
+                else if (isOption(position,7))
                     keyGingerDialog();
                 else
                     configDialog();

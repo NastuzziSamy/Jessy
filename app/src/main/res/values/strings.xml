@@ -115,7 +115,6 @@
     <string name="keyboard_error_0">n\'a aucun clavier de caisse</string>
     <string name="category_error_0">n\'a aucune catégorie</string>
     <string name="article_error_0">n\'a aucun article à vendre</string>
-    <string name="article_error_0_categorie_not_0">Toutes les catégories sont vides</string>
     <string name="buyer_info_collecting">Récupération des informations de la personne</string>
     <string name="user_searching">Identification de la personne</string>
     <string name="user_nemopay_info_collecting">Identification de la personne auprès de Nemopay</string>

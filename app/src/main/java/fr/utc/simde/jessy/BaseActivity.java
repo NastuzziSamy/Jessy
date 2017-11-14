@@ -258,55 +258,99 @@ public abstract class BaseActivity extends NFCActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fatal(activity, getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting), e.getMessage());
+                            fatal(activity, getString(R.string.location_list_collecting), e.getMessage());
                         }
                     });
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.changeLoading(getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting));
-                    }
-                });
-
-                try {
-                    if (config.getInCategory())
-                        nemopaySession.getCategories();
-                    else
-                        nemopaySession.getKeyboards();
-                    Thread.sleep(100);
-
-                    // Toute une série de vérifications avant de lancer l'activité
-                    final HTTPRequest request = nemopaySession.getRequest();
-                    final JsonNode groupList = request.getJSONResponse();
-
-                    if (!groupList.isArray())
-                        throw new Exception("Malformed JSON");
-
-                    if (groupList.size() == 0) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.stopLoading();
-
-                                dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(config.getInCategory() ? R.string.category_error_0 : R.string.keyboard_error_0));
-                            }
-                        });
-
-                        return;
-                    }
-
-                    intent.putExtra(config.getInCategory() ? "categoryList" : "keyboardList", request.getResponse());
-                } catch (final Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
-
+                if (config.getLocationId() != -1 || config.getInCategory()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fatal(activity, getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting), e.getMessage());
+                            dialog.changeLoading(getString(R.string.category_list_collecting));
                         }
                     });
+
+                    try {
+                        nemopaySession.getCategories();
+                        Thread.sleep(100);
+
+                        // Toute une série de vérifications avant de lancer l'activité
+                        final HTTPRequest request = nemopaySession.getRequest();
+                        final JsonNode groupList = request.getJSONResponse();
+
+                        if (!groupList.isArray())
+                            throw new Exception("Malformed JSON");
+
+                        if (config.getLocationId() == -1 && groupList.size() == 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+
+                                    dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.category_error_0));
+                                }
+                            });
+
+                            return;
+                        }
+
+                        intent.putExtra("categoryList", request.getResponse());
+                    } catch (final Exception e) {
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fatal(activity, getString(R.string.category_list_collecting), e.getMessage());
+                            }
+                        });
+                    }
+                }
+
+                if (config.getLocationId() != -1 || !config.getInCategory()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.changeLoading(getString(R.string.keyboard_list_collecting));
+                        }
+                    });
+
+                    try {
+                        nemopaySession.getKeyboards();
+                        Thread.sleep(100);
+
+                        // Toute une série de vérifications avant de lancer l'activité
+                        final HTTPRequest request = nemopaySession.getRequest();
+                        final JsonNode groupList = request.getJSONResponse();
+
+                        if (!groupList.isArray())
+                            throw new Exception("Malformed JSON");
+
+                        if (config.getLocationId() == -1 && groupList.size() == 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+
+                                    dialog.errorDialog(activity, getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.keyboard_error_0));
+                                }
+                            });
+
+                            return;
+                        }
+
+                        intent.putExtra("keyboardList", request.getResponse());
+                    } catch (final Exception e) {
+                        Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fatal(activity, getString(R.string.keyboard_list_collecting), e.getMessage());
+                            }
+                        });
+                    }
                 }
 
                 runOnUiThread(new Runnable() {

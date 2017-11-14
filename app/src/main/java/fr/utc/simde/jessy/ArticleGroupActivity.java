@@ -78,7 +78,12 @@ public class ArticleGroupActivity extends BaseActivity {
         }
 
         if (this.nbrGroups == 0) {
-            dialog.errorDialog(this, getResources().getString(R.string.information_collection), getResources().getString(R.string.article_error_0_categorie_not_0), new DialogInterface.OnClickListener() {
+            if (config.getLocationId() != -1) {
+                config.setLocation(-1, "");
+                config.setCanCancel(true);
+            }
+
+            dialog.errorDialog(this, getResources().getString(R.string.information_collection), nemopaySession.getFoundationName() + " " + getString(R.string.article_error_0), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int id) {
                     finish();
@@ -444,16 +449,11 @@ public class ArticleGroupActivity extends BaseActivity {
         for (JsonNode keyboard : keyboardList) {
             ArrayNode articlesForThisKeyboard = new ObjectMapper().createArrayNode();
 
-            if (!keyboard.has("id") || !keyboard.has("name") || !keyboard.has("fun_id") || keyboard.get("fun_id").intValue() != foundationId || !keyboard.has("data") || !keyboard.get("data").has("items") || !keyboard.get("data").get("items").isArray() || !keyboard.get("data").has("nbColumns"))
-                throw new Exception("Unexpected JSON");
-
             if (config.getFoundationId() != -1) if (!authorizedList.contains(keyboard.get("id").intValue()))
                 continue;
-            else if (articlesForThisKeyboard.size() == 0)
-                continue;
 
-            if (articlesForThisKeyboard == null)
-                continue;
+            if (!keyboard.has("id") || !keyboard.has("name") || !keyboard.has("fun_id") || keyboard.get("fun_id").intValue() != foundationId || !keyboard.has("data") || !keyboard.get("data").has("items") || !keyboard.get("data").get("items").isArray() || !keyboard.get("data").has("nbColumns"))
+                throw new Exception("Unexpected JSON");
 
             for (JsonNode article : keyboard.get("data").get("items")) {
                 if (article.has("itm_id")) {
@@ -472,6 +472,9 @@ public class ArticleGroupActivity extends BaseActivity {
                 else if (config.getInGrid())
                     articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
             }
+
+            if (articlesForThisKeyboard.size() == 0)
+                continue;
 
             createNewGroup(keyboard.get("name").textValue(), articlesForThisKeyboard, keyboard.get("data").get("nbColumns").isInt() ? keyboard.get("data").get("nbColumns").intValue() : Integer.valueOf(keyboard.get("data").get("nbColumns").textValue()));
         }

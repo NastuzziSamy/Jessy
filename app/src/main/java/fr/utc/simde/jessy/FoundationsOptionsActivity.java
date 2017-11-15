@@ -1,7 +1,19 @@
 package fr.utc.simde.jessy;
 
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +31,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +47,10 @@ import fr.utc.simde.jessy.adapters.OptionsAdapter;
 public class FoundationsOptionsActivity extends BaseActivity {
     private static final String LOG_TAG = "_FoundationsOptionsActi";
 
+    private static final String gitUrl = "https://raw.githubusercontent.com/simde-utc/jessy/master/";
+    private static final String manifestUrl = "app/src/main/AndroidManifest.xml";
+    private static final String downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
+
     TabHost tabHost;
     ListView foundationList;
     ListView optionList;
@@ -47,6 +64,9 @@ public class FoundationsOptionsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundations_options);
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         this.tabHost = findViewById(R.id.tabs_foundations_options);
         this.foundationList = findViewById(R.id.list_foundations);
@@ -112,14 +132,14 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (isOption(position,0))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
                 else if (isOption(position,1))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
                 else if (isOption(position,2))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,1))
+                else if (isOption(position,3))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,2))
+                else if (isOption(position,4))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
                 else if (isOption(position,5))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
@@ -127,12 +147,63 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     keyNemopayDialog();
                 else if (isOption(position,7))
                     keyGingerDialog();
+                else if (isOption(position,8))
+                    update("0.8.4");
                 else
                     configDialog();
             }
         });
 
         this.optionList.setAdapter(this.optionsAdapter);
+    }
+
+    public  boolean haveStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else
+            return true;
+    }
+
+    protected boolean update(final String version) {
+        final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
+        final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
+        final Uri uri = Uri.parse("file://" + destination);
+
+        if (!haveStoragePermission())
+            return false;
+
+        File file = new File(destination);
+        if (file.exists())
+            file.delete();
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setDescription(getString(R.string.update));
+        request.setTitle(getString(R.string.app_name));
+        request.setDestinationUri(uri);
+
+        final DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+        BroadcastReceiver onComplete = new BroadcastReceiver() {
+            public void onReceive(Context ctx, Intent intent) {
+                Intent install = new Intent(Intent.ACTION_VIEW);
+                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                install.setDataAndType(uri, "application/vnd.android.package-archive");
+                startActivity(install);
+
+                unregisterReceiver(this);
+                finish();
+            }
+        };
+
+        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        return true;
     }
 
     protected void keyNemopayDialog() {

@@ -3,11 +3,13 @@ package fr.utc.simde.jessy;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -90,6 +92,7 @@ public class MainActivity extends BaseActivity {
         });
 
         setConfig();
+        checkUpdate(false);
     }
 
     @Override
@@ -118,6 +121,25 @@ public class MainActivity extends BaseActivity {
     protected void onIdentification(final String badgeId) {
         if (!dialog.isShowing())
             badgeDialog(badgeId);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5 && keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            onBackPressed();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        startActivity(setIntent);
     }
 
     @Override

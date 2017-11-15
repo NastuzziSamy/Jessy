@@ -1,18 +1,33 @@
 package fr.utc.simde.jessy;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
@@ -27,6 +42,10 @@ import fr.utc.simde.jessy.tools.NemopaySession;
 
 public abstract class BaseActivity extends NFCActivity {
     private static final String LOG_TAG = "_BaseActivity";
+
+    private static final String gitUrl = "https://raw.githubusercontent.com/simde-utc/jessy/master/";
+    private static final String manifestUrl = "app/src/main/AndroidManifest.xml";
+    private static final String downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
 
     protected static NemopaySession nemopaySession;
     protected static Ginger ginger;
@@ -538,5 +557,111 @@ public abstract class BaseActivity extends NFCActivity {
         editor.apply();
 
         ginger.setKey(key);
+    }
+
+    protected boolean haveStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else
+            return true;
+    }
+
+    protected void checkUpdate() { checkUpdate(true); }
+    protected void checkUpdate(final boolean popupIfNot) {
+        dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.check_update));
+
+        new Thread() {
+            @Override
+            public void run() {
+                HTTPRequest httpRequest = new HTTPRequest(gitUrl + manifestUrl);
+                httpRequest.get();
+
+                try {
+                    final Matcher matcher = Pattern.compile("android:versionCode=\"([0-9]*)\".*android:versionName=\"(\\S*)\"").matcher(httpRequest.getResponse());
+                    if (matcher.find()) {
+                        if (BuildConfig.VERSION_CODE > Integer.parseInt(matcher.group(1))) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BaseActivity.this);
+                                    alertDialogBuilder
+                                        .setTitle(R.string.update)
+                                        .setMessage(getString(R.string.available_update) + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME + "\n" + getString(R.string.available_version) + ": " + matcher.group(2))
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.set_update, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialogInterface, int id) {
+                                            if (!update(matcher.group(2))) {
+                                                dialog.stopLoading();
+                                                dialog.errorDialog(BaseActivity.this, getString(R.string.update), getString(R.string.can_not_update));
+                                            }
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.cancel, null);
+
+                                    dialog.createDialog(alertDialogBuilder);
+                                }
+                            });
+                        }
+                        else if (popupIfNot)
+                            throw new Exception(getString(R.string.no_update));
+                    }
+                    else
+                        throw new Exception(getString(R.string.can_not_detect_update));
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+                            dialog.errorDialog(BaseActivity.this, getString(R.string.update), e.getMessage() + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME);
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
+    protected boolean update(final String version) {
+        final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
+        final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
+        final Uri uri = Uri.parse("file://" + destination);
+
+        if (!haveStoragePermission())
+            return false;
+
+        File file = new File(destination);
+        if (file.exists())
+            file.delete();
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setDescription(getString(R.string.update));
+        request.setTitle(getString(R.string.app_name));
+        request.setDestinationUri(uri);
+
+        final DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        final long downloadId = manager.enqueue(request);
+
+        BroadcastReceiver onComplete = new BroadcastReceiver() {
+            public void onReceive(Context ctx, Intent intent) {
+                Intent install = new Intent(Intent.ACTION_VIEW);
+                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                install.setDataAndType(uri, "application/vnd.android.package-archive");
+                startActivity(install);
+
+                unregisterReceiver(this);
+                finish();
+            }
+        };
+
+        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        return true;
     }
 }

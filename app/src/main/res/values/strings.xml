@@ -57,6 +57,7 @@
     <string name="short_tag">Numéro raccourci</string>
     <string name="type">Type</string>
     <string name="day_s_">jour(s)</string>
+    <string name="update">Mise à jour</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -149,6 +150,14 @@
     <string name="contribute_ext">Extérieur (20€)</string>
     <string name="contribute_admin">Membre d\'honneur (0€)</string>
     <string name="contribute_temp">Temporaire</string>
+    <string name="set_update">Mettre à jour</string>
+    <string name="check_update">Recherche d\'une mise à jour</string>
+    <string name="available_update">Mise à jour disponible</string>
+    <string name="can_not_detect_update">Impossible de détecter si une mise à jour disponible</string>
+    <string name="can_not_update">Impossible de réaliser la mise à jour</string>
+    <string name="no_update">Aucune mise à jour disponible</string>
+    <string name="actual_version">Version actuelle</string>
+    <string name="available_version">Version disponible</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

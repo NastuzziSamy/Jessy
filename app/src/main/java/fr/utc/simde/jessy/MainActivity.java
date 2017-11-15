@@ -92,6 +92,7 @@ public class MainActivity extends BaseActivity {
         });
 
         setConfig();
+        checkUpdate(false);
     }
 
     @Override

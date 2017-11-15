@@ -35,10 +35,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
+import fr.utc.simde.jessy.tools.HTTPRequest;
 
 /**
  * Created by Samy on 26/10/2017.
@@ -46,10 +49,6 @@ import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
 public class FoundationsOptionsActivity extends BaseActivity {
     private static final String LOG_TAG = "_FoundationsOptionsActi";
-
-    private static final String gitUrl = "https://raw.githubusercontent.com/simde-utc/jessy/master/";
-    private static final String manifestUrl = "app/src/main/AndroidManifest.xml";
-    private static final String downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
 
     TabHost tabHost;
     ListView foundationList;
@@ -148,62 +147,13 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,7))
                     keyGingerDialog();
                 else if (isOption(position,8))
-                    update("0.8.4");
+                    checkUpdate();
                 else
                     configDialog();
             }
         });
 
         this.optionList.setAdapter(this.optionsAdapter);
-    }
-
-    public  boolean haveStoragePermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                return true;
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
-            }
-        }
-        else
-            return true;
-    }
-
-    protected boolean update(final String version) {
-        final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
-        final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
-        final Uri uri = Uri.parse("file://" + destination);
-
-        if (!haveStoragePermission())
-            return false;
-
-        File file = new File(destination);
-        if (file.exists())
-            file.delete();
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription(getString(R.string.update));
-        request.setTitle(getString(R.string.app_name));
-        request.setDestinationUri(uri);
-
-        final DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-
-        BroadcastReceiver onComplete = new BroadcastReceiver() {
-            public void onReceive(Context ctx, Intent intent) {
-                Intent install = new Intent(Intent.ACTION_VIEW);
-                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                install.setDataAndType(uri, "application/vnd.android.package-archive");
-                startActivity(install);
-
-                unregisterReceiver(this);
-                finish();
-            }
-        };
-
-        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
-        return true;
     }
 
     protected void keyNemopayDialog() {

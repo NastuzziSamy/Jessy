@@ -9,5 +9,6 @@
         <item>Gestion des cartes/cotisations</item>
         <item>Modifier la clé Nemopay</item>
         <item>Modifier la clé Ginger</item>
+        <item>Rechercher une mise à jour</item>
     </string-array>
 </resources>

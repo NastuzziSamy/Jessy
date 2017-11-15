@@ -1,7 +1,19 @@
 package fr.utc.simde.jessy;
 
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,13 +31,17 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
+import fr.utc.simde.jessy.tools.HTTPRequest;
 
 /**
  * Created by Samy on 26/10/2017.
@@ -47,6 +63,9 @@ public class FoundationsOptionsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foundations_options);
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         this.tabHost = findViewById(R.id.tabs_foundations_options);
         this.foundationList = findViewById(R.id.list_foundations);
@@ -112,14 +131,14 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 if (isOption(position,0))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.9");
+                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
                 else if (isOption(position,1))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
                 else if (isOption(position,2))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,1))
+                else if (isOption(position,3))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,2))
+                else if (isOption(position,4))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
                 else if (isOption(position,5))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
@@ -127,6 +146,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     keyNemopayDialog();
                 else if (isOption(position,7))
                     keyGingerDialog();
+                else if (isOption(position,8))
+                    checkUpdate();
                 else
                     configDialog();
             }

@@ -184,7 +184,7 @@ public class ArticleGroupActivity extends BaseActivity {
                             .setTitle(R.string.configuration)
                             .setView(popupView)
                             .setCancelable(false)
-                            .setPositiveButton(R.string.applicate, new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int id) {
                                     config.setPrintCotisant(switchCotisant.isChecked());
                                     config.setPrint18(swtich18.isChecked());

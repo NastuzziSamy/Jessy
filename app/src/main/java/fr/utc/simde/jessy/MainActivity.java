@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -26,7 +27,6 @@ import java.util.Locale;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Ginger;
-import fr.utc.simde.jessy.tools.InternetBroadcast;
 import fr.utc.simde.jessy.tools.NemopaySession;
 
 /**
@@ -42,8 +42,6 @@ public class MainActivity extends BaseActivity {
     private static TextView appRegisteredText;
     private static Button usernameButton;
 
-    protected static InternetBroadcast internetBroadcast;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,9 +53,6 @@ public class MainActivity extends BaseActivity {
         ginger = new Ginger(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
-
-        this.internetBroadcast = new InternetBroadcast();
-        registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
@@ -75,11 +70,7 @@ public class MainActivity extends BaseActivity {
         appRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!nemopaySession.isRegistered())
-                    addKeyDialog();
-                else
-                    unregister(MainActivity.this);
-
+                optionDialog();
                 return false;
             }
         });
@@ -113,7 +104,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(this.internetBroadcast);
         disconnect();
     }
 
@@ -474,17 +464,35 @@ public class MainActivity extends BaseActivity {
         dialog.createDialog(alertDialogBuilder, nameInput);
     }
 
-    protected void addKeyDialog() {
-        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
-        final EditText keyInput = keyView.findViewById(R.id.input_key);
+    protected void optionDialog() {
+        final View view = getLayoutInflater().inflate(R.layout.dialog_main, null);
+        final EditText keyInput = view.findViewById(R.id.input_key);
+        final Button reloadButton = view.findViewById(R.id.button_reload);
+        final Button configButton = view.findViewById(R.id.button_config);
+
+        reloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startMainActivity(MainActivity.this);
+            }
+        });
+
+        configButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                config.reset();
+                startMainActivity(MainActivity.this);
+            }
+        });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
                 .setTitle(R.string.key_registration)
-                .setView(keyView)
+                .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {
+                        unregister(MainActivity.this);
                         setNemopayKey(keyInput.getText().toString());
                     }
                 })

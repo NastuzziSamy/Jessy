@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -40,7 +43,7 @@ import fr.utc.simde.jessy.tools.NemopaySession;
  * Created by Samy on 26/10/2017.
  */
 
-public abstract class BaseActivity extends NFCActivity {
+public abstract class BaseActivity extends InternetActivity {
     private static final String LOG_TAG = "_BaseActivity";
 
     private static final String gitUrl = "https://raw.githubusercontent.com/simde-utc/jessy/master/";
@@ -50,8 +53,8 @@ public abstract class BaseActivity extends NFCActivity {
     protected static NemopaySession nemopaySession;
     protected static Ginger ginger;
     protected static CASConnexion casConnexion;
-    protected static Config config;
 
+    protected static Config config;
     protected static Dialog dialog;
 
     protected static SharedPreferences sharedPreferences;
@@ -60,7 +63,7 @@ public abstract class BaseActivity extends NFCActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        dialog = new Dialog(this);
+        this.dialog = new Dialog(this);
     }
 
     @Override
@@ -160,6 +163,7 @@ public abstract class BaseActivity extends NFCActivity {
 
         Intent intent = new Intent(activity, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        finish();
         activity.startActivity(intent);
     }
 
@@ -585,10 +589,12 @@ public abstract class BaseActivity extends NFCActivity {
                 try {
                     final Matcher matcher = Pattern.compile("android:versionCode=\"([0-9]*)\".*android:versionName=\"(\\S*)\"").matcher(httpRequest.getResponse());
                     if (matcher.find()) {
-                        if (BuildConfig.VERSION_CODE > Integer.parseInt(matcher.group(1))) {
+                        if (BuildConfig.VERSION_CODE < Integer.parseInt(matcher.group(1))) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    dialog.stopLoading();
+
                                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BaseActivity.this);
                                     alertDialogBuilder
                                         .setTitle(R.string.update)
@@ -610,6 +616,13 @@ public abstract class BaseActivity extends NFCActivity {
                         }
                         else if (popupIfNot)
                             throw new Exception(getString(R.string.no_update));
+                        else
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+                                }
+                            });
                     }
                     else
                         throw new Exception(getString(R.string.can_not_detect_update));

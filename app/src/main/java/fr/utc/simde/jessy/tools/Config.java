@@ -136,4 +136,18 @@ public class Config {
 
         this.print18 = print18;
     }
+
+    public void reset() {
+        setFoundation(-1, "");
+        setLocation(-1, "");
+        setOptionList(new ObjectMapper().createArrayNode());
+
+        setCanSell(true);
+        setCanCancel(true);
+        setInCategory(true);
+        setInGrid(true);
+
+        setPrintCotisant(false);
+        setPrint18(false);
+    }
 }

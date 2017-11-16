@@ -1,19 +1,8 @@
 package fr.utc.simde.jessy;
 
-import android.Manifest;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,17 +20,12 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
-import fr.utc.simde.jessy.tools.HTTPRequest;
 
 /**
  * Created by Samy on 26/10/2017.
@@ -160,7 +144,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_main, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
@@ -185,7 +169,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.ginger), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_main, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);

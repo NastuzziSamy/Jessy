@@ -2,7 +2,9 @@ package fr.utc.simde.jessy;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.DownloadManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -62,6 +65,9 @@ public abstract class BaseActivity extends InternetActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         this.dialog = new Dialog(this);
     }
@@ -548,6 +554,7 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected void setNemopayKey(final String key) {
         dialog.startLoading(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
+
         new Thread() {
             @Override
             public void run() {
@@ -610,7 +617,8 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected void checkUpdate() { checkUpdate(true); }
     protected void checkUpdate(final boolean popupIfNot) {
-        dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.check_update));
+        final Dialog updateDialog = new Dialog(BaseActivity.this);
+        updateDialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.check_update));
 
         new Thread() {
             @Override
@@ -625,7 +633,7 @@ public abstract class BaseActivity extends InternetActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    dialog.stopLoading();
+                                    updateDialog.stopLoading();
 
                                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BaseActivity.this);
                                     alertDialogBuilder
@@ -634,15 +642,19 @@ public abstract class BaseActivity extends InternetActivity {
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.set_update, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialogInterface, int id) {
-                                            if (!update(matcher.group(2))) {
-                                                dialog.stopLoading();
-                                                dialog.errorDialog(BaseActivity.this, getString(R.string.update), getString(R.string.can_not_update));
+                                            if (!haveStoragePermission()) {
+                                                updateDialog.stopLoading();
+                                                updateDialog.errorDialog(BaseActivity.this, getString(R.string.update), getString(R.string.need_storage_permission));
+                                            }
+                                            else if (!update(matcher.group(2))) {
+                                                updateDialog.stopLoading();
+                                                updateDialog.errorDialog(BaseActivity.this, getString(R.string.update), getString(R.string.can_not_update));
                                             }
                                             }
                                         })
                                         .setNegativeButton(R.string.cancel, null);
 
-                                    dialog.createDialog(alertDialogBuilder);
+                                    updateDialog.createDialog(alertDialogBuilder);
                                 }
                             });
                         }
@@ -657,10 +669,10 @@ public abstract class BaseActivity extends InternetActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.stopLoading();
+                            updateDialog.stopLoading();
 
                             if (popupIfNot)
-                                dialog.errorDialog(BaseActivity.this, getString(R.string.update), e.getMessage() + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME);
+                                updateDialog.errorDialog(BaseActivity.this, getString(R.string.update), e.getMessage() + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME);
                         }
                     });
                 }
@@ -672,9 +684,6 @@ public abstract class BaseActivity extends InternetActivity {
         final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
         final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
         final Uri uri = Uri.parse("file://" + destination);
-
-        if (!haveStoragePermission())
-            return false;
 
         File file = new File(destination);
         if (file.exists())
@@ -696,7 +705,6 @@ public abstract class BaseActivity extends InternetActivity {
                 startActivity(install);
 
                 unregisterReceiver(this);
-                finish();
             }
         };
 

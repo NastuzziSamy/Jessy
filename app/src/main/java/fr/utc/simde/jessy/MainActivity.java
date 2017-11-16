@@ -53,13 +53,7 @@ public class MainActivity extends BaseActivity {
         ginger = new Ginger(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
-/*
-        if (this.internetBroadcast != null)
-            unregisterReceiver(this.internetBroadcast);
 
-        this.internetBroadcast = new InternetBroadcast();
-        registerReceiver(this.internetBroadcast, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-*/
         String key = sharedPreferences.getString("key", "");
         if (!key.equals(""))
             setNemopayKey(key);

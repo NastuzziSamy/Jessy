@@ -593,6 +593,8 @@ public abstract class BaseActivity extends InternetActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    dialog.stopLoading();
+
                                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BaseActivity.this);
                                     alertDialogBuilder
                                         .setTitle(R.string.update)
@@ -614,6 +616,13 @@ public abstract class BaseActivity extends InternetActivity {
                         }
                         else if (popupIfNot)
                             throw new Exception(getString(R.string.no_update));
+                        else
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.stopLoading();
+                                }
+                            });
                     }
                     else
                         throw new Exception(getString(R.string.can_not_detect_update));

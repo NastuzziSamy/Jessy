@@ -14,7 +14,7 @@ import android.widget.Toast;
  * Created by Samy on 16/11/2017.
  */
 
-public class InternetActivity extends NFCActivity {
+public abstract class InternetActivity extends NFCActivity {
     private AlertDialog.Builder internetAlertDialog;
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

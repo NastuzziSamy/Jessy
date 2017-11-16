@@ -158,6 +158,7 @@
     <string name="no_update">Aucune mise à jour disponible</string>
     <string name="actual_version">Version actuelle</string>
     <string name="available_version">Version disponible</string>
+    <string name="need_storage_permission">Il est nécessaire d\'autoriser l\'application à sauvegarder du contenu dans votre dossier de téléchargements</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

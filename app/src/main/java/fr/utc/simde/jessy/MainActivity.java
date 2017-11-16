@@ -473,7 +473,7 @@ public class MainActivity extends BaseActivity {
         reloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startMainActivity(MainActivity.this);
+                restartApp(MainActivity.this);
             }
         });
 
@@ -481,7 +481,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 config.reset();
-                startMainActivity(MainActivity.this);
+                restartApp(MainActivity.this);
             }
         });
 

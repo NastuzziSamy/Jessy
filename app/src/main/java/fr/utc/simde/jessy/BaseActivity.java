@@ -614,15 +614,8 @@ public abstract class BaseActivity extends InternetActivity {
                                 }
                             });
                         }
-                        else if (popupIfNot)
-                            throw new Exception(getString(R.string.no_update));
                         else
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dialog.stopLoading();
-                                }
-                            });
+                            throw new Exception(getString(R.string.no_update));
                     }
                     else
                         throw new Exception(getString(R.string.can_not_detect_update));
@@ -633,7 +626,9 @@ public abstract class BaseActivity extends InternetActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
-                            dialog.errorDialog(BaseActivity.this, getString(R.string.update), e.getMessage() + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME);
+
+                            if (popupIfNot)
+                                dialog.errorDialog(BaseActivity.this, getString(R.string.update), e.getMessage() + "\n" + getString(R.string.actual_version) + ": " + BuildConfig.VERSION_NAME);
                         }
                     });
                 }

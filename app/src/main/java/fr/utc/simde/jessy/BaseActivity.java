@@ -158,6 +158,38 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
+    protected void restartApp(Activity activity) {
+        try {
+            PackageManager pm = getPackageManager();
+            //check if we got the PackageManager
+            if (pm != null) {
+                //create the intent with the default start activity for your application
+                Intent mStartActivity = pm.getLaunchIntentForPackage(
+                        getPackageName()
+                );
+                if (mStartActivity != null) {
+                    mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    //create a pending intent so the application is restarted after System.exit(0) was called.
+                    // We use an AlarmManager to call this intent in 100ms
+                    int mPendingIntentId = 223344;
+                    PendingIntent mPendingIntent = PendingIntent
+                            .getActivity(activity, mPendingIntentId, mStartActivity,
+                                    PendingIntent.FLAG_CANCEL_CURRENT);
+                    AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                    mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+                    //kill the application
+                    System.exit(0);
+                } else {
+                    Log.e(LOG_TAG, "Was not able to restart application, mStartActivity null");
+                }
+            } else {
+                Log.e(LOG_TAG, "Was not able to restart application, PM null");
+            }
+        } catch (Exception ex) {
+            Log.e(LOG_TAG, "Was not able to restart application");
+        }
+    }
+
     protected void startMainActivity(final Activity activity) {
         disconnect();
 

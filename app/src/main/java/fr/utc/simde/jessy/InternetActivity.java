@@ -1,27 +1,28 @@
-package fr.utc.simde.jessy.tools;
-
-/**
- * Created by Samy on 24/10/2017.
- */
+package fr.utc.simde.jessy;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import fr.utc.simde.jessy.R;
+/**
+ * Created by Samy on 16/11/2017.
+ */
 
-public class InternetBroadcast extends BroadcastReceiver {
+public abstract class InternetActivity extends NFCActivity {
+    private AlertDialog.Builder internetAlertDialog;
 
-    @Override
-    public void onReceive(final Context context, final Intent intent) {
-        if (!checkInternet(context))
-            enableInternetDialog(context);
-    }
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            if (!checkInternet(context) && internetAlertDialog == null)
+                enableInternetDialog(context);
+        }
+    };
 
     public boolean checkInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -33,8 +34,8 @@ public class InternetBroadcast extends BroadcastReceiver {
     protected void enableInternetDialog(final Context context) {
         Toast.makeText(context, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
 
-        AlertDialog.Builder internetAlertDialog = new AlertDialog.Builder(context);
-        internetAlertDialog
+        this.internetAlertDialog = new AlertDialog.Builder(context);
+        this.internetAlertDialog
                 .setTitle(R.string.connection)
                 .setMessage(R.string.internet_accessibility)
                 .setCancelable(true)
@@ -42,6 +43,7 @@ public class InternetBroadcast extends BroadcastReceiver {
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(final DialogInterface dialog) {
+                        internetAlertDialog = null;
                         if (!checkInternet(context))
                             enableInternetDialog(context);
                     }
@@ -50,4 +52,22 @@ public class InternetBroadcast extends BroadcastReceiver {
         AlertDialog alertDialog = internetAlertDialog.create();
         alertDialog.show();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (!checkInternet(InternetActivity.this) && internetAlertDialog == null)
+            enableInternetDialog(InternetActivity.this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onIdentification(String badgeId) {}
 }

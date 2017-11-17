@@ -65,17 +65,10 @@
             android:id="@+id/text_app_registered"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
             android:gravity="center"
             android:textStyle="italic"
-            android:text="@string/app_not_registred" />
-
-        <TextView
-            android:id="@+id/text_author"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/author"
-            android:layout_marginBottom="10dp"
-            android:gravity="center" />
+            android:text="@string/app_not_connected" />
     </LinearLayout>
 
 </RelativeLayout>

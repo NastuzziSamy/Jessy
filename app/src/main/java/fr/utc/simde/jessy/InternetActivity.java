@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -38,12 +39,12 @@ public abstract class InternetActivity extends NFCActivity {
         this.internetAlertDialog
                 .setTitle(R.string.connection)
                 .setMessage(R.string.internet_accessibility)
-                .setCancelable(true)
-                .setPositiveButton(R.string.pass, null)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                .setCancelable(false)
+                .setNegativeButton(R.string.pass, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onDismiss(final DialogInterface dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         internetAlertDialog = null;
+
                         if (!checkInternet(context))
                             enableInternetDialog(context);
                     }

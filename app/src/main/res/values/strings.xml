@@ -21,6 +21,7 @@
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
     <string name="app_not_registred">Appareil non enregistré</string>
+    <string name="app_not_connected">Appareil non connectée</string>
     <string name="username_dialog">Connexion par CAS</string>
     <string name="badge_dialog">Connexion par badge</string>
     <string name="username">Login</string>
@@ -58,6 +59,7 @@
     <string name="type">Type</string>
     <string name="day_s_">jour(s)</string>
     <string name="update">Mise à jour</string>
+    <string name="credit">Crédits</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>

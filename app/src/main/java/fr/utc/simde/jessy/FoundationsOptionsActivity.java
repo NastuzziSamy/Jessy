@@ -132,6 +132,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     keyGingerDialog();
                 else if (isOption(position,8))
                     checkUpdate();
+                else if (isOption(position,9))
+                    creditDialog();
                 else
                     configDialog();
             }
@@ -188,6 +190,11 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 dialog.createDialog(alertDialogBuilder, keyInput);
             }
         });
+    }
+
+
+    protected void creditDialog() {
+        dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.credit), getString(R.string.author));
     }
 
     protected void configDialog() {

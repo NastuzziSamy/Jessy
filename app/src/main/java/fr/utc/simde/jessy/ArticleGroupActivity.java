@@ -351,11 +351,14 @@ public class ArticleGroupActivity extends BaseActivity {
     protected void pay(final String badgeId) {
         dialog.startLoading(this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_progress));
 
+        final List<Integer> articleList = panier.getArticleList();
+        clearPanier();
+
         new Thread() {
             @Override
             public void run() {
                 try {
-                    nemopaySession.setTransaction(badgeId, panier.getArticleList());
+                    nemopaySession.setTransaction(badgeId, articleList);
                     Thread.sleep(100);
 
                     runOnUiThread(new Runnable() {
@@ -365,7 +368,6 @@ public class ArticleGroupActivity extends BaseActivity {
                             Toast.makeText(ArticleGroupActivity.this, "Paiement effectué", Toast.LENGTH_LONG).show();
                             setBackgroundColor(getResources().getColor(R.color.success));
                             ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(250);
-                            clearPanier();
                         }
                     });
                 } catch (final Exception e) {

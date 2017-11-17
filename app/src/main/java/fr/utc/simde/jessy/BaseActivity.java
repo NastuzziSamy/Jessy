@@ -96,7 +96,7 @@ public abstract class BaseActivity extends InternetActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 unregister(activity);
-                startMainActivity(activity);
+                restartApp(activity);
             }
         });
     }

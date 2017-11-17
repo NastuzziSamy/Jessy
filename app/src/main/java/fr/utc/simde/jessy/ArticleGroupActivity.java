@@ -351,7 +351,7 @@ public class ArticleGroupActivity extends BaseActivity {
     protected void pay(final String badgeId) {
         dialog.startLoading(this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_progress));
 
-        final List<Integer> articleList = panier.getArticleList();
+        final List<Integer> articleList = new ArrayList<Integer>(panier.getArticleList());
         clearPanier();
 
         new Thread() {

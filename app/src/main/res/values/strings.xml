@@ -128,7 +128,7 @@
     <string name="cancel_transaction">Annuler une transaction</string>
     <string name="ask_cancel_transaction">Annuler la transaction suivante:</string>
     <string name="transaction_canceled">L\'annulation a bien été effective</string>
-    <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Retour à la page d\'accueil</string>
+    <string name="no_longer_connected">L\'application nécessite d\'être reconnectée. Appuyer sur ok pour relancer l\'application</string>
     <string name="location_choice">Choisir un lieu de vente</string>
     <string name="option_list">Liste des options à afficher</string>
     <string name="category_0_selected">Aucune catégorie n\'a été sélectionnée</string>

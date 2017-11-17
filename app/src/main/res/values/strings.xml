@@ -58,6 +58,7 @@
     <string name="type">Type</string>
     <string name="day_s_">jour(s)</string>
     <string name="update">Mise à jour</string>
+    <string name="credit">Crédits</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>

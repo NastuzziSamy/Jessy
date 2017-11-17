@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,10 +39,13 @@ public class MainActivity extends BaseActivity {
     private static final String LOG_TAG = "_MainActivity";
     private static final String service = "https://assos.utc.fr";
 
+    private static ImageView appImg;
     private static TextView appNameText;
     private static TextView appConfigText;
     private static TextView appRegisteredText;
     private static Button usernameButton;
+
+    private boolean casConnexionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +67,22 @@ public class MainActivity extends BaseActivity {
         if (!key.equals(""))
             setGingerKey(key);
 
+        appImg = findViewById(R.id.img_payutc);
         appNameText = findViewById(R.id.text_app_name);
         appConfigText = findViewById(R.id.text_app_config);
         appRegisteredText = findViewById(R.id.text_app_registered);
         usernameButton = findViewById(R.id.button_username);
+
+        casConnexionDialog = false;
+
+        appImg.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                config.reset();
+                restartApp(MainActivity.this);
+                return false;
+            }
+        });
 
         appRegisteredText.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -109,8 +126,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onIdentification(final String badgeId) {
-        if (!dialog.isShowing())
+        if (!dialog.isShowing() || casConnexionDialog)
             badgeDialog(badgeId);
+
+        casConnexionDialog = false;
     }
 
     @Override
@@ -168,6 +187,8 @@ public class MainActivity extends BaseActivity {
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
         dialog.startLoading(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url));
+
+        casConnexionDialog = false;
         new Thread() {
             @Override
             public void run() {
@@ -369,6 +390,8 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
+        casConnexionDialog = true;
+
         final View usernameView = getLayoutInflater().inflate(R.layout.dialog_login, null);
         final EditText usernameInput = usernameView.findViewById(R.id.input_username);
         final EditText passwordInput = usernameView.findViewById(R.id.input_password);
@@ -465,25 +488,8 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void optionDialog() {
-        final View view = getLayoutInflater().inflate(R.layout.dialog_main, null);
+        final View view = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
         final EditText keyInput = view.findViewById(R.id.input_key);
-        final Button reloadButton = view.findViewById(R.id.button_reload);
-        final Button configButton = view.findViewById(R.id.button_config);
-
-        reloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                restartApp(MainActivity.this);
-            }
-        });
-
-        configButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                config.reset();
-                restartApp(MainActivity.this);
-            }
-        });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder

@@ -144,7 +144,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_main, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
@@ -169,7 +169,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.ginger), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_main, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);

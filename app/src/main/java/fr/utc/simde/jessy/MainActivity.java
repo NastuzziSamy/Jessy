@@ -2,6 +2,7 @@ package fr.utc.simde.jessy;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -130,6 +131,21 @@ public class MainActivity extends BaseActivity {
             badgeDialog(badgeId);
 
         casConnexionDialog = false;
+    }
+
+    @Override
+    protected void enableInternetDialog(final Context context) {
+        Toast.makeText(context, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+
+        dialog.infoDialog(MainActivity.this, getString(R.string.connection), getString(R.string.internet_accessibility), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!checkInternet(context))
+                    enableInternetDialog(context);
+                else
+                    restartApp(MainActivity.this);
+            }
+        });
     }
 
     @Override

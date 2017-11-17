@@ -68,7 +68,7 @@
             android:paddingBottom="10dp"
             android:gravity="center"
             android:textStyle="italic"
-            android:text="@string/app_not_registred" />
+            android:text="@string/app_not_connected" />
     </LinearLayout>
 
 </RelativeLayout>

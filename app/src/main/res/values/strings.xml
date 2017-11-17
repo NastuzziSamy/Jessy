@@ -21,6 +21,7 @@
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
     <string name="app_not_registred">Appareil non enregistré</string>
+    <string name="app_not_connected">Appareil non connectée</string>
     <string name="username_dialog">Connexion par CAS</string>
     <string name="badge_dialog">Connexion par badge</string>
     <string name="username">Login</string>

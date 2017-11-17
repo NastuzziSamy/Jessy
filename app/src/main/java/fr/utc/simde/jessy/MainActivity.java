@@ -45,6 +45,8 @@ public class MainActivity extends BaseActivity {
     private static TextView appRegisteredText;
     private static Button usernameButton;
 
+    private boolean casConnexionDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +72,8 @@ public class MainActivity extends BaseActivity {
         appConfigText = findViewById(R.id.text_app_config);
         appRegisteredText = findViewById(R.id.text_app_registered);
         usernameButton = findViewById(R.id.button_username);
+
+        casConnexionDialog = false;
 
         appImg.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -122,8 +126,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onIdentification(final String badgeId) {
-        if (!dialog.isShowing())
+        if (!dialog.isShowing() || casConnexionDialog)
             badgeDialog(badgeId);
+
+        casConnexionDialog = false;
     }
 
     @Override
@@ -181,6 +187,8 @@ public class MainActivity extends BaseActivity {
 
     protected void connectWithCAS(final String username, final String password) throws InterruptedException {
         dialog.startLoading(MainActivity.this, getString(R.string.cas_connection), getString(R.string.cas_in_url));
+
+        casConnexionDialog = false;
         new Thread() {
             @Override
             public void run() {
@@ -381,6 +389,8 @@ public class MainActivity extends BaseActivity {
             dialog.errorDialog(MainActivity.this, getString(R.string.cas_connection), getString(R.string.already_connected) + " " + nemopaySession.getUsername());
             return;
         }
+
+        casConnexionDialog = true;
 
         final View usernameView = getLayoutInflater().inflate(R.layout.dialog_login, null);
         final EditText usernameInput = usernameView.findViewById(R.id.input_username);

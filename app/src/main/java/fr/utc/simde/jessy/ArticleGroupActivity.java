@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -458,11 +459,16 @@ public class ArticleGroupActivity extends BaseActivity {
                 throw new Exception("Unexpected JSON");
 
             for (JsonNode article : keyboard.get("data").get("items")) {
-                if (article.has("itm_id")) {
+                if (article.has("itm_id") && article.has("name")) {
                     boolean in = false;
                     for (JsonNode articleInList : articleList) {
                         if (articleInList.get("id").intValue() == article.get("itm_id").intValue()) {
-                            articlesForThisKeyboard.add(articleInList);
+                            JsonNode articleToAdd = new ObjectMapper().readTree(articleInList.toString());
+
+                            if (!article.get("name").textValue().isEmpty())
+                                ((ObjectNode) articleToAdd).put("name", article.get("name").textValue());
+
+                            articlesForThisKeyboard.add(articleToAdd);
                             in = true;
                             break;
                         }

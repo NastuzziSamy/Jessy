@@ -139,6 +139,7 @@
     <string name="app_configurated">L\'application a été configurée par défaut sur ce mode d\'affichage. Seul une personne possédant les droits peut reconfigurer l\'application par défaut</string>
     <string name="can_cancel">Permettre l\'annulation</string>
     <string name="can_sell">Permettre la vente</string>
+    <string name="already_canceled">La transaction a déjà été annulée</string>
     <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
     <string name="read_card_information">Informations de la carte</string>
     <string name="add_new_card">Ajouter</string>

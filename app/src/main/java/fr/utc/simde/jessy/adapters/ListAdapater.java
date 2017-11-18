@@ -3,6 +3,7 @@ package fr.utc.simde.jessy.adapters;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +49,8 @@ public class ListAdapater extends ArticlesAdapter {
             ImageView imageCotisant = this.viewList[position].findViewById(R.id.image_cotisant);
             ImageView image18 = this.viewList[position].findViewById(R.id.image_18);
 
+            TextView infoText = this.viewList[position].findViewById(R.id.text_info);
             if (article.has("info")) {
-                TextView infoText = this.viewList[position].findViewById(R.id.text_info);
                 infoText.setText(article.get("info").textValue());
 
                 imageCotisant.setVisibility(View.GONE);
@@ -60,8 +61,14 @@ public class ListAdapater extends ArticlesAdapter {
 
             setImage(imageView, article.get("image_url").textValue(), position);
 
-            if (article.has("quantity")) {
+            if (article.has("quantity"))
                 nbrClicksList[position] = article.get("quantity").intValue();
+
+            if (article.has("canceled") && article.get("canceled").booleanValue()) {
+                nameText.setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                priceText.setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                infoText.setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                clickViewList[position].setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
 
             if (this.nbrClicksList[position] < 0)

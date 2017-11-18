@@ -126,7 +126,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,3))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
                 else if (isOption(position,4))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
+                    startQRCodeReaderActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position,5))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position,6))

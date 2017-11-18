@@ -101,6 +101,11 @@ public class BuyerInfoActivity extends BaseActivity {
                     public void onItemClick(AdapterView parent, View view, int position, long id) {
                         final JsonNode article = lastArticleList.get(position);
 
+                        if (listAdapater.getArticle(position).has("canceled") && listAdapater.getArticle(position).get("canceled").booleanValue()) {
+                            dialog.infoDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), getString(R.string.already_canceled));
+                            return;
+                        }
+
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
                         alertDialogBuilder
                                 .setTitle(R.string.cancel_transaction)
@@ -238,7 +243,6 @@ public class BuyerInfoActivity extends BaseActivity {
                 }
 
                 final ArrayNode articleList = new ObjectMapper().createArrayNode();
-                Boolean hasRight = true; //
 
                 try {
                     for (JsonNode purchase : lastPurchaseList) {
@@ -250,7 +254,9 @@ public class BuyerInfoActivity extends BaseActivity {
                                 ObjectNode toAdd = (ObjectNode) new ObjectMapper().readTree(article.toString());
                                 toAdd.put("info", getString(R.string.realized) + " " + purchase.get("pur_date").textValue().substring(purchase.get("pur_date").textValue().length() - 8));
                                 toAdd.put("quantity", Math.round(purchase.get("pur_qte").floatValue()));
+                                toAdd.put("price", purchase.get("pur_unit_price").intValue());
                                 toAdd.put("purchase_id", purchase.get("pur_id").intValue());
+                                toAdd.put("canceled", purchase.get("pur_removed").booleanValue());
                                 articleList.add(toAdd);
 
                                 isIn = true;
@@ -265,6 +271,7 @@ public class BuyerInfoActivity extends BaseActivity {
                                 "\"quantity\":" + Math.round(purchase.get("pur_qte").floatValue()) + ", " +
                                 "\"purchase_id\":" + purchase.get("pur_id").intValue() + ", " +
                                 "\"info\":\"" + getString(R.string.realized_by_other) + "\", " +
+                                "\"canceled\":\"" + Boolean.toString(purchase.get("pur_removed").booleanValue()) + "\", " +
                                 "\"image_url\":\"\"}"
                             ));
                         }

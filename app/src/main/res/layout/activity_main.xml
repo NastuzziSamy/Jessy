@@ -70,5 +70,4 @@
             android:textStyle="italic"
             android:text="@string/app_not_connected" />
     </LinearLayout>
-
 </RelativeLayout>

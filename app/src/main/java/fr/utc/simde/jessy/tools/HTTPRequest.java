@@ -297,8 +297,6 @@ public class HTTPRequest {
 
     synchronized void updateCookies(final List<String> cookiesHeader) {
         if (cookiesHeader != null) {
-            Log.d(LOG_TAG, "cookies : " + cookiesHeader);
-
             for (String cookie : cookiesHeader) {
                 try {
                     cookie = cookie.substring(0, cookie.indexOf(";"));

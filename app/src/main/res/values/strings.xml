@@ -141,6 +141,7 @@
     <string name="can_sell">Permettre la vente</string>
     <string name="already_canceled">La transaction a déjà été annulée</string>
     <string name="cant_cancel">L\'application a été configurée pour ne pas permettre l\'annulation d\'une transaction (contacter un adminstrateur pour annuler)</string>
+    <string name="cant_cancel_other">Il n\'est pas possible d\'annuler la transaction réalisée par une autre fondation</string>
     <string name="read_card_information">Informations de la carte</string>
     <string name="add_new_card">Ajouter</string>
     <string name="read_new_card">Lire</string>

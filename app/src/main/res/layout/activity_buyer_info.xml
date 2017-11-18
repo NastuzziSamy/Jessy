@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:text="@string/information_collection" />
 
     </LinearLayout>
 

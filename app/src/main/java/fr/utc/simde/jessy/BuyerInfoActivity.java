@@ -50,6 +50,11 @@ public class BuyerInfoActivity extends BaseActivity {
         this.textSolde = findViewById(R.id.text_solde);
         this.linearLayout = findViewById(R.id.layout_articles);
 
+        if (getIntent().getExtras() == null || getIntent().getExtras().getString("buyerInfo") == null) {
+            generateNoPurchase(getString(R.string.badge_waiting));
+            return;
+        }
+
         try {
             JsonNode buyerInfo = new ObjectMapper().readTree(getIntent().getExtras().getString("buyerInfo"));
             this.badgeId = getIntent().getExtras().getString("badgeId");
@@ -73,21 +78,27 @@ public class BuyerInfoActivity extends BaseActivity {
     }
 
     @Override
-    protected void onIdentification(final String badgeId) { }
+    protected void onIdentification(final String badgeId) {
+        startBuyerInfoActivity(BuyerInfoActivity.this, badgeId);
+    }
+
+    protected void generateNoPurchase(final String text) {
+        TextView noPurchase = new TextView(this);
+        noPurchase.setText(text);
+        noPurchase.setTextSize(24);
+        noPurchase.setGravity(Gravity.CENTER);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,  LinearLayout.LayoutParams.MATCH_PARENT);
+        layoutParams.setMargins(100, 100, 100, 100);
+        noPurchase.setLayoutParams(layoutParams);
+
+        this.linearLayout.addView(noPurchase);
+    }
 
     protected void generatePurchases() throws Exception {
         if (this.lastPurchaseList.size() == 0) {
             String foundationName = nemopaySession.getFoundationName();
-            TextView noPurchase = new TextView(this);
-            noPurchase.setText(getString(R.string.no_purchases) + (foundationName.equals("") ? "" : "\n(" + foundationName + ")"));
-            noPurchase.setTextSize(24);
-            noPurchase.setGravity(Gravity.CENTER);
-
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,  LinearLayout.LayoutParams.MATCH_PARENT);
-            layoutParams.setMargins(100, 100, 100, 100);
-            noPurchase.setLayoutParams(layoutParams);
-
-            this.linearLayout.addView(noPurchase);
+            generateNoPurchase(getString(R.string.no_purchases) + (foundationName.equals("") ? "" : "\n(" + foundationName + ")"));
         }
         else {
             generateArticleList();
@@ -106,83 +117,86 @@ public class BuyerInfoActivity extends BaseActivity {
                             return;
                         }
 
+
+                        if (article.get("fundation_id").intValue() == -1) {
+                            dialog.infoDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), getString(R.string.cant_cancel_other));
+                            return;
+                        }
+
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
                         alertDialogBuilder
-                                .setTitle(R.string.cancel_transaction)
-                                .setMessage(getString(R.string.ask_cancel_transaction) + " " + Integer.toString(article.get("quantity").intValue()) + "x " + article.get("name").textValue() + " (total: " + String.format("%.2f", new Float(article.get("price").intValue()) / 100.00f) + "€) ?")
-                                .setCancelable(true)
-                                .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialogInterface, int id) {
-                                        new Thread() {
-                                            @Override
-                                            public void run() {
-                                                if (nemopaySession.getFoundationId() != -1) {
-                                                    try {
-                                                        nemopaySession.cancelTransaction(nemopaySession.getFoundationId(), article.get("purchase_id").intValue());
-                                                        Thread.sleep(100);
+                            .setTitle(R.string.cancel_transaction)
+                            .setMessage(getString(R.string.ask_cancel_transaction) + " " + Integer.toString(article.get("quantity").intValue()) + "x " + article.get("name").textValue() + " (total: " + String.format("%.2f", new Float(article.get("price").intValue()) / 100.00f) + "€) ?")
+                            .setCancelable(true)
+                            .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                    new Thread() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue());
+                                                Thread.sleep(100);
 
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.stopLoading();
+
+                                                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
+                                                        alertDialogBuilder
+                                                                .setTitle(R.string.cancel_transaction)
+                                                                .setMessage(getString(R.string.transaction_canceled))
+                                                                .setCancelable(true)
+                                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                                    public void onClick(DialogInterface dialogInterface, int id) {
+                                                                        try {
+                                                                            startBuyerInfoActivity(BuyerInfoActivity.this, badgeId);
+                                                                        } catch (Exception e) {
+                                                                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                                            dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
+                                                                                @Override
+                                                                                public void onClick(DialogInterface dialogInterface, int id) {
+                                                                                    finish();
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                });
+
+                                                        dialog.createDialog(alertDialogBuilder);
+                                                    }
+                                                });
+                                            } catch (final Exception e) {
+                                                Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                                                try {
+                                                    final JsonNode response = nemopaySession.getRequest().getJSONResponse();
+
+                                                    if (response.has("error") && response.get("error").has("message")) {
                                                         runOnUiThread(new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 dialog.stopLoading();
-
-                                                                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
-                                                                alertDialogBuilder
-                                                                        .setTitle(R.string.cancel_transaction)
-                                                                        .setMessage(getString(R.string.transaction_canceled))
-                                                                        .setCancelable(true)
-                                                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                            public void onClick(DialogInterface dialogInterface, int id) {
-                                                                                try {
-                                                                                    startBuyerInfoActivity(BuyerInfoActivity.this, badgeId);
-                                                                                } catch (Exception e) {
-                                                                                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                                                                                    dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
-                                                                                        @Override
-                                                                                        public void onClick(DialogInterface dialogInterface, int id) {
-                                                                                            finish();
-                                                                                        }
-                                                                                    });
-                                                                                }
-                                                                            }
-                                                                        });
-
-                                                                dialog.createDialog(alertDialogBuilder);
+                                                                dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), response.get("error").get("message").textValue());
                                                             }
                                                         });
-                                                    } catch (final Exception e) {
-                                                        Log.e(LOG_TAG, "error: " + e.getMessage());
-
-                                                        try {
-                                                            final JsonNode response = nemopaySession.getRequest().getJSONResponse();
-
-                                                            if (response.has("error") && response.get("error").has("message")) {
-                                                                runOnUiThread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        dialog.stopLoading();
-                                                                        dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), response.get("error").get("message").textValue());
-                                                                    }
-                                                                });
-                                                            }
-                                                            else
-                                                                throw new Exception("");
-                                                        } catch (Exception e1) {
-                                                            runOnUiThread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    dialog.stopLoading();
-                                                                    dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), e.getMessage());
-                                                                }
-                                                            });
+                                                    } else
+                                                        throw new Exception("");
+                                                } catch (Exception e1) {
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            dialog.stopLoading();
+                                                            dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), e.getMessage());
                                                         }
-                                                    }
+                                                    });
                                                 }
                                             }
-                                        }.start();
-                                    }
-                                })
-                                .setNegativeButton(R.string.do_nothing, null);
+                                        }
+                                    }.start();
+                                }
+                            })
+                            .setNegativeButton(R.string.do_nothing, null);
 
                         dialog.createDialog(alertDialogBuilder);
                     }
@@ -216,30 +230,28 @@ public class BuyerInfoActivity extends BaseActivity {
             @Override
             public void run() {
                 ArrayNode articleFoundationList = new ObjectMapper().createArrayNode();
-                if (nemopaySession.getFoundationId() != -1) {
-                    try {
-                        int responseCode = nemopaySession.getArticles();
-                        Thread.sleep(100);
+                try {
+                    nemopaySession.getArticles();
+                    Thread.sleep(100);
 
-                        // Toute une série de vérifications avant de lancer l'activité
-                        final HTTPRequest request = nemopaySession.getRequest();
-                        articleFoundationList = (ArrayNode) request.getJSONResponse();
+                    // Toute une série de vérifications avant de lancer l'activité
+                    final HTTPRequest request = nemopaySession.getRequest();
+                    articleFoundationList = (ArrayNode) request.getJSONResponse();
 
-                        for (final JsonNode article : articleFoundationList) {
-                            if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("active") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id") || article.get("fundation_id").intValue() != nemopaySession.getFoundationId())
-                                throw new Exception("Unexpected JSON");
-                        }
-                    } catch (final Exception e) {
-                        Log.e(LOG_TAG, "error: " + e.getMessage());
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.stopLoading();
-                                dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.article_list_collecting), e.getMessage());
-                            }
-                        });
+                    for (final JsonNode article : articleFoundationList) {
+                        if (!article.has("id") || !article.has("price") || !article.has("name") || !article.has("cotisant") || !article.has("alcool") || !article.has("categorie_id") || !article.has("image_url") || !article.has("fundation_id"))
+                            throw new Exception("Unexpected JSON");
                     }
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+                            dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.article_list_collecting), e.getMessage());
+                        }
+                    });
                 }
 
                 final ArrayNode articleList = new ObjectMapper().createArrayNode();
@@ -270,6 +282,7 @@ public class BuyerInfoActivity extends BaseActivity {
                                 "\"price\":" + Integer.toString(purchase.get("pur_price").intValue()) + ", " +
                                 "\"quantity\":" + Math.round(purchase.get("pur_qte").floatValue()) + ", " +
                                 "\"purchase_id\":" + purchase.get("pur_id").intValue() + ", " +
+                                "\"fundation_id\":-1, " +
                                 "\"info\":\"" + getString(R.string.realized_by_other) + "\", " +
                                 "\"canceled\":\"" + Boolean.toString(purchase.get("pur_removed").booleanValue()) + "\", " +
                                 "\"image_url\":\"\"}"

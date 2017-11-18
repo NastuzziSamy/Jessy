@@ -231,14 +231,12 @@ public class NemopaySession {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
-        if (this.foundationId == -1)
-            throw new Exception("No foundation set");
-
         return request(
             "POSS3",
             "getProducts",
             new HashMap<String, String>() {{
-                put("fun_id", Integer.toString(foundationId));
+                if (foundationId != -1)
+                    put("fun_id", Integer.toString(foundationId));
             }},
             new String[]{
                 "POSS3"

@@ -77,96 +77,89 @@ public class CardManagementActivity extends BaseActivity {
         this.textCotisantGinger = findViewById(R.id.text_cotisant_ginger);
         this.textTagGinger = findViewById(R.id.text_tag_ginger);
 
-        findViewById(R.id.read_new_card).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.infoDialog(CardManagementActivity.this, getString(R.string.badge_read), getString(R.string.badge_waiting), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialogInterface, int id) {
-                        toRun = null;
-                    }
-                });
-
-                toRun = 1;
-            }
-        });
-
         findViewById(R.id.contribute).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.infoDialog(CardManagementActivity.this, getString(R.string.contribute), getString(R.string.badge_waiting), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {
-                        toRun = null;
+                        toRun = 0;
                     }
                 });
 
                 toRun = 2;
             }
         });
+
+        this.toRun = 0;
     }
 
     @Override
     protected void onIdentification(final String badgeId) {
-        if (this.toRun != null) {
-            this.badgeId = badgeId;
+        if (this.toRun == null)
+            return;
 
-            if (toRun == 1) {
-                dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
+        this.badgeId = badgeId;
+        if (this.toRun == 0) {
+            dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
 
-                new Thread(){
-                    @Override
-                    public void run() {
-                        readCard();
-                    }
-                }.start();
-            }
-            else if (toRun == 2) {
-                hasRights(getString(R.string.contribute), new String[]{"GESUSERS"}, true, new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-
-                        final View view = getLayoutInflater().inflate(R.layout.dialog_contribute, null);
-                        final RadioGroup radioGroup = view.findViewById(R.id.radio_type);
-                        final RadioButton radioButton = view.findViewById(R.id.radio_student);
-                        final EditText editText = view.findViewById(R.id.nbr_days);
-
-                        radioButton.setChecked(true);
-
-                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CardManagementActivity.this);
-                        alertDialogBuilder
-                                .setTitle(R.string.contribute)
-                                .setView(view)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.contribute, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialogInterface, int id) {
-                                        dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
-
-                                        new Thread(){
-                                            @Override
-                                            public void run() {
-                                                int id = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
-
-                                                if (contributeCard(id == 3 ? new SimpleDateFormat("yyyy-MM-dd").format(new Date(new Date().getTime() + (Long.parseLong(String.valueOf(editText.getText())) * 86400000L))) : (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31", id < 2 ? 20 : 1))
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            Toast.makeText(CardManagementActivity.this, R.string.contribute_now, Toast.LENGTH_LONG).show();
-                                                        }
-                                                    });
-
-                                                readCard();
-                                            }
-                                        }.start();
-                                    }
-                                })
-                                .setNegativeButton(R.string.cancel, null);
-
-                        dialog.createDialog(alertDialogBuilder, editText);
-                    }
-                });
-            }
-
+            new Thread(){
+                @Override
+                public void run() {
+                    readCard();
+                }
+            }.start();
+        }
+        else if (this.toRun == 1)
+            dialog.infoDialog(CardManagementActivity.this, getString(R.string.information_collection), "Pas encore fait");
+        else if (this.toRun == 2) {
             this.toRun = null;
+            hasRights(getString(R.string.contribute), new String[]{"GESUSERS"}, true, new Runnable() {
+                @Override
+                public void run() {
+                    dialog.dismiss();
+
+                    final View view = getLayoutInflater().inflate(R.layout.dialog_contribute, null);
+                    final RadioGroup radioGroup = view.findViewById(R.id.radio_type);
+                    final RadioButton radioButton = view.findViewById(R.id.radio_student);
+                    final EditText editText = view.findViewById(R.id.nbr_days);
+
+                    radioButton.setChecked(true);
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CardManagementActivity.this);
+                    alertDialogBuilder
+                            .setTitle(R.string.contribute)
+                            .setView(view)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.contribute, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                    dialog.startLoading(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.buyer_info_collecting));
+
+                                    new Thread(){
+                                        @Override
+                                        public void run() {
+                                            int id = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
+
+                                            if (contributeCard(id == 3 ? new SimpleDateFormat("yyyy-MM-dd").format(new Date(new Date().getTime() + (Long.parseLong(String.valueOf(editText.getText())) * 86400000L))) : (Integer.parseInt(new SimpleDateFormat("MM").format(new Date())) > 8 ? Integer.toString(Integer.parseInt(new SimpleDateFormat("yyyy").format(new Date())) + 1) : new SimpleDateFormat("yyyy").format(new Date())) + "-08-31", id < 2 ? 20 : 1))
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(CardManagementActivity.this, R.string.contribute_now, Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+
+                                            readCard();
+                                        }
+                                    }.start();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                toRun = 0;
+                            }});
+
+                    dialog.createDialog(alertDialogBuilder, editText);
+                }
+            });
         }
     }
 
@@ -269,6 +262,7 @@ public class CardManagementActivity extends BaseActivity {
                         @Override
                         public void run() {
                             dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.badge_error_not_recognized));
+                            toRun = 0;
                         }
                     });
 
@@ -317,6 +311,7 @@ public class CardManagementActivity extends BaseActivity {
                         @Override
                         public void run() {
                             dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_not_recognized));
+                            toRun = 0;
                         }
                     });
                 else
@@ -352,6 +347,7 @@ public class CardManagementActivity extends BaseActivity {
                         @Override
                         public void run() {
                             dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_not_recognized));
+                            toRun = 0;
                         }
                     });
                 else
@@ -396,6 +392,7 @@ public class CardManagementActivity extends BaseActivity {
                 public void run() {
                     setUserInfo(userInfo.get("user"), userInfo.get("tag"), gingerInfo);
                     dialog.stopLoading();
+                    toRun = 0;
                 }
             });
         } catch (final Exception e) {
@@ -407,6 +404,7 @@ public class CardManagementActivity extends BaseActivity {
                         @Override
                         public void run() {
                             dialog.errorDialog(CardManagementActivity.this, getString(R.string.information_collection), getString(R.string.user_error_collecting));
+                            toRun = 0;
                         }
                     });
                 else

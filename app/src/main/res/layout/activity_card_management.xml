@@ -399,13 +399,6 @@
             android:text="@string/add_new_card" />
 
         <Button
-            android:id="@+id/read_new_card"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/read_new_card" />
-
-        <Button
             android:id="@+id/contribute"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

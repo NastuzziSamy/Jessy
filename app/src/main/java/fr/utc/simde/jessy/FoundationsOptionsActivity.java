@@ -1,6 +1,7 @@
 package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
@@ -114,8 +115,10 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.optionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (isOption(position,0))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
+                if (isOption(position,0)) {
+                    nemopaySession.setFoundation(-1, "", -1);
+                    startActivity(new Intent(FoundationsOptionsActivity.this, BuyerInfoActivity.class));
+                }
                 else if (isOption(position,1))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
                 else if (isOption(position,2))
@@ -123,7 +126,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,3))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
                 else if (isOption(position,4))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.10");
+                    startQRCodeReaderActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position,5))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position,6))

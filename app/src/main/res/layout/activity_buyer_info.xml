@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:text="@string/information_collection" />
 
     </LinearLayout>
 
@@ -22,7 +23,6 @@
         android:id="@+id/layout_articles"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp"
         android:orientation="horizontal">

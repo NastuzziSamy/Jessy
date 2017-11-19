@@ -30,4 +30,5 @@ dependencies {
     compile files('libs/jackson-core-2.9.2.jar')
     compile files('libs/jackson-databind-2.9.2.jar')
     compile files('libs/jackson-annotations-2.9.2.jar')
+    compile 'me.dm7.barcodescanner:zxing:1.9'
 }

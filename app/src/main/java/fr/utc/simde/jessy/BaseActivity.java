@@ -602,6 +602,19 @@ public abstract class BaseActivity extends InternetActivity {
             return true;
     }
 
+    protected boolean haveCameraPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+                return false;
+            }
+        }
+        else
+            return true;
+    }
+
     protected void checkUpdate() { checkUpdate(true); }
     protected void checkUpdate(final boolean popupIfNot) {
         final Dialog updateDialog = new Dialog(BaseActivity.this);
@@ -665,6 +678,13 @@ public abstract class BaseActivity extends InternetActivity {
                 }
             }
         }.start();
+    }
+
+    protected void startQRCodeReaderActivity(final Activity activity) {
+        if (haveCameraPermission())
+            startActivity(new Intent(activity, QRCodeReaderActivity.class));
+        else
+            dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
     }
 
     protected boolean update(final String version) {

@@ -66,8 +66,10 @@ public abstract class BaseActivity extends InternetActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
+        if (Build.VERSION.SDK_INT >= 24) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+        }
 
         this.dialog = new Dialog(this);
     }
@@ -531,6 +533,13 @@ public abstract class BaseActivity extends InternetActivity {
         });
     }
 
+    protected void startQRCodeReaderActivity(final Activity activity) {
+        if (haveCameraPermission())
+            startActivity(new Intent(activity, QRCodeReaderActivity.class));
+        else
+            dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
+    }
+
     protected void delKey() {
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.remove("key");
@@ -680,13 +689,6 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
-    protected void startQRCodeReaderActivity(final Activity activity) {
-        if (haveCameraPermission())
-            startActivity(new Intent(activity, QRCodeReaderActivity.class));
-        else
-            dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
-    }
-
     protected boolean update(final String version) {
         final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
         final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
@@ -707,8 +709,8 @@ public abstract class BaseActivity extends InternetActivity {
         BroadcastReceiver onComplete = new BroadcastReceiver() {
             public void onReceive(Context ctx, Intent intent) {
                 Intent install = new Intent(Intent.ACTION_VIEW);
-                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 install.setDataAndType(uri, "application/vnd.android.package-archive");
+                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(install);
 
                 unregisterReceiver(this);

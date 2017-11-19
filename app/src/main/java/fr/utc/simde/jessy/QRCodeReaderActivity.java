@@ -52,4 +52,15 @@ public class QRCodeReaderActivity extends BaseActivity {
         this.scannerView.setResultHandler(this.cameraHandler);
         this.scannerView.startCamera(CAMERA_FACING_BACK);
     }
+
+    @Override
+    public void onIdentification(final String badgeId) {
+        this.scannerView.stopCamera();
+        dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.badge_read), "Badge: " + badgeId, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                scannerView.startCamera(CAMERA_FACING_BACK);
+            }
+        });
+    }
 }

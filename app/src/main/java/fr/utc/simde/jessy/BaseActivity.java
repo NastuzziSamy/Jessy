@@ -12,8 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,9 +20,7 @@ import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -196,7 +192,7 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected void startFoundationListActivity(final Activity activity) {
         if (config.getFoundationId() != -1) {
-            startArticleGroupActivity(activity);
+            startSellActivity(activity);
             return;
         }
 
@@ -248,9 +244,16 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
-    protected void startArticleGroupActivity(final Activity activity) {
+    public void startSellActivity(final Activity activity) {
+        startArticleGroupActivity(activity, new Intent(activity, SellActivity.class));
+    }
+
+    public void startEditActivity(final Activity activity) {
+        startArticleGroupActivity(activity, new Intent(activity, EditActivity.class));
+    }
+
+    public void startArticleGroupActivity(final Activity activity, final Intent intent) {
         dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), getString(R.string.location_list_collecting));
-        final Intent intent = new Intent(activity, ArticleGroupActivity.class);
 
         new Thread() {
             @Override

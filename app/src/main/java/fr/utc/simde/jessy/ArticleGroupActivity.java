@@ -2,7 +2,6 @@ package fr.utc.simde.jessy;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,8 +13,6 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,24 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 
 import fr.utc.simde.jessy.adapters.LocationsAdapter;
-import fr.utc.simde.jessy.fragments.GroupFragment;
+import fr.utc.simde.jessy.fragments.ArticleGroupFragment;
 import fr.utc.simde.jessy.tools.HTTPRequest;
-import fr.utc.simde.jessy.tools.Panier;
 
 /**
  * Created by Samy on 27/10/2017.
  */
 
-public class ArticleGroupActivity extends BaseActivity {
+public abstract class ArticleGroupActivity extends BaseActivity {
     private static final String LOG_TAG = "_ArticleGroupActivity";
 
     protected ImageButton paramButton;
-    protected ImageButton deleteButton;
+    protected ImageButton optionButton;
     protected TabHost tabHost;
 
-    protected Panier panier;
-
-    protected List<GroupFragment> groupFragmentList;
+    protected List<ArticleGroupFragment> groupFragmentList;
     protected int nbrGroups;
 
     @Override
@@ -52,15 +46,16 @@ public class ArticleGroupActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_group);
 
-        TextView textView = findViewById(R.id.text_price);
-        this.panier = new Panier(textView);
         this.paramButton = findViewById(R.id.image_param);
-        this.deleteButton = findViewById(R.id.image_delete);
+        this.optionButton = findViewById(R.id.image_delete);
         this.tabHost = findViewById(R.id.tab_categories);
         this.tabHost.setup();
 
-        this.groupFragmentList = new ArrayList<GroupFragment>();
+        this.groupFragmentList = new ArrayList<ArticleGroupFragment>();
         this.nbrGroups = 0;
+    }
+
+    protected void generate() {
 
         try {
             if (getIntent().getExtras().getString("categoryList") != null)
@@ -145,7 +140,7 @@ public class ArticleGroupActivity extends BaseActivity {
                                     config.setPrintCotisant(switchCotisant.isChecked());
                                     config.setPrint18(swtich18.isChecked());
 
-                                    startArticleGroupActivity(ArticleGroupActivity.this);
+                                    startSellActivity(ArticleGroupActivity.this);
                                 }
                             })
                             .setNegativeButton(R.string.cancel, null);
@@ -165,8 +160,8 @@ public class ArticleGroupActivity extends BaseActivity {
                         @Override
                         public void onClick(View view) {
                             hasRights(getString(R.string.configurate_by_default), new String[]{
-                                "STAFF",
-                                "GESAPPLICATIONS"
+                                    "STAFF",
+                                    "GESAPPLICATIONS"
                             }, new Runnable() {
                                 @Override
                                 public void run() {
@@ -190,7 +185,7 @@ public class ArticleGroupActivity extends BaseActivity {
                                     config.setPrintCotisant(switchCotisant.isChecked());
                                     config.setPrint18(swtich18.isChecked());
 
-                                    startArticleGroupActivity(ArticleGroupActivity.this);
+                                    startSellActivity(ArticleGroupActivity.this);
                                 }
                             })
                             .setNegativeButton(R.string.cancel, null);
@@ -200,24 +195,10 @@ public class ArticleGroupActivity extends BaseActivity {
             }
         });
 
-        this.deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearPanier();
-            }
-        });
+        setOptionButton();
     }
 
-    @Override
-    protected void onIdentification(final String badgeId) {
-        if (dialog.isShowing())
-            return;
-
-        if (this.panier.isEmpty())
-            startBuyerInfoActivity(ArticleGroupActivity.this, badgeId);
-        else
-            pay(badgeId);
-    }
+    protected abstract void setOptionButton();
 
     protected void configDialog() {
         dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting));
@@ -319,94 +300,6 @@ public class ArticleGroupActivity extends BaseActivity {
         }.start();
     }
 
-    public void clearPanier() {
-        for (GroupFragment groupFragment : groupFragmentList)
-            groupFragment.clear();
-
-        panier.clear();
-    }
-
-    public void setBackgroundColor(int color) {
-        this.tabHost.setBackgroundColor(color);
-
-        new Thread(){
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2500);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tabHost.setBackgroundColor(getResources().getColor(R.color.white));
-                        }
-                    });
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                }
-
-            }
-        }.start();
-    }
-
-    protected void pay(final String badgeId) {
-        dialog.startLoading(this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_progress));
-
-        final List<Integer> articleList = new ArrayList<Integer>(panier.getArticleList());
-        clearPanier();
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    nemopaySession.setTransaction(badgeId, articleList);
-                    Thread.sleep(100);
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.stopLoading();
-                            Toast.makeText(ArticleGroupActivity.this, "Paiement effectué", Toast.LENGTH_LONG).show();
-                            setBackgroundColor(getResources().getColor(R.color.success));
-                            ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(250);
-                        }
-                    });
-                } catch (final Exception e) {
-                    Log.e(LOG_TAG, "error: " + e.getMessage());
-
-                    try {
-                        final JsonNode response = nemopaySession.getRequest().getJSONResponse();
-
-                        if (response.has("error") && response.get("error").has("message")) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dialog.stopLoading();
-                                    dialog.errorDialog(ArticleGroupActivity.this, getString(R.string.paiement), response.get("error").get("message").textValue());
-                                    setBackgroundColor(getResources().getColor(R.color.error));
-                                    ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(500);
-                                }
-                            });
-                        }
-                        else
-                            throw new Exception("");
-                    } catch (Exception e1) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.stopLoading();
-                                dialog.errorDialog(ArticleGroupActivity.this, getString(R.string.paiement), e.getMessage());
-                                setBackgroundColor(getResources().getColor(R.color.error));
-                                ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(500);
-                            }
-                        });
-                    }
-                }
-            }
-        }.start();
-    }
-
-
     protected void createCategories(final JsonNode categoryList, final List<Integer> authorizedList, final JsonNode articleList) throws Exception {
         HashMap<Integer, ArrayNode> articlesPerCategory = new HashMap<Integer, ArrayNode>();
         final int foundationId = nemopaySession.getFoundationId();
@@ -488,17 +381,6 @@ public class ArticleGroupActivity extends BaseActivity {
         }
     }
 
-    protected void createNewGroup(final String name, final ArrayNode articleList) throws Exception { createNewGroup(name, articleList, 3); }
-    protected void createNewGroup(final String name, final ArrayNode articleList, int gridColumns) throws Exception {
-        GroupFragment articleGroupFragment = new GroupFragment(ArticleGroupActivity.this, articleList, this.panier, this.config, gridColumns);
-
-        TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
-        newTabSpec.setIndicator(name);
-        newTabSpec.setContent(articleGroupFragment);
-
-        this.groupFragmentList.add(articleGroupFragment);
-
-        this.tabHost.addTab(newTabSpec);
-        nbrGroups++;
-    }
+    protected abstract void createNewGroup(final String name, final ArrayNode articleList) throws Exception;
+    protected abstract void createNewGroup(final String name, final ArrayNode articleList, int gridColumns) throws Exception;
 }

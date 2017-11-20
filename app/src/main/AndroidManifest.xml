@@ -40,7 +40,10 @@
         <activity android:name="fr.utc.simde.jessy.CardManagementActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name="fr.utc.simde.jessy.ArticleGroupActivity"
+        <activity android:name="fr.utc.simde.jessy.SellActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity android:name="fr.utc.simde.jessy.EditActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name="fr.utc.simde.jessy.QRCodeReaderActivity"

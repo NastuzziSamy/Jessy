@@ -18,6 +18,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
+import fr.utc.simde.jessy.adapters.LocationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
@@ -87,7 +89,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
                 nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
-                startArticleGroupActivity(FoundationsOptionsActivity.this);
+                startSellActivity(FoundationsOptionsActivity.this);
             }
         });
 
@@ -120,7 +122,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     startActivity(new Intent(FoundationsOptionsActivity.this, BuyerInfoActivity.class));
                 }
                 else if (isOption(position,1))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
+                    editDialog();
                 else if (isOption(position,2))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
                 else if (isOption(position,3))
@@ -337,12 +339,129 @@ public class FoundationsOptionsActivity extends BaseActivity {
                             config.setPrintCotisant(switchCotisant.isChecked());
                             config.setPrint18(swtich18.isChecked());
 
-                            startArticleGroupActivity(FoundationsOptionsActivity.this);
+                            startSellActivity(FoundationsOptionsActivity.this);
                         }
                     })
                     .setNegativeButton(R.string.cancel, null);
 
             dialog.createDialog(alertDialogBuilder);
         }
+    }
+
+    protected void editDialog() {
+        dialog.startLoading(FoundationsOptionsActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.getAllMyRights();
+                    Thread.sleep(100);
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.changeLoading(getString(R.string.foundation_list_collecting));
+                    }
+                });
+
+                try {
+                    final JsonNode rightList = nemopaySession.getRequest().getJSONResponse();
+
+                    nemopaySession.getFoundations();
+                    Thread.sleep(100);
+
+                    final JsonNode foundationList = nemopaySession.getRequest().getJSONResponse();
+                    ArrayNode foundationListWithRights = new ObjectMapper().createArrayNode();
+
+                    if (rightList.has("0")) {
+                        for (JsonNode element : rightList.get("0")) {
+                            if (element.textValue().equals("GESARTICLE")) {
+                                foundationListWithRights = (ArrayNode) foundationList;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (foundationListWithRights.size() == 0) {
+                        for (final JsonNode foundation : foundationList) {
+                            if (!foundation.has("name") || !foundation.has("fun_id"))
+                                throw new Exception("Unexpected JSON");
+
+                            if (rightList.has(Integer.toString(foundation.get("fun_id").intValue()))) {
+                                for (JsonNode element : rightList.get(Integer.toString(foundation.get("fun_id").intValue()))) {
+                                    if (element.textValue().equals("GESARTICLE")) {
+                                        foundationListWithRights.add(foundation);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    final ArrayNode finalFoundationListWithRights = foundationListWithRights;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            if (finalFoundationListWithRights.size() == 0)
+                                dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.user_rights_list_collecting), nemopaySession.forbidden(new String[]{"GESARTICLE"}, false));
+                            else {
+                                final LayoutInflater layoutInflater = LayoutInflater.from(FoundationsOptionsActivity.this);
+                                final View popupView = layoutInflater.inflate(R.layout.dialog_list, null);
+                                final ListView listView = popupView.findViewById(R.id.list_groups);
+
+                                try {
+                                    final FoundationsAdapter foundationsAdapter = new FoundationsAdapter(FoundationsOptionsActivity.this, finalFoundationListWithRights);
+
+                                    listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
+                                            startEditActivity(FoundationsOptionsActivity.this);
+                                        }
+                                    });
+
+                                    listView.setAdapter(foundationsAdapter);
+                                } catch (Exception e) {
+                                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                                    fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                                }
+
+                                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                                alertDialogBuilder
+                                        .setTitle(R.string.article)
+                                        .setView(popupView)
+                                        .setCancelable(false)
+                                        .setNegativeButton(R.string.cancel, null);
+
+                                dialog.createDialog(alertDialogBuilder);
+                            }
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+            }
+        }.start();
     }
 }

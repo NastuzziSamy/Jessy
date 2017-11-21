@@ -102,6 +102,8 @@ public class MainActivity extends BaseActivity {
 
         setConfig();
         checkUpdate(false);
+
+        startSellByQRCodeActivity(MainActivity.this);
     }
 
     @Override

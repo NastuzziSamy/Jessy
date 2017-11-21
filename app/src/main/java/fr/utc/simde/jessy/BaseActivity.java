@@ -248,6 +248,10 @@ public abstract class BaseActivity extends InternetActivity {
         startArticleGroupActivity(activity, new Intent(activity, SellActivity.class));
     }
 
+    public void startSellByQRCodeActivity(final Activity activity) {
+        startActivity(new Intent(activity, SellByQRCodeActivity.class));
+    }
+
     public void startEditActivity(final Activity activity) {
         startArticleGroupActivity(activity, new Intent(activity, EditActivity.class));
     }

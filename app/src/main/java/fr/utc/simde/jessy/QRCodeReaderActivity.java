@@ -17,11 +17,10 @@ import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
  * Created by Samy on 18/11/2017.
  */
 
-public class QRCodeReaderActivity extends BaseActivity {
+public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerView.ResultHandler {
     private static final String LOG_TAG = "_QRCodeReaderActivity";
 
     protected ZXingScannerView scannerView;
-    protected ZXingScannerView.ResultHandler cameraHandler;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -35,21 +34,7 @@ public class QRCodeReaderActivity extends BaseActivity {
         };
         setContentView(this.scannerView);
 
-        this.cameraHandler = new ZXingScannerView.ResultHandler() {
-            @Override
-            public void handleResult(Result result) {
-                Log.d(LOG_TAG, result.getText());
-                Log.d(LOG_TAG, result.getBarcodeFormat().toString());
-                dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), result.getText(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        scannerView.resumeCameraPreview(cameraHandler);
-                    }
-                });
-            }
-        };
-
-        this.scannerView.setResultHandler(this.cameraHandler);
+        scannerView.setResultHandler(QRCodeReaderActivity.this);
         this.scannerView.startCamera(CAMERA_FACING_BACK);
     }
 
@@ -62,5 +47,21 @@ public class QRCodeReaderActivity extends BaseActivity {
                 scannerView.startCamera(CAMERA_FACING_BACK);
             }
         });
+    }
+
+    @Override
+    public void handleResult(Result result) {
+        Log.d(LOG_TAG, result.getText());
+        Log.d(LOG_TAG, result.getBarcodeFormat().toString());
+        dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), result.getText(), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                resumeReading();
+            }
+        });
+    }
+
+    protected void resumeReading() {
+        scannerView.resumeCameraPreview(QRCodeReaderActivity.this);
     }
 }

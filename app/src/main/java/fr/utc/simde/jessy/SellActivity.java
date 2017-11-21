@@ -31,8 +31,15 @@ public class SellActivity extends ArticleGroupActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView textView = findViewById(R.id.text_price);
-        this.panier = new Panier(textView);
+        TextView panierText = findViewById(R.id.text_price);
+        this.panier = new Panier(panierText);
+
+        panierText.setOnClickListener(new TextView.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSellByQRCodeActivity(SellActivity.this);
+            }
+        });
 
         generate();
     }

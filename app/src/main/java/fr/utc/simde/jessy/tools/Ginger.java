@@ -10,10 +10,6 @@ import java.util.Map;
 
 import fr.utc.simde.jessy.R;
 
-/**
- * Created by Samy on 10/11/2017.
- */
-
 public class Ginger {
     private static final String LOG_TAG = "_Ginger";
     private static final String url = "https://assos.utc.fr/ginger/v1/";

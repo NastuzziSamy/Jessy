@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
+import fr.utc.simde.jessy.tools.Bottomatik;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Ginger;
@@ -57,6 +58,7 @@ public class MainActivity extends BaseActivity {
 
         nemopaySession = new NemopaySession(MainActivity.this);
         ginger = new Ginger(MainActivity.this);
+        bottomatik = new Bottomatik(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
 
@@ -102,8 +104,6 @@ public class MainActivity extends BaseActivity {
 
         setConfig();
         checkUpdate(false);
-
-        startSellByQRCodeActivity(MainActivity.this);
     }
 
     @Override

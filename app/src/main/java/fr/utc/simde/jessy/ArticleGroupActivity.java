@@ -56,7 +56,6 @@ public abstract class ArticleGroupActivity extends BaseActivity {
     }
 
     protected void generate() {
-
         try {
             if (getIntent().getExtras().getString("categoryList") != null)
                 createCategories(new ObjectMapper().readTree(getIntent().getExtras().getString("categoryList")), getIntent().getExtras().getIntegerArrayList("categoryListAuthorized"), new ObjectMapper().readTree(getIntent().getExtras().getString("articleList")));

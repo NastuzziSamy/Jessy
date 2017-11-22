@@ -34,10 +34,12 @@ public class SellActivity extends ArticleGroupActivity {
         TextView panierText = findViewById(R.id.text_price);
         this.panier = new Panier(panierText);
 
-        panierText.setOnClickListener(new TextView.OnClickListener() {
+        panierText.setOnLongClickListener(new TextView.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
                 startSellByQRCodeActivity(SellActivity.this);
+
+                return false;
             }
         });
 
@@ -86,7 +88,7 @@ public class SellActivity extends ArticleGroupActivity {
     }
 
     protected void pay(final String badgeId) {
-        dialog.startLoading(this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_progress));
+        dialog.startLoading(this, getString(R.string.paiement), getString(R.string.transaction_in_progress));
 
         final List<Integer> articleList = new ArrayList<Integer>(panier.getArticleList());
         clearPanier();
@@ -102,7 +104,7 @@ public class SellActivity extends ArticleGroupActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
-                            Toast.makeText(SellActivity.this, "Paiement effectué", Toast.LENGTH_LONG).show();
+                            Toast.makeText(SellActivity.this, getString(R.string.transaction_realized), Toast.LENGTH_LONG).show();
                             setBackgroundColor(getResources().getColor(R.color.success));
                             ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(250);
                         }

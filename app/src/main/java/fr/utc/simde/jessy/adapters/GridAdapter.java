@@ -26,24 +26,7 @@ public class GridAdapter extends ArticlesAdapter {
     public GridAdapter(final Activity activity, final ArrayNode articleList, final int nbrColumns, final Boolean printCotisant, final Boolean print18) throws Exception {
         super(activity, articleList, printCotisant, print18);
 
-        switch (nbrColumns) {
-            case 1:
-                this.size = 250;
-                break;
-            case 2:
-                this.size = 200;
-                break;
-            case 3:
-                this.size = 150;
-                break;
-            case 4:
-                this.size = 125;
-                break;
-            case 5:
-            default:
-                this.size = 100;
-                break;
-        }
+        this.size = nbrColumns > 5 ? 100 : 225 - (25 * nbrColumns);
     }
 
     @Override

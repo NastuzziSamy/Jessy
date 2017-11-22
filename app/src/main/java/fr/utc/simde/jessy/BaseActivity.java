@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.utc.simde.jessy.tools.Bottomatik;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Dialog;
@@ -51,6 +52,7 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected static NemopaySession nemopaySession;
     protected static Ginger ginger;
+    protected static Bottomatik bottomatik;
     protected static CASConnexion casConnexion;
 
     protected static Config config;

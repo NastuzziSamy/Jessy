@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 
 import fr.utc.simde.jessy.tools.ExtendedScannerView;
@@ -41,19 +42,13 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     @Override
     public void onIdentification(final String badgeId) {
         this.scannerView.stopCamera();
-        dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.badge_read), "Badge: " + badgeId, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                scannerView.startCamera(CAMERA_FACING_BACK);
-            }
-        });
+
+        handleResult(new Result(badgeId, null, null, BarcodeFormat.DATA_MATRIX));
     }
 
     @Override
     public void handleResult(Result result) {
-        Log.d(LOG_TAG, result.getText());
-        Log.d(LOG_TAG, result.getBarcodeFormat().toString());
-        dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), result.getText(), new DialogInterface.OnClickListener() {
+        dialog.infoDialog(QRCodeReaderActivity.this, result.getBarcodeFormat().toString(), result.getText(), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 resumeReading();

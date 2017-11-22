@@ -105,6 +105,22 @@ public class NemopaySession {
     public int getLocationId() { return locationId; }
     public String getFoundationName() { return foundationName; }
 
+
+    public int cancelTransaction(final int transactionId) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        return request(
+            "POSS3",
+            "cancelTransaction",
+            new HashMap<String, String>() {{
+                put("tra_id", Integer.toString(transactionId));
+            }},
+            new String[]{
+                "POSS3"
+            }
+        );
+    }
     public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);

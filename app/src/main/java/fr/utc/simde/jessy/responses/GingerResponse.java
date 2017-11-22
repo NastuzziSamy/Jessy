@@ -1,4 +1,4 @@
-package fr.utc.simde.jessy.objects;
+package fr.utc.simde.jessy.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

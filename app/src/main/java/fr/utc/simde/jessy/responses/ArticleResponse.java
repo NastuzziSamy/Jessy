@@ -10,27 +10,22 @@ import java.util.List;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BottomatikResponse {
-    protected String id;
-    protected String username;
-    protected String type;
-    protected int fun_id;
-    protected long expires_at;
-    protected long creation_date;
-    protected List<String> articles;
+public class ArticleResponse {
+    protected int id;
+    protected String name;
+    protected int fundation_id;
+    protected int categorie_id;
+    protected int price;
+    protected boolean cotisant;
+    protected boolean alcool;
+    protected boolean active;
 
-    public String getId() { return this.id; }
-    public String getUsername() { return this.username; }
-    public String getType() { return this.type; }
-    public int getFoundationId() { return this.fun_id; }
-    public long getExpiresAt() { return this.expires_at; }
-    public long getCreatedAt() { return this.creation_date; }
-    public List<Integer> getArticleList() {
-        List<Integer> articleList = new ArrayList<Integer>();
-
-        for (String article : this.articles)
-            articleList.add(Integer.parseInt(article));
-
-        return articleList;
-    }
+    public int getId() { return this.id; }
+    public String getName() { return this.name; }
+    public int getFoundationId() { return this.fundation_id; }
+    public int getCategoryId() { return this.categorie_id; }
+    public int getPrice() { return this.price; }
+    public boolean getIsContributerOnly() { return this.cotisant; }
+    public boolean getIsAdultOnly() { return this.alcool; }
+    public boolean getIsActive() { return this.active; }
 }

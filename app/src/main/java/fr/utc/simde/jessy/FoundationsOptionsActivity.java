@@ -136,8 +136,10 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,7))
                     keyGingerDialog();
                 else if (isOption(position,8))
-                    checkUpdate();
+                    keyBottomotikDialog();
                 else if (isOption(position,9))
+                    checkUpdate();
+                else if (isOption(position,10))
                     creditDialog();
                 else
                     configDialog();
@@ -197,6 +199,30 @@ public class FoundationsOptionsActivity extends BaseActivity {
         });
     }
 
+    protected void keyBottomotikDialog() {
+        hasRights(getString(R.string.bottomatik), new String[]{}, new Runnable(){
+            @Override
+            public void run() {
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                alertDialogBuilder
+                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.bottomatik))
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                if (!keyInput.getText().toString().equals(""))
+                                    setBottomatikKey(keyInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder, keyInput);
+            }
+        });
+    }
 
     protected void creditDialog() {
         dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.credit), getString(R.string.author));

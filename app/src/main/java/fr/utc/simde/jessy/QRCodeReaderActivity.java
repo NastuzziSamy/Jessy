@@ -43,7 +43,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     public void onIdentification(final String badgeId) {
         this.scannerView.stopCamera();
 
-        handleResult(new Result(badgeId, null, null, BarcodeFormat.DATA_MATRIX));
+        dialog.infoDialog(QRCodeReaderActivity.this, "Badge", badgeId, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                resumeReading();
+            }
+        });
     }
 
     @Override

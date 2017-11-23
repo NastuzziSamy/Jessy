@@ -64,7 +64,7 @@ public class Bottomatik {
 
     public int getTransactionFromUsername(final String username) throws Exception {
         return request(
-                username
+            "user/" + username
         );
     }
 
@@ -73,12 +73,11 @@ public class Bottomatik {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;
+        this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
         if (postArgs.size() == 0) {
-            this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
             responseCode = this.request.get();
         }
         else {
-            postArgs.put("key", key);
             this.request.setPost(postArgs);
             responseCode = this.request.post();
         }

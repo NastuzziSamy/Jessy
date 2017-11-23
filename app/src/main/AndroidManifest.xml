@@ -43,7 +43,7 @@
         <activity android:name="fr.utc.simde.jessy.SellActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name="fr.utc.simde.jessy.SellByQRCodeActivity"
+        <activity android:name="fr.utc.simde.jessy.SellByBottomatikActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
         <activity android:name="fr.utc.simde.jessy.EditActivity"

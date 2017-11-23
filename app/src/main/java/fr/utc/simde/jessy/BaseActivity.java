@@ -23,6 +23,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.utc.simde.jessy.responses.BottomatikResponse;
 import fr.utc.simde.jessy.tools.Bottomatik;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
@@ -250,8 +252,11 @@ public abstract class BaseActivity extends InternetActivity {
         startArticleGroupActivity(activity, new Intent(activity, SellActivity.class));
     }
 
-    public void startSellByQRCodeActivity(final Activity activity) {
-        startActivity(new Intent(activity, SellByQRCodeActivity.class));
+    public void startSellBottomatikActivity(final Activity activity) {
+        if (activity instanceof SellByBottomatikActivity)
+            finish();
+
+        startActivity(new Intent(activity, SellByBottomatikActivity.class));
     }
 
     public void startEditActivity(final Activity activity) {
@@ -520,6 +525,8 @@ public abstract class BaseActivity extends InternetActivity {
                             });
                         else
                             throw new Exception("");
+
+                        return;
                     } catch (Exception e1) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -558,6 +565,9 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void setNemopayKey(final String key) {
+        if (key.equals(""))
+            return;
+
         dialog.startLoading(BaseActivity.this, getString(R.string.nemopay_connection), getString(R.string.nemopay_authentification));
 
         new Thread() {
@@ -600,11 +610,25 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void setGingerKey(final String key) {
+        if (key.equals(""))
+            return;
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("key_ginger", key);
         editor.apply();
 
         ginger.setKey(key);
+    }
+
+    protected void setBottomatikKey(final String key) {
+        if (key.equals(""))
+            return;
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("key_bottomatik", key);
+        editor.apply();
+
+        bottomatik.setKey(key);
     }
 
     protected boolean haveStoragePermission() {

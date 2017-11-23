@@ -37,7 +37,7 @@ public class SellActivity extends ArticleGroupActivity {
         panierText.setOnLongClickListener(new TextView.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startSellByQRCodeActivity(SellActivity.this);
+                startSellBottomatikActivity(SellActivity.this);
 
                 return false;
             }

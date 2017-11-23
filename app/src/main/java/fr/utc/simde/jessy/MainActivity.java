@@ -62,13 +62,9 @@ public class MainActivity extends BaseActivity {
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
 
-        String key = sharedPreferences.getString("key", "");
-        if (!key.equals(""))
-            setNemopayKey(key);
-
-        key = sharedPreferences.getString("key_ginger", "");
-        if (!key.equals(""))
-            setGingerKey(key);
+        setNemopayKey(sharedPreferences.getString("key", ""));
+        setGingerKey(sharedPreferences.getString("key_ginger", ""));
+        setBottomatikKey(sharedPreferences.getString("key_bottomatik", ""));
 
         appImg = findViewById(R.id.img_payutc);
         appNameText = findViewById(R.id.text_app_name);

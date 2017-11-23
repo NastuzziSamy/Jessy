@@ -3,6 +3,7 @@
     <string name="payutc">PayUTC</string>
     <string name="nemopay">Nemopay</string>
     <string name="ginger">Ginger</string>
+    <string name="bottomatik">Bottomatik</string>
     <string name="hello">Pour se connecter, clique sur\n le bouton ou scanne ton badge</string>
     <string name="ok">Ok</string>
     <string name="yes">Oui</string>
@@ -172,12 +173,14 @@
     <string name="qrcode_reading">Lecture d\'un QR Code</string>
     <string name="article_name">Nom de l\'article</string>
     <string name="bottomatik_get_transaction">Récupération de la transaction auprès de Bottomatik</string>
+    <string name="bottomatik_already_validated">La commande a déjà été servie</string>
     <string name="can_not_sell_other_foundation">Il n\'est pas possible de vendre des produits d\'une autre fondation</string>
     <string name="transaction_realized">Paiement effectué</string>
     <string name="transaction_in_validation">Transaction en cours de validation</string>
     <string name="transaction_validated">Transaction validée</string>
     <string name="transaction_in_cancelation">Transaction en cours d\'annulation</string>
     <string name="transaction_refunded">Remboursement réalisé</string>
+    <string name="transaction_no">Aucune commande récente n\'a été réalisée</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

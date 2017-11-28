@@ -1,6 +1,7 @@
 package fr.utc.simde.jessy.fragments;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -80,14 +81,19 @@ public abstract class ArticleGroupFragment implements TabHost.TabContentFactory 
     protected abstract void setOnArticleClick(View view);
 
     protected void setOnArticleLongClick(View view) {
-        ((GridView) view).setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        AdapterView.OnItemLongClickListener onItemLongClickListener = new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
                 articlesAdapter.toast(position, Toast.LENGTH_LONG);
 
                 return true;
             }
-        });
+        };
+
+        if (this.config.getInGrid())
+            ((GridView) view).setOnItemLongClickListener(onItemLongClickListener);
+        else
+            ((ListView) view).setOnItemLongClickListener(onItemLongClickListener);
     }
 
     protected void createArticleGrid(final Activity activity, final ArrayNode articleList) throws Exception {

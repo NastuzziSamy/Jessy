@@ -1,9 +1,15 @@
 package fr.utc.simde.jessy;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,7 +96,7 @@ public class SellActivity extends ArticleGroupActivity {
     protected void pay(final String badgeId) {
         dialog.startLoading(this, getString(R.string.paiement), getString(R.string.transaction_in_progress));
 
-        final List<Integer> articleList = new ArrayList<Integer>(panier.getArticleList());
+        final List<List<Integer>> articleList = new ArrayList<List<Integer>>(panier.getArticleList());
         clearPanier();
 
         new Thread() {
@@ -157,7 +163,7 @@ public class SellActivity extends ArticleGroupActivity {
     @Override
     protected void createNewGroup(final String name, final ArrayNode articleList) throws Exception { createNewGroup(name, articleList, 3); }
     protected void createNewGroup(final String name, final ArrayNode articleList, int gridColumns) throws Exception {
-        ArticleGroupFragment articleGroupFragment = new SellFragment(SellActivity.this, articleList, this.panier, this.config, gridColumns);
+        ArticleGroupFragment articleGroupFragment = new SellFragment(SellActivity.this, this.dialog, articleList, this.panier, this.config, gridColumns);
 
         TabHost.TabSpec newTabSpec = this.tabHost.newTabSpec(name);
         newTabSpec.setIndicator(name);

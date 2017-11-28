@@ -18,7 +18,7 @@ public class BottomatikResponse {
     protected int fun_id;
     protected long expires_at;
     protected long creation_date;
-    protected List<String> articles;
+    protected List<List<String>> articles;
     protected boolean paid;
     protected boolean validated;
 
@@ -28,11 +28,14 @@ public class BottomatikResponse {
     public int getFoundationId() { return this.fun_id; }
     public long getExpiresAt() { return this.expires_at; }
     public long getCreatedAt() { return this.creation_date; }
-    public List<Integer> getArticleList() {
-        List<Integer> articleList = new ArrayList<Integer>();
+    public List<List<Integer>> getArticleList() {
+        List<List<Integer>> articleList = new ArrayList<List<Integer>>();
 
-        for (String article : this.articles)
-            articleList.add(Integer.parseInt(article));
+        for (final List<String> article : this.articles)
+            articleList.add(new ArrayList<Integer>() {{
+                add(Integer.parseInt(article.get(0)));
+                add(Integer.parseInt(article.get(1)));
+            }});
 
         return articleList;
     }

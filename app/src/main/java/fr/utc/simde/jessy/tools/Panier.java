@@ -1,5 +1,6 @@
 package fr.utc.simde.jessy.tools;
 
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Panier {
     private int totalPrice;
-    private List<Integer> articleList = new ArrayList<Integer>();
+    private List<List<Integer>> articleList = new ArrayList<List<Integer>>();
 
     private TextView textView;
 
@@ -29,11 +30,25 @@ public class Panier {
             this.textView.setText("Total: " + String.format("%.2f", new Float(totalPrice) / 100.00f) + "€");
     }
 
-    public List<Integer> getArticleList() { return this.articleList; }
+    public List<List<Integer>> getArticleList() { return this.articleList; }
 
-    public void addArticle(final int id, final int price) {
-        this.articleList.add(id);
-        this.totalPrice += price;
+    public void addArticle(final int id, final int price) { addArticle(id, price, 1); }
+    public void addArticle(final int id, final int price, final int quantity) {
+        this.totalPrice += price * quantity;
+
+        for (int i = 0; i < this.articleList.size(); i++) {
+            if (this.articleList.get(i).get(0) == id) {
+                this.articleList.get(i).set(1, this.articleList.get(i).get(1) + quantity);
+
+                setText();
+                return;
+            }
+        }
+
+        this.articleList.add(new ArrayList<Integer>() {{
+            add(id);
+            add(quantity);
+        }});
 
         setText();
     }

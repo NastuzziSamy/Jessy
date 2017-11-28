@@ -44,7 +44,11 @@ public class ListAdapater extends ArticlesAdapter {
             nameText.setText(article.get("name").textValue());
 
             TextView priceText = this.viewList[position].findViewById(R.id.text_price);
-            priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
+
+            if (article.get("variable_price").booleanValue())
+                priceText.setText("PV: " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue() * articleList.get(position).get("quantity").intValue()) / 100.00f) + "€");
+            else
+                priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
 
             ImageView imageCotisant = this.viewList[position].findViewById(R.id.image_cotisant);
             ImageView image18 = this.viewList[position].findViewById(R.id.image_18);
@@ -62,7 +66,7 @@ public class ListAdapater extends ArticlesAdapter {
             setImage(imageView, article.get("image_url").textValue(), position);
 
             if (article.has("quantity"))
-                nbrClicksList[position] = article.get("quantity").intValue();
+                nbrList[position] = article.get("quantity").intValue() * (article.get("variable_price").booleanValue() ? 1 : 100);
 
             if (article.has("canceled") && article.get("canceled").booleanValue()) {
                 nameText.setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -71,31 +75,12 @@ public class ListAdapater extends ArticlesAdapter {
                 clickViewList[position].setPaintFlags(nameText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
 
-            if (this.nbrClicksList[position] < 0)
+            if (this.nbrList[position] < 0)
                 priceText.setTextColor(Color.RED);
 
             setClickView(position);
         }
 
         return this.viewList[position];
-    }
-
-    public void toast(final int position, int lengthLong) {
-        Toast.makeText(this.activity, (articleList.get(position).has("quantity") ? Integer.toString(articleList.get(position).get("quantity").intValue()) + "x " : "") + articleList.get(position).get("name").textValue() + ": " + String.format("%.2f", new Float((articleList.get(position).has("quantity") ? articleList.get(position).get("quantity").intValue() : 1) * articleList.get(position).get("price").intValue()) / 100.00f) + "€", lengthLong).show();
-    }
-
-    public void setClickView(final int position) {
-        if (this.clickViewList[position] != null) {
-            if (this.nbrClicksList[position] == 0) {
-                this.clickViewList[position].setText("");
-                this.clickViewList[position].setAlpha(0.0f);
-            } else {
-                this.clickViewList[position].setText(Integer.toString(this.nbrClicksList[position]));
-                this.clickViewList[position].setAlpha(1.0f);
-
-                if (this.nbrClicksList[position] < 0)
-                    this.clickViewList[position].setBackgroundColor(Color.RED);
-            }
-        }
     }
 }

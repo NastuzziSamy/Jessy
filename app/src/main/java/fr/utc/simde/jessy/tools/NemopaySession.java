@@ -18,7 +18,7 @@ import fr.utc.simde.jessy.R;
 public class NemopaySession {
     private static final String LOG_TAG = "_NemopaySession";
     private static final String url = "https://api.nemopay.net/services/";
-    private static Map<String, String> allRights = new HashMap<String, String>();
+    private static Map<String, Object> allRights = new HashMap<String, Object>();
     private String name;
     private String key;
     private String session;
@@ -113,8 +113,8 @@ public class NemopaySession {
         return request(
             "POSS3",
             "cancelTransaction",
-            new HashMap<String, String>() {{
-                put("tra_id", Integer.toString(transactionId));
+            new HashMap<String, Object>() {{
+                put("tra_id", transactionId);
             }},
             new String[]{
                 "POSS3"
@@ -128,9 +128,9 @@ public class NemopaySession {
         return request(
             "POSS3",
             "cancel",
-            new HashMap<String, String>() {{
-                put("fun_id", Integer.toString(foundationId));
-                put("pur_id", Integer.toString(purchaseId));
+            new HashMap<String, Object>() {{
+                put("fun_id", foundationId);
+                put("pur_id", purchaseId);
             }},
             new String[]{
                 "POSS3"
@@ -138,28 +138,23 @@ public class NemopaySession {
         );
     }
 
-    public int setTransaction(final String badgeId, final List<Integer> articleList) throws Exception {
+    public int setTransaction(final String badgeId, final List<List<Integer>> articleList) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
         if (this.foundationId == -1)
             throw new Exception("No foundation set");
 
-        String articles = "";
-        for (Integer article : articleList)
-            articles += Integer.toString(article) + " ";
-
-        final String obj_ids = articles;
         return request(
             "POSS3",
             "transaction",
-            new HashMap<String, String>() {{
-                put("fun_id", Integer.toString(foundationId));
+            new HashMap<String, Object>() {{
+                put("fun_id", foundationId);
                 put("badge_id", badgeId);
-                put("obj_ids", obj_ids);
+                put("obj_ids", articleList);
 
                 if (locationId != -1)
-                    put("location_id", Integer.toString(locationId));
+                    put("location_id", locationId);
             }},
             new String[]{
                 "POSS3"
@@ -184,8 +179,8 @@ public class NemopaySession {
         return request(
             "GESUSERS",
             "getUser",
-            new HashMap<String, String>() {{
-                put("id", String.valueOf(id));
+            new HashMap<String, Object>() {{
+                put("id", id);
             }},
             new String[]{
                 "GESUSERS"
@@ -200,7 +195,7 @@ public class NemopaySession {
         return request(
             "GESUSERS",
             "userAutocompleteUsername",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("queryString", username);
             }},
             new String[]{
@@ -216,7 +211,7 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getBuyerInfoByLogin",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("login", login);
             }},
             new String[]{
@@ -232,9 +227,9 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getBuyerInfo",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 if (foundationId != -1)
-                    put("fun_id", Integer.toString(foundationId));
+                    put("fun_id", foundationId);
                 put("badge_id", badgeId);
             }},
             new String[]{
@@ -250,9 +245,9 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getProducts",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 if (foundationId != -1)
-                    put("fun_id", Integer.toString(foundationId));
+                    put("fun_id", foundationId);
             }},
             new String[]{
                 "POSS3"
@@ -267,9 +262,9 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getSalesLocations",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 if (foundationId != -1)
-                    put("fun_id", Integer.toString(foundationId));
+                    put("fun_id", foundationId);
             }},
             new String[]{
                 "POSS3"
@@ -284,9 +279,9 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getKeyboards",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 if (foundationId != -1)
-                    put("fun_id", Integer.toString(foundationId));
+                    put("fun_id", foundationId);
             }},
             new String[]{
                 "POSS3"
@@ -304,8 +299,8 @@ public class NemopaySession {
         return request(
             "POSS3",
             "getCategories",
-            new HashMap<String, String>() {{
-                put("fun_id", Integer.toString(foundationId));
+            new HashMap<String, Object>() {{
+                put("fun_id", foundationId);
             }},
             new String[]{
                 "POSS3"
@@ -321,15 +316,14 @@ public class NemopaySession {
             "POSS3",
             "getFundations",
         new String[]{
-                "POSS3"
-        }
-        );
+            "POSS3"
+        });
     }
 
     public int getCASUrl() throws Exception {
         return request(
-                "POSS3",
-                "getCasUrl"
+            "POSS3",
+            "getCasUrl"
         );
     }
 
@@ -340,7 +334,7 @@ public class NemopaySession {
         int reponseCode = request(
             "KEY",
             "registerApplication",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("app_url", service);
                 put("app_name", name);
                 put("app_desc", description);
@@ -374,7 +368,7 @@ public class NemopaySession {
         int reponseCode = request(
             "POSS3",
             "loginApp",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("key", key);
             }}
         );
@@ -406,7 +400,7 @@ public class NemopaySession {
         int reponseCode = request(
             "POSS3",
             "loginBadge2",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("badge_id", badgeId);
                 put("pin", pin);
             }},
@@ -438,7 +432,7 @@ public class NemopaySession {
         int reponseCode = request(
             "POSS3",
             "loginCas2",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("ticket", ticket);
                 put("service", service);
             }}
@@ -484,10 +478,10 @@ public class NemopaySession {
         return result.substring(0, result.length() - 1) + ".";
     }
 
-    protected int request(final String method, final String service) throws Exception { return request(method, service, new HashMap<String, String>(), new String[]{}); }
-    protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, String>(), rightsNeeded); }
-    protected int request(final String method, final String service, final Map<String, String> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
-    protected int request(final String method, final String service, final Map<String, String> postArgs, final String[] rightsNeeded) throws Exception {
+    protected int request(final String method, final String service) throws Exception { return request(method, service, new HashMap<String, Object>(), new String[]{}); }
+    protected int request(final String method, final String service, final String[] rightsNeeded) throws Exception { return request(method, service, new HashMap<String, Object>(), rightsNeeded); }
+    protected int request(final String method, final String service, final Map<String, Object> postArgs) throws Exception { return request(method, service, postArgs, new String[]{}); }
+    protected int request(final String method, final String service, final Map<String, Object> postArgs, final String[] rightsNeeded) throws Exception {
         this.request = new HTTPRequest(url + method + "/" + service);
         this.request.setGet(getArgs);
         this.request.setPost(postArgs);

@@ -49,9 +49,9 @@ public class Bottomatik {
     public int setTransaction(final String id, final boolean paid, final boolean served) throws Exception {
         return request(
             id + "/validate",
-            new HashMap<String, String>() {{
-                put("paid", String.valueOf(paid));
-                put("served", String.valueOf(served));
+            new HashMap<String, Object>() {{
+                put("paid", paid);
+                put("served", served);
             }}
         );
     }
@@ -68,8 +68,8 @@ public class Bottomatik {
         );
     }
 
-    protected int request(final String request) throws Exception { return request(request, new HashMap<String, String>()); }
-    protected int request(final String request, Map<String, String> postArgs) throws Exception {
+    protected int request(final String request) throws Exception { return request(request, new HashMap<String, Object>()); }
+    protected int request(final String request, Map<String, Object> postArgs) throws Exception {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;

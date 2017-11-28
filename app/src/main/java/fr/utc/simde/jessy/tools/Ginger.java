@@ -44,7 +44,7 @@ public class Ginger {
     public int addCotisation(final String login, final String fin, final Integer paid) throws Exception {
         return request(
             login + "/cotisations",
-            new HashMap<String, String>() {{
+            new HashMap<String, Object>() {{
                 put("debut", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
                 put("fin", fin);
                 put("montant", Integer.toString(paid));
@@ -64,8 +64,8 @@ public class Ginger {
         );
     }
 
-    protected int request(final String request) throws Exception { return request(request, new HashMap<String, String>()); }
-    protected int request(final String request, Map<String, String> postArgs) throws Exception {
+    protected int request(final String request) throws Exception { return request(request, new HashMap<String, Object>()); }
+    protected int request(final String request, Map<String, Object> postArgs) throws Exception {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;

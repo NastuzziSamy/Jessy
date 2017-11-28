@@ -54,7 +54,6 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected static NemopaySession nemopaySession;
     protected static Ginger ginger;
-    protected static Bottomatik bottomatik;
     protected static CASConnexion casConnexion;
 
     protected static Config config;
@@ -250,13 +249,6 @@ public abstract class BaseActivity extends InternetActivity {
 
     public void startSellActivity(final Activity activity) {
         startArticleGroupActivity(activity, new Intent(activity, SellActivity.class));
-    }
-
-    public void startSellBottomatikActivity(final Activity activity) {
-        if (activity instanceof SellByBottomatikActivity)
-            finish();
-
-        startActivity(new Intent(activity, SellByBottomatikActivity.class));
     }
 
     public void startEditActivity(final Activity activity) {
@@ -609,26 +601,16 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
-    protected void setGingerKey(final String key) {
-        if (key.equals(""))
+    protected void setKey(final String name, final String key) {
+        if (name.equals("") || key.equals(""))
             return;
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("key_ginger", key);
+        editor.putString("key_" + name, key);
         editor.apply();
 
-        ginger.setKey(key);
-    }
-
-    protected void setBottomatikKey(final String key) {
-        if (key.equals(""))
-            return;
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("key_bottomatik", key);
-        editor.apply();
-
-        bottomatik.setKey(key);
+        if (name.equals("ginger"))
+            ginger.setKey(key);
     }
 
     protected boolean haveStoragePermission() {

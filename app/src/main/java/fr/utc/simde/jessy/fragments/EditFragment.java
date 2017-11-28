@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Switch;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,7 +41,7 @@ public class EditFragment extends ArticleGroupFragment {
 
     @Override
     protected void setOnArticleClick(View view) {
-        ((GridView) view).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
                 final JsonNode article = articlesAdapter.getArticle(position);
@@ -72,6 +73,11 @@ public class EditFragment extends ArticleGroupFragment {
 
                 dialog.createDialog(alertDialogBuilder);
             }
-        });
+        };
+
+        if (this.config.getInGrid())
+            ((GridView) view).setOnItemClickListener(onItemClickListener);
+        else
+            ((ListView) view).setOnItemClickListener(onItemClickListener);
     }
 }

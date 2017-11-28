@@ -1,23 +1,21 @@
 package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
-import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import fr.utc.simde.jessy.R;
 
 /**
- * Created by Samy on 21/11/2017.
+ * Created by Samy on 29/11/2017.
  */
 
-public class Bottomatik {
-    private static final String LOG_TAG = "_Bottomatik";
+public class API {
+    private static final String LOG_TAG = "_API";
 
-    private static final String url = "https://picasso.bottomatik.com/bot/transactions/";
+    private String name;
+    private String url;
     private String key;
 
     private HTTPRequest request;
@@ -30,7 +28,9 @@ public class Bottomatik {
     private String internalError;
     private String errorRequest;
 
-    public Bottomatik(final Activity activity) {
+    public API(final Activity activity, final String name, final String url) {
+        this.name = name;
+        this.url = url;
         this.key = "";
 
         this.noKey = activity.getString(R.string.ginger_no_key);
@@ -46,7 +46,7 @@ public class Bottomatik {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int setTransaction(final String id, final boolean paid, final boolean served) throws Exception {
+    public int validate(final String id, final boolean paid, final boolean served) throws Exception {
         return request(
             id + "/validate",
             new HashMap<String, Object>() {{
@@ -56,13 +56,13 @@ public class Bottomatik {
         );
     }
 
-    public int getTransactionFromId(final String id) throws Exception {
+    public int getInfosFromId(final String id) throws Exception {
         return request(
             id
         );
     }
 
-    public int getTransactionFromUsername(final String username) throws Exception {
+    public int getInfosFromUsername(final String username) throws Exception {
         return request(
             "user/" + username
         );
@@ -73,10 +73,12 @@ public class Bottomatik {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;
-        this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
-        if (postArgs.size() == 0) {
+
+        if (!this.key.equals(""))
+            this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
+
+        if (postArgs.size() == 0)
             responseCode = this.request.get();
-        }
         else {
             this.request.setPost(postArgs);
             responseCode = this.request.post();
@@ -89,13 +91,13 @@ public class Bottomatik {
         else if (responseCode == 403)
             throw new Exception(this.noRight);
         else if (responseCode == 404)
-            throw new Exception("Bottomatik " + this.notFound);
+            throw new Exception(this.name + " " + this.notFound);
         else if (responseCode == 400)
-            throw new Exception("Bottomatik " + this.badRequest);
+            throw new Exception(this.name + " " + this.badRequest);
         else if (responseCode == 500 || responseCode == 503) {
-            throw new Exception("Bottomatik " + this.internalError);
+            throw new Exception(this.name + " " + this.internalError);
         }
         else
-            throw new Exception("Bottomatik " + this.errorRequest + " " + responseCode);
+            throw new Exception(this.name + " " + this.errorRequest + " " + responseCode);
     }
 }

@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class QRCodeResponse {
     protected String username;
     protected String id;
+    protected String system;
 
     public String getUsername() { return this.username; }
     public String getId() { return this.id; }
+    public String getSystem() { return this.system; }
 }

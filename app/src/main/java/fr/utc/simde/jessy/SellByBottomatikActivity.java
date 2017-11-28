@@ -233,7 +233,7 @@ public class SellByBottomatikActivity extends QRCodeReaderActivity {
         });
 
         List<ArticleResponse> articleResponseList = null;
-        List<Integer> articleIdList = bottomatikResponse.getArticleList();
+        List<List<Integer>> articleIdList = bottomatikResponse.getArticleList();
         JsonNode articleList = null;
         final ArrayNode purchaseList = new ObjectMapper().createArrayNode();
         try {
@@ -251,8 +251,8 @@ public class SellByBottomatikActivity extends QRCodeReaderActivity {
 
                     int j = 0;
                     int quantity = 0;
-                    for (Integer articleId : articleIdList) {
-                        if (articleId == articleResponse.getId()) {
+                    for (List<Integer> articleId : articleIdList) {
+                        if (articleId.get(0) == articleResponse.getId()) {
                             articleIdList.remove(j);
                             quantity++;
                         }

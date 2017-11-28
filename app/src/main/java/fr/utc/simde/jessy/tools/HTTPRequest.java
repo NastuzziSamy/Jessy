@@ -10,20 +10,25 @@ import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HTTPRequest {
     private static final String LOG_TAG = "_HTTPRequest";
+
     private String url;
     private HttpURLConnection request;
 
@@ -32,7 +37,7 @@ public class HTTPRequest {
     private JsonNode JSONResponse;
     private Bitmap BitmapResponse;
 
-    private Map<String, String> postArgs;
+    private Map<String, Object> postArgs;
     private Map<String, String> getArgs;
     private Map<String, String> cookies;
 
@@ -41,7 +46,7 @@ public class HTTPRequest {
         this.request = null;
         this.responseType = "string";
         this.StringResponse = "";
-        this.postArgs = new HashMap<String, String>();
+        this.postArgs = new HashMap<String, Object>();
         this.getArgs = new HashMap<String, String>();
         this.cookies = new HashMap<String, String>();
     }
@@ -50,7 +55,7 @@ public class HTTPRequest {
         String get = null;
 
         try {
-            get = args2String(this.getArgs, true);
+            get = get2String(this.getArgs);
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
@@ -85,8 +90,8 @@ public class HTTPRequest {
         String post = null;
 
         try {
-            get = args2String(this.getArgs, true);
-            post = args2String(this.postArgs);
+            get = get2String(this.getArgs);
+            post = post2String(this.postArgs);
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
@@ -97,14 +102,18 @@ public class HTTPRequest {
         try {
             this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
             this.request.setRequestMethod("POST");
-            this.request.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            this.request.setRequestProperty("Content-Type", "application/json");
             this.request.setRequestProperty("charset", "utf-8");
-            this.request.setRequestProperty("Content-Length", Integer.toString(post.getBytes().length));
             this.request.setRequestProperty("Cookie", getCookiesHeader());
             this.request.setUseCaches(false);
             this.request.setDoInput(true);
             this.request.setDoOutput(true);
-            this.request.getOutputStream().write(post.getBytes());
+
+            DataOutputStream os = new DataOutputStream(this.request.getOutputStream());
+            os.writeBytes(post);
+            os.flush();
+            os.close();
+
             updateCookies(this.request.getHeaderFields().get("Set-Cookie"));
 
             generateResponse(this.request.getInputStream());
@@ -252,21 +261,47 @@ public class HTTPRequest {
         return this.StringResponse;
     }
 
-    protected String args2String(Map<String, String> args) throws UnsupportedEncodingException { return args2String(args, false); }
-    protected String args2String(Map<String, String> args, Boolean isGet) throws UnsupportedEncodingException {
+    protected String get2String(Map<String, String> args) throws UnsupportedEncodingException {
         String data = "";
 
         for (String arg : args.keySet())
             data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(args.get(arg), "UTF-8") + "&");
 
-        return data.equals("") ? "" : (isGet ? "?" : "") + data.substring(0, data.length() - 1);
+        return data.equals("") ? "" : "?" + data.substring(0, data.length() - 1);
+    }
+
+    protected JsonNode map2JsonNode(Map<String, Object> args) {
+        ObjectNode data = new ObjectMapper().createObjectNode();
+
+        for (String arg : args.keySet()) {
+            if (args.get(arg).getClass() == String.class)
+                data.put(arg, (String) args.get(arg));
+            else if (args.get(arg).getClass() == Integer.class)
+                data.put(arg, (Integer) args.get(arg));
+            else if (args.get(arg).getClass() == Boolean.class)
+                data.put(arg, (Boolean) args.get(arg));
+            else if (args.get(arg).getClass() == JsonNode.class)
+                data.put(arg, (JsonNode) args.get(arg));
+            else if (args.get(arg).getClass() == ArrayNode.class)
+                data.putArray(arg).addAll((ArrayNode) args.get(arg));
+            else if (args.get(arg).getClass() == Map.class)
+                data.put(arg, map2JsonNode((Map<String, Object>) args.get(arg)));
+            else if (args.get(arg).getClass() == ArrayList.class)
+                data.put(arg, args.get(arg).toString());
+        }
+
+        return data;
+    }
+
+    protected String post2String(Map<String, Object> args) {
+        return map2JsonNode(args).toString();
     }
 
     public void setGet(Map<String, String> args) {
         this.getArgs = args;
     }
 
-    public void setPost(Map<String, String> args) {
+    public void setPost(Map<String, Object> args) {
         this.postArgs = args;
     }
 

@@ -124,9 +124,14 @@ public class BuyerInfoActivity extends BaseActivity {
                         }
 
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
+
+                        if (article.get("variable_price").booleanValue())
+                            alertDialogBuilder.setMessage(getString(R.string.ask_cancel_transaction) + " " + article.get("name").textValue() + " (total: " + String.format("%.2f", new Float(article.get("price").intValue()) * article.get("quantity").intValue() / 100.00f) + "€) ?");
+                        else
+                            alertDialogBuilder.setMessage(getString(R.string.ask_cancel_transaction) + " " + Integer.toString(article.get("quantity").intValue()) + "x " + article.get("name").textValue() + " (total: " + String.format("%.2f", new Float(article.get("price").intValue()) / 100.00f) + "€) ?");
+
                         alertDialogBuilder
                             .setTitle(R.string.cancel_transaction)
-                            .setMessage(getString(R.string.ask_cancel_transaction) + " " + Integer.toString(article.get("quantity").intValue()) + "x " + article.get("name").textValue() + " (total: " + String.format("%.2f", new Float(article.get("price").intValue()) / 100.00f) + "€) ?")
                             .setCancelable(true)
                             .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int id) {

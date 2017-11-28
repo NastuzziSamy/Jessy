@@ -5,10 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.media.Image;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -58,13 +54,11 @@ public class MainActivity extends BaseActivity {
 
         nemopaySession = new NemopaySession(MainActivity.this);
         ginger = new Ginger(MainActivity.this);
-        bottomatik = new Bottomatik(MainActivity.this);
         casConnexion = new CASConnexion(nemopaySession);
         config = new Config(sharedPreferences);
 
         setNemopayKey(sharedPreferences.getString("key", ""));
-        setGingerKey(sharedPreferences.getString("key_ginger", ""));
-        setBottomatikKey(sharedPreferences.getString("key_bottomatik", ""));
+        ginger.setKey(sharedPreferences.getString("key_ginger", ""));
 
         appImg = findViewById(R.id.img_payutc);
         appNameText = findViewById(R.id.text_app_name);
@@ -447,7 +441,7 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void keyDialog() {
-        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key, null);
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_add_key, null);
         final EditText nameInput = keyView.findViewById(R.id.input_name);
         final EditText descriptionInput = keyView.findViewById(R.id.input_description);
         final String date = new SimpleDateFormat("yyyy/MM/dd", Locale.FRANCE).format(new Date());
@@ -502,13 +496,14 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void optionDialog() {
-        final View view = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
-        final EditText keyInput = view.findViewById(R.id.input_key);
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+        final EditText keyInput = keyView.findViewById(R.id.input_key);
+        keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
-                .setTitle(R.string.key_registration)
-                .setView(view)
+                .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
+                .setView(keyView)
                 .setCancelable(false)
                 .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {

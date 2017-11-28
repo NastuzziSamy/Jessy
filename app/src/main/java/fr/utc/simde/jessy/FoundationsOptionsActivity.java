@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import fr.utc.simde.jessy.adapters.FoundationsAdapter;
-import fr.utc.simde.jessy.adapters.LocationsAdapter;
 import fr.utc.simde.jessy.adapters.OptionChoicesAdapter;
 import fr.utc.simde.jessy.adapters.OptionsAdapter;
 
@@ -134,12 +133,10 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,6))
                     keyNemopayDialog();
                 else if (isOption(position,7))
-                    keyGingerDialog();
+                    keyEditDialog();
                 else if (isOption(position,8))
-                    keyBottomotikDialog();
-                else if (isOption(position,9))
                     checkUpdate();
-                else if (isOption(position,10))
+                else if (isOption(position,9))
                     creditDialog();
                 else
                     configDialog();
@@ -153,73 +150,50 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
+                keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
                 alertDialogBuilder
-                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
-                        .setView(keyView)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!keyInput.getText().toString().equals(""))
-                                    setNemopayKey(keyInput.getText().toString());
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null);
+                    .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
+                    .setView(keyView)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            if (!keyInput.getText().toString().equals(""))
+                                setNemopayKey(keyInput.getText().toString());
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
 
                 dialog.createDialog(alertDialogBuilder, keyInput);
             }
         });
     }
 
-    protected void keyGingerDialog() {
-        hasRights(getString(R.string.ginger), new String[]{}, new Runnable(){
+    protected void keyEditDialog() {
+        hasRights(getString(R.string.key_registration), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+                final EditText nameInput = keyView.findViewById(R.id.input_name);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
                 alertDialogBuilder
-                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.ginger))
+                        .setTitle(getString(R.string.key_registration))
                         .setView(keyView)
                         .setCancelable(false)
                         .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!keyInput.getText().toString().equals(""))
-                                    setGingerKey(keyInput.getText().toString());
+                                if (!nameInput.getText().toString().equals("") || !keyInput.getText().toString().equals(""))
+                                    setKey(nameInput.getText().toString(), keyInput.getText().toString());
                             }
                         })
                         .setNegativeButton(R.string.cancel, null);
 
-                dialog.createDialog(alertDialogBuilder, keyInput);
-            }
-        });
-    }
-
-    protected void keyBottomotikDialog() {
-        hasRights(getString(R.string.bottomatik), new String[]{}, new Runnable(){
-            @Override
-            public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
-                final EditText keyInput = keyView.findViewById(R.id.input_key);
-
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
-                alertDialogBuilder
-                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.bottomatik))
-                        .setView(keyView)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!keyInput.getText().toString().equals(""))
-                                    setBottomatikKey(keyInput.getText().toString());
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null);
-
-                dialog.createDialog(alertDialogBuilder, keyInput);
+                dialog.createDialog(alertDialogBuilder, nameInput);
             }
         });
     }

@@ -19,6 +19,7 @@
     <string name="erase">Effacer</string>
     <string name="cancel">Annuler</string>
     <string name="add">Ajouter</string>
+    <string name="more">En savoir plus</string>
     <string name="do_nothing">Ne rien faire</string>
     <string name="quit">Quitter</string>
     <string name="app_registred">Appareil enregistré</string>
@@ -67,6 +68,7 @@
     <string name="qrcode">QR Code</string>
     <string name="credit">Crédits</string>
     <string name="price">Prix</string>
+    <string name="seance">Séance</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -106,8 +108,9 @@
     <string name="nemopay_already_registered">Application déjà authentifiée</string>
     <string name="nemopay_error_registering">Application non enregistrée</string>
     <string name="nemopay_information">Informations de la part de Nemopay</string>
+    <string name="api_name">Nom d\'application</string>
     <string name="key">Clé d\'application</string>
-    <string name="key_registration">Enregistrement de la clé</string>
+    <string name="key_registration">Enregistrement d\'une clé</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>
     <string name="key_name">Nom - Date</string>
     <string name="key_description">Description</string>
@@ -174,16 +177,20 @@
     <string name="need_camera_permission">Il est nécessaire d\'autoriser l\'application à utiliser la caméra pour lire un QR Code</string>
     <string name="qrcode_reading">Lecture d\'un QR Code</string>
     <string name="article_name">Nom de l\'article</string>
-    <string name="bottomatik_get_transaction">Récupération de la transaction auprès de Bottomatik</string>
-    <string name="bottomatik_already_validated">La commande a déjà été servie</string>
     <string name="can_not_sell_other_foundation">Il n\'est pas possible de vendre des produits d\'une autre fondation</string>
-    <string name="transaction_realized">Paiement effectué</string>
-    <string name="transaction_in_validation">Transaction en cours de validation</string>
-    <string name="transaction_validated">Transaction validée</string>
-    <string name="transaction_in_cancelation">Transaction en cours d\'annulation</string>
-    <string name="transaction_refunded">Remboursement réalisé</string>
-    <string name="transaction_no">Aucune commande récente n\'a été réalisée</string>
+    <string name="ticket_realized">Paiement effectué</string>
+    <string name="ticket_in_validation">Ticket en cours de validation</string>
+    <string name="ticket_validated">Ticket validée</string>
+    <string name="ticket_in_cancelation">Ticket en cours d\'annulation</string>
+    <string name="ticket_refunded">Remboursement réalisé</string>
+    <string name="ticket_no">Aucune commande récente n\'a été réalisée</string>
+    <string name="ticket_not_created_yet">Le ticket n\'est pas encore valide</string>
+    <string name="ticket_expired">Le ticket n\'est plus valide, il a expiré</string>
     <string name="variable_price">Prix variable</string>
+    <string name="not_understood">Non compris</string>
+    <string name="getting_informations_from">Récupérations des informations depuis</string>
+    <string name="already_validated">Ce ticket a déjà été validé</string>
+    <string name="reservation_number">Réservation n°</string>
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

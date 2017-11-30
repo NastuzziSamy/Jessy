@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -147,25 +148,26 @@ public abstract class ArticlesAdapter extends BaseAdapter {
     }
 
     public void setImage(final ImageView imageView, final String url, final int position) {
-        final HTTPRequest[] request = new HTTPRequest[1];
-
         if (imageList[position] != null)
             imageView.setImageBitmap(imageList[position]);
         else if (url != null && !url.equals("")) {
             new Thread(){
                 @Override
                 public void run() {
-                    request[0] = new HTTPRequest(url);
+                    final HTTPRequest httpRequest = new HTTPRequest(url);
 
-                    if (request[0].get() == 200) {
+                    if (httpRequest.get() == 200) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    imageList[position] = request[0].getImageResponse();
+                                    if (!httpRequest.isImageResponse())
+                                        throw new Exception("Not an Image");
+
+                                    imageList[position] = httpRequest.getImageResponse();
                                     imageView.setImageBitmap(imageList[position]);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    Log.e(LOG_TAG, e.getMessage());
                                 }
                             }
                         });

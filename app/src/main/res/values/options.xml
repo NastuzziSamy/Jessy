@@ -8,8 +8,7 @@
         <item>Lire un QR Code</item>
         <item>Gestion des cartes/cotisations</item>
         <item>Modifier la clé Nemopay</item>
-        <item>Modifier la clé Ginger</item>
-        <item>Modifier la clé Bottomatik</item>
+        <item>Modifier une clé API</item>
         <item>Rechercher une mise à jour</item>
         <item>Crédits</item>
     </string-array>

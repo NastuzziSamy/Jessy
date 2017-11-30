@@ -110,7 +110,7 @@ public class SellActivity extends ArticleGroupActivity {
                         @Override
                         public void run() {
                             dialog.stopLoading();
-                            Toast.makeText(SellActivity.this, getString(R.string.transaction_realized), Toast.LENGTH_LONG).show();
+                            Toast.makeText(SellActivity.this, getString(R.string.ticket_realized), Toast.LENGTH_LONG).show();
                             setBackgroundColor(getResources().getColor(R.color.success));
                             ((Vibrator) getSystemService(ArticleGroupActivity.VIBRATOR_SERVICE)).vibrate(250);
                         }

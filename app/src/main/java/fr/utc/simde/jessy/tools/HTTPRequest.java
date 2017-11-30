@@ -183,7 +183,7 @@ public class HTTPRequest {
             }
             catch (Exception e) {
                 this.BitmapResponse = null;
-                throw new Exception("Malformed JSON");
+                throw new Exception("Malformed IMG");
             }
         }
         else {
@@ -198,7 +198,7 @@ public class HTTPRequest {
             in.close();
             this.StringResponse = builder.toString();
 
-            if (this.request.getContentType().equals("application/json")) {
+            if (this.request.getContentType().contains("application/json")) {
                 try {
                     this.JSONResponse = new ObjectMapper().readTree(this.StringResponse);
                     this.responseType = "JSON";

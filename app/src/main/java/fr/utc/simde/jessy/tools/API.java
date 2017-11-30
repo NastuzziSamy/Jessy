@@ -46,6 +46,11 @@ public class API {
 
     public HTTPRequest getRequest() { return this.request; }
 
+    public int validate(final String id) throws Exception {
+        return request(
+            id + "/validate"
+        );
+    }
     public int validate(final String id, final boolean paid, final boolean served) throws Exception {
         return request(
             id + "/validate",

@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ComedmusResponse extends APIResponse {
-    protected Integer reservationId;
+    protected Integer reservation_id;
     protected String seance;
 
-    public Integer getReservationId() { return this.reservationId; }
+    public Integer getReservationId() { return this.reservation_id; }
     public String getSeance() { return this.seance; }
 }

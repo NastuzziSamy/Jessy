@@ -102,7 +102,8 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     public void onResume() {
         super.onResume();
 
-        resumeReading();
+        if (!dialog.isShowing())
+            resumeReading();
     }
 
     @Override
@@ -128,14 +129,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 QRCodeResponse qrCodeResponse = new ObjectMapper().readValue(result.getText(), QRCodeResponse.class);
 
                 if (!this.apiName.contains(qrCodeResponse.getSystem())) {
-                   /* dialog.infoDialog(QRCodeReaderActivity.this, result.getBarcodeFormat().toString() + ": " + getString(R.string.not_understood), result.getText(), new DialogInterface.OnClickListener() {
+                    dialog.infoDialog(QRCodeReaderActivity.this, result.getBarcodeFormat().toString() + ": " + getString(R.string.not_understood), result.getText(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             resumeReading();
                         }
-                    });*/
-
-                    handleQRCode(qrCodeResponse, 0);
+                    });
                 }
                 else
                     handleQRCode(qrCodeResponse, this.apiName.indexOf(qrCodeResponse.getSystem()));
@@ -236,7 +235,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 if (apiIndex == 0)
                     payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse.getBadgeId());
                 else if (apiIndex == 1) {
-                    seeReservation(api, (ComedmusResponse) apiResponse);
+                    checkReservation(api, (ComedmusResponse) apiResponse);
                 }
             }
         }.start();
@@ -314,7 +313,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 @Override
                 public void run() {
                     dialog.stopLoading();
-                    Toast.makeText(QRCodeReaderActivity.this, getString(R.string.transaction_realized), Toast.LENGTH_LONG).show();
+                    Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_realized), Toast.LENGTH_LONG).show();
                     ((Vibrator) getSystemService(QRCodeReaderActivity.VIBRATOR_SERVICE)).vibrate(250);
 
                     final LayoutInflater layoutInflater = LayoutInflater.from(QRCodeReaderActivity.this);
@@ -337,7 +336,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int which) {
-                                    dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_validation));
+                                    dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.ticket_in_validation));
 
                                     new Thread() {
                                         @Override
@@ -350,7 +349,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                                                     @Override
                                                     public void run() {
                                                         dialog.stopLoading();
-                                                        Toast.makeText(QRCodeReaderActivity.this, getString(R.string.transaction_validated), Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_validated), Toast.LENGTH_LONG).show();
 
                                                         resumeReading();
                                                     }
@@ -373,7 +372,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int which) {
-                                    dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.qrcode_reading), getResources().getString(R.string.transaction_in_cancelation));
+                                    dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.qrcode_reading), getResources().getString(R.string.ticket_in_cancelation));
 
                                     new Thread() {
                                         @Override
@@ -386,7 +385,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                                                     @Override
                                                     public void run() {
                                                         dialog.stopLoading();
-                                                        Toast.makeText(QRCodeReaderActivity.this, getString(R.string.transaction_refunded), Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_refunded), Toast.LENGTH_LONG).show();
                                                         ((Vibrator) getSystemService(QRCodeReaderActivity.VIBRATOR_SERVICE)).vibrate(250);
 
                                                         resumeReading();
@@ -474,66 +473,131 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         }
     }
 
-    protected void seeReservation(final API api, final ComedmusResponse comedmusAPI) {
+    protected void checkReservation(final API api, final ComedmusResponse comedmusResponse) {
+        if ((System.currentTimeMillis() / 1000) < comedmusResponse.getCreatedAt()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+                    alertDialogBuilder
+                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setMessage(getString(R.string.ticket_not_created_yet))
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    resumeReading();
+                                }
+                            })
+                            .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    seeReservation(api, comedmusResponse);
+                                }
+                            });
+
+                    dialog.createDialog(alertDialogBuilder);
+                    ((Vibrator) getSystemService(QRCodeReaderActivity.VIBRATOR_SERVICE)).vibrate(500);
+                }
+            });
+
+            return;
+        }
+
+        if ((System.currentTimeMillis() / 1000) > comedmusResponse.getExpiresAt()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+                    alertDialogBuilder
+                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setMessage(getString(R.string.ticket_expired))
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    resumeReading();
+                                }
+                            })
+                            .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    seeReservation(api, comedmusResponse);
+                                }
+                            });
+
+                    dialog.createDialog(alertDialogBuilder);
+                    ((Vibrator) getSystemService(QRCodeReaderActivity.VIBRATOR_SERVICE)).vibrate(500);
+                }
+            });
+
+            return;
+        }
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_reservation_info, null);
-                final TextView nameText = keyView.findViewById(R.id.text_name);
-                final TextView seanceText = keyView.findViewById(R.id.text_seance);
-                final TextView priceText = keyView.findViewById(R.id.text_price);
-
-                nameText.setText(comedmusAPI.getUsername());
-                seanceText.setText(comedmusAPI.getSeance());
-                priceText.setText(comedmusAPI.getType());
-
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
-                alertDialogBuilder
-                        .setTitle(getString(R.string.reservation_number) + comedmusAPI.getReservationId())
-                        .setView(keyView)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogInterface, int id) {dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.transaction_in_validation));
-                                new Thread() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            api.validate(comedmusAPI.getId(), false, true);
-                                            Thread.sleep(100);
-
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    dialog.stopLoading();
-                                                    Toast.makeText(QRCodeReaderActivity.this, getString(R.string.transaction_validated), Toast.LENGTH_LONG).show();
-
-                                                    resumeReading();
-                                                }
-                                            });
-                                        } catch (final Exception e) {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Log.e(LOG_TAG, "error: " + e.getMessage());
-                                                    dialog.errorDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage());
-
-                                                    resumeReading();
-                                                }
-                                            });
-                                        }
-                                    }
-                                }.start();
-                            }
-                        })
-                        .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                resumeReading();
-                            }
-                        });
-
-                dialog.createDialog(alertDialogBuilder);
+                seeReservation(api, comedmusResponse);
             }
         });
     }
+
+    protected void seeReservation(final API api, final ComedmusResponse comedmusResponse) {
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_reservation_info, null);
+        final TextView nameText = keyView.findViewById(R.id.text_name);
+        final TextView seanceText = keyView.findViewById(R.id.text_seance);
+        final TextView priceText = keyView.findViewById(R.id.text_price);
+
+        nameText.setText(comedmusResponse.getUsername());
+        seanceText.setText(comedmusResponse.getSeance());
+        priceText.setText(comedmusResponse.getType());
+
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+        alertDialogBuilder
+                .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                .setView(keyView)
+                .setCancelable(false)
+                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.ticket_in_validation));
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    api.validate(comedmusResponse.getId());
+                                    Thread.sleep(100);
+
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.stopLoading();
+                                            Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_validated), Toast.LENGTH_LONG).show();
+
+                                            resumeReading();
+                                        }
+                                    });
+                                } catch (final Exception e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                                            dialog.errorDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage());
+
+                                            resumeReading();
+                                        }
+                                    });
+                                }
+                            }
+                        }.start();
+                    }
+                })
+                .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        resumeReading();
+                    }
+                });
+
+        dialog.createDialog(alertDialogBuilder);
+    }
 }
+

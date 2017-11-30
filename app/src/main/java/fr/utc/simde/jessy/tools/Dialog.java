@@ -74,10 +74,26 @@ public class Dialog {
         }
     }
 
+    public void choiceDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onClickListenerYes, final DialogInterface.OnClickListener onClickListenerNo) {
+        this.activity = activity;
+        dismiss();
+
+        this.alertDialogBuilder = new AlertDialog.Builder(activity);
+        this.alertDialogBuilder
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, onClickListenerYes)
+                .setNegativeButton(R.string.no, onClickListenerNo);
+
+        createDialog();
+    }
+
     public void infoDialog(final Activity activity, final String title, final String message) { errorDialog(activity, title, message, null); }
     public void infoDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onClickListener) {
         this.activity = activity;
         dismiss();
+
         this.alertDialogBuilder = new AlertDialog.Builder(activity);
         this.alertDialogBuilder
             .setTitle(title)

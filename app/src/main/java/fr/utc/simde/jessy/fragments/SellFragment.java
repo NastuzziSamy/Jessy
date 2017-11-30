@@ -105,7 +105,7 @@ public class SellFragment extends ArticleGroupFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
         alertDialogBuilder
-                .setTitle(R.string.variable_price)
+                .setTitle(R.string.price_variable)
                 .setView(priceView)
                 .setCancelable(false)
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {

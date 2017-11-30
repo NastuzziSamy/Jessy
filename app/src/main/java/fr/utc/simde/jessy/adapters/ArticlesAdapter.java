@@ -97,7 +97,7 @@ public abstract class ArticlesAdapter extends BaseAdapter {
         String text;
 
         if (articleList.get(position).get("variable_price").booleanValue())
-            text = articleList.get(position).get("name").textValue() + ": " + activity.getString(R.string.variable_price);
+            text = articleList.get(position).get("name").textValue() + ": " + activity.getString(R.string.price_variable);
         else if (articleList.get(position).has("quantity"))
             text = Integer.toString(articleList.get(position).get("quantity").intValue()) + "x " + articleList.get(position).get("name").textValue() + ": " + Integer.toString(articleList.get(position).get("quantity").intValue()) + "x " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€";
         else

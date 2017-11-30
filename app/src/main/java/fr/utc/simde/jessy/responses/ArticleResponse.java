@@ -16,6 +16,7 @@ public class ArticleResponse {
     protected int fundation_id;
     protected int categorie_id;
     protected int price;
+    protected boolean variable_price;
     protected boolean cotisant;
     protected boolean alcool;
     protected boolean active;
@@ -25,6 +26,7 @@ public class ArticleResponse {
     public int getFoundationId() { return this.fundation_id; }
     public int getCategoryId() { return this.categorie_id; }
     public int getPrice() { return this.price; }
+    public boolean getIsVariablePrice() { return this.variable_price; }
     public boolean getIsContributerOnly() { return this.cotisant; }
     public boolean getIsAdultOnly() { return this.alcool; }
     public boolean getIsActive() { return this.active; }

@@ -54,6 +54,8 @@
     <string name="user_id">ID utilisateur</string>
     <string name="firstname">Prenom</string>
     <string name="lastname">Nom</string>
+    <string name="name">Nom</string>
+    <string name="image">Image</string>
     <string name="email">Email</string>
     <string name="adult">Adulte</string>
     <string name="contribute">Cotiser</string>
@@ -69,6 +71,7 @@
     <string name="credit">Crédits</string>
     <string name="price">Prix</string>
     <string name="seance">Séance</string>
+    <string name="print">Affichage</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -177,6 +180,7 @@
     <string name="need_camera_permission">Il est nécessaire d\'autoriser l\'application à utiliser la caméra pour lire un QR Code</string>
     <string name="qrcode_reading">Lecture d\'un QR Code</string>
     <string name="article_name">Nom de l\'article</string>
+    <string name="article_img_url">URL de l\'image</string>
     <string name="can_not_sell_other_foundation">Il n\'est pas possible de vendre des produits d\'une autre fondation</string>
     <string name="ticket_realized">Paiement effectué</string>
     <string name="ticket_in_validation">Ticket en cours de validation</string>
@@ -186,11 +190,29 @@
     <string name="ticket_no">Aucune commande récente n\'a été réalisée</string>
     <string name="ticket_not_created_yet">Le ticket n\'est pas encore valide</string>
     <string name="ticket_expired">Le ticket n\'est plus valide, il a expiré</string>
-    <string name="variable_price">Prix variable</string>
+    <string name="price_fixed">Prix fixe</string>
+    <string name="price_variable">Prix variable</string>
     <string name="not_understood">Non compris</string>
     <string name="getting_informations_from">Récupérations des informations depuis</string>
     <string name="already_validated">Ce ticket a déjà été validé</string>
     <string name="reservation_number">Réservation n°</string>
+    <string name="category_name">Nom de la catégorie</string>
+    <string name="category_add">Ajouter une nouvelle catégorie</string>
+    <string name="category_adding">Creation de la nouvelle catégorie</string>
+    <string name="category_edit">Modifier une catégorie</string>
+    <string name="category_editing">Changement du nom de la catégorie</string>
+    <string name="category_delete">Supprimer une catégorie</string>
+    <string name="category_deleting">Suppression de la catégorie en cours</string>
+    <string name="category_delete_confirmation">Voulez-vous vraiment supprimer cette catégorie:</string>
+    <string name="article_add">Ajouter l\'article</string>
+    <string name="article_add_one">Ajouter un article</string>
+    <string name="article_adding">Ajout d\'un article</string>
+    <string name="article_edit">Modifier l\'article</string>
+    <string name="article_editing">Modification d\'un article</string>
+    <string name="article_delete">Supprimer l\'article</string>
+    <string name="article_deleting">Suppression d\'un article</string>
+    <string name="article_delete_confirmation">Voulez-vous vraiment supprimer cet article:</string>
+
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

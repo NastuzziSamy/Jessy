@@ -67,6 +67,7 @@
     <string name="type">Type</string>
     <string name="day_s_">jour(s)</string>
     <string name="update">Mise à jour</string>
+    <string name="download">Téléchargement</string>
     <string name="qrcode">QR Code</string>
     <string name="credit">Crédits</string>
     <string name="price">Prix</string>
@@ -169,10 +170,13 @@
     <string name="contribute_admin">Membre d\'honneur (0€)</string>
     <string name="contribute_temp">Temporaire</string>
     <string name="set_update">Mettre à jour</string>
+    <string name="set_download">Télécharger</string>
     <string name="check_update">Recherche d\'une mise à jour</string>
     <string name="available_update">Mise à jour disponible</string>
     <string name="can_not_detect_update">Impossible de détecter si une mise à jour disponible</string>
     <string name="can_not_update">Impossible de réaliser la mise à jour</string>
+    <string name="can_not_download">Impossible de télécharger la mise à jour</string>
+    <string name="download_successful">Téléchagement réussi</string>
     <string name="no_update">Aucune mise à jour disponible</string>
     <string name="actual_version">Version actuelle</string>
     <string name="available_version">Version disponible</string>
@@ -212,7 +216,6 @@
     <string name="article_delete">Supprimer l\'article</string>
     <string name="article_deleting">Suppression d\'un article</string>
     <string name="article_delete_confirmation">Voulez-vous vraiment supprimer cet article:</string>
-
 
     <string name="print_mode">Mode d\'affichage</string>
     <string name="filters">Filtres d\'affichage</string>

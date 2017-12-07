@@ -29,7 +29,7 @@ public abstract class NFCActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        NFCAdapter = NfcAdapter.getDefaultAdapter(getApplicationContext());
+        NFCAdapter = NfcAdapter.getDefaultAdapter(this);
         NFCAlertDialog = new AlertDialog.Builder(this);
 
         if (NFCAdapter == null) {
@@ -65,6 +65,9 @@ public abstract class NFCActivity extends Activity {
 
             if (!NFCAdapter.isEnabled())
                 enableNFCDialog();
+
+            IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
+            this.registerReceiver(NFCReceiver, filter);
         }
     }
 
@@ -72,15 +75,17 @@ public abstract class NFCActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        if (identifierIsAvailable())
-            NFCAdapter.disableForegroundDispatch(this);
+        NFCAdapter = NfcAdapter.getDefaultAdapter(this);
+        NFCAdapter.disableForegroundDispatch(this);
+
+        this.unregisterReceiver(NFCReceiver);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        this.unregisterReceiver(NFCReceiver);
+        try { this.unregisterReceiver(NFCReceiver); } catch (Exception e) {}
     }
 
     protected abstract void onIdentification(final String badgeId);

@@ -26,24 +26,7 @@ public class GridAdapter extends ArticlesAdapter {
     public GridAdapter(final Activity activity, final ArrayNode articleList, final int nbrColumns, final Boolean printCotisant, final Boolean print18) throws Exception {
         super(activity, articleList, printCotisant, print18);
 
-        switch (nbrColumns) {
-            case 1:
-                this.size = 250;
-                break;
-            case 2:
-                this.size = 200;
-                break;
-            case 3:
-                this.size = 150;
-                break;
-            case 4:
-                this.size = 125;
-                break;
-            case 5:
-            default:
-                this.size = 100;
-                break;
-        }
+        this.size = nbrColumns > 5 ? 100 : 225 - (25 * nbrColumns);
     }
 
     @Override
@@ -74,7 +57,13 @@ public class GridAdapter extends ArticlesAdapter {
                 imageCotisant.setLayoutParams(imageParms);
                 image18.setLayoutParams(imageParms);
 
-                setInfos(article, imageCotisant, image18);
+                if (article.get("id").intValue() == -1) {
+                    imageCotisant.setVisibility(View.GONE);
+                    image18.setVisibility(View.GONE);
+                }
+                else
+                    setInfos(article, imageCotisant, image18);
+
                 setImage(imageView, article.get("image_url").textValue(), position);
                 setClickView(position);
             }

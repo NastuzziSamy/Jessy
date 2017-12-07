@@ -18,6 +18,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -87,7 +88,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView parent, View view, int position, long id) {
                 nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
-                startArticleGroupActivity(FoundationsOptionsActivity.this);
+                startSellActivity(FoundationsOptionsActivity.this);
             }
         });
 
@@ -120,7 +121,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                     startActivity(new Intent(FoundationsOptionsActivity.this, BuyerInfoActivity.class));
                 }
                 else if (isOption(position,1))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.11");
+                    editDialog();
                 else if (isOption(position,2))
                     dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
                 else if (isOption(position,3))
@@ -132,7 +133,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position,6))
                     keyNemopayDialog();
                 else if (isOption(position,7))
-                    keyGingerDialog();
+                    keyEditDialog();
                 else if (isOption(position,8))
                     checkUpdate();
                 else if (isOption(position,9))
@@ -149,52 +150,53 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
+                keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
                 alertDialogBuilder
-                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
-                        .setView(keyView)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!keyInput.getText().toString().equals(""))
-                                    setNemopayKey(keyInput.getText().toString());
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, null);
+                    .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
+                    .setView(keyView)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int id) {
+                            if (!keyInput.getText().toString().equals(""))
+                                setNemopayKey(keyInput.getText().toString());
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null);
 
                 dialog.createDialog(alertDialogBuilder, keyInput);
             }
         });
     }
 
-    protected void keyGingerDialog() {
-        hasRights(getString(R.string.ginger), new String[]{}, new Runnable(){
+    protected void keyEditDialog() {
+        hasRights(getString(R.string.key_registration), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_force, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+                final EditText nameInput = keyView.findViewById(R.id.input_name);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
                 alertDialogBuilder
-                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.ginger))
+                        .setTitle(getString(R.string.key_registration))
                         .setView(keyView)
                         .setCancelable(false)
                         .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!keyInput.getText().toString().equals(""))
-                                    setGingerKey(keyInput.getText().toString());
+                                if (!nameInput.getText().toString().equals("") || !keyInput.getText().toString().equals(""))
+                                    setKey(nameInput.getText().toString(), keyInput.getText().toString());
                             }
                         })
                         .setNegativeButton(R.string.cancel, null);
 
-                dialog.createDialog(alertDialogBuilder, keyInput);
+                dialog.createDialog(alertDialogBuilder, nameInput);
             }
         });
     }
-
 
     protected void creditDialog() {
         dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.credit), getString(R.string.author));
@@ -337,12 +339,129 @@ public class FoundationsOptionsActivity extends BaseActivity {
                             config.setPrintCotisant(switchCotisant.isChecked());
                             config.setPrint18(swtich18.isChecked());
 
-                            startArticleGroupActivity(FoundationsOptionsActivity.this);
+                            startSellActivity(FoundationsOptionsActivity.this);
                         }
                     })
                     .setNegativeButton(R.string.cancel, null);
 
             dialog.createDialog(alertDialogBuilder);
         }
+    }
+
+    protected void editDialog() {
+        dialog.startLoading(FoundationsOptionsActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    nemopaySession.getAllMyRights();
+                    Thread.sleep(100);
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.changeLoading(getString(R.string.foundation_list_collecting));
+                    }
+                });
+
+                try {
+                    final JsonNode rightList = nemopaySession.getRequest().getJSONResponse();
+
+                    nemopaySession.getFoundations();
+                    Thread.sleep(100);
+
+                    final JsonNode foundationList = nemopaySession.getRequest().getJSONResponse();
+                    ArrayNode foundationListWithRights = new ObjectMapper().createArrayNode();
+
+                    if (rightList.has("0")) {
+                        for (JsonNode element : rightList.get("0")) {
+                            if (element.textValue().equals("GESARTICLE")) {
+                                foundationListWithRights = (ArrayNode) foundationList;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (foundationListWithRights.size() == 0) {
+                        for (final JsonNode foundation : foundationList) {
+                            if (!foundation.has("name") || !foundation.has("fun_id"))
+                                throw new Exception("Unexpected JSON");
+
+                            if (rightList.has(Integer.toString(foundation.get("fun_id").intValue()))) {
+                                for (JsonNode element : rightList.get(Integer.toString(foundation.get("fun_id").intValue()))) {
+                                    if (element.textValue().equals("GESARTICLE")) {
+                                        foundationListWithRights.add(foundation);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    final ArrayNode finalFoundationListWithRights = foundationListWithRights;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            if (finalFoundationListWithRights.size() == 0)
+                                dialog.infoDialog(FoundationsOptionsActivity.this, getString(R.string.user_rights_list_collecting), nemopaySession.forbidden(new String[]{"GESARTICLE"}, false));
+                            else {
+                                final LayoutInflater layoutInflater = LayoutInflater.from(FoundationsOptionsActivity.this);
+                                final View popupView = layoutInflater.inflate(R.layout.dialog_list, null);
+                                final ListView listView = popupView.findViewById(R.id.list_groups);
+
+                                try {
+                                    final FoundationsAdapter foundationsAdapter = new FoundationsAdapter(FoundationsOptionsActivity.this, finalFoundationListWithRights);
+
+                                    listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            nemopaySession.setFoundation(foundationsAdapter.getFoundationId(position), foundationsAdapter.getFoundationName(position), -1);
+                                            startEditActivity(FoundationsOptionsActivity.this);
+                                        }
+                                    });
+
+                                    listView.setAdapter(foundationsAdapter);
+                                } catch (Exception e) {
+                                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                                    fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                                }
+
+                                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                                alertDialogBuilder
+                                        .setTitle(R.string.article)
+                                        .setView(popupView)
+                                        .setCancelable(false)
+                                        .setNegativeButton(R.string.cancel, null);
+
+                                dialog.createDialog(alertDialogBuilder);
+                            }
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fatal(FoundationsOptionsActivity.this, getString(R.string.foundation_list_collecting), e.getMessage());
+                        }
+                    });
+                }
+            }
+        }.start();
     }
 }

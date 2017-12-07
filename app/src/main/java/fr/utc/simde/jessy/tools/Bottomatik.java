@@ -10,9 +10,14 @@ import java.util.Map;
 
 import fr.utc.simde.jessy.R;
 
-public class Ginger {
-    private static final String LOG_TAG = "_Ginger";
-    private static final String url = "https://assos.utc.fr/ginger/v1/";
+/**
+ * Created by Samy on 21/11/2017.
+ */
+
+public class Bottomatik {
+    private static final String LOG_TAG = "_Bottomatik";
+
+    private static final String url = "https://picasso.bottomatik.com/bot/transactions/";
     private String key;
 
     private HTTPRequest request;
@@ -25,7 +30,7 @@ public class Ginger {
     private String internalError;
     private String errorRequest;
 
-    public Ginger(final Activity activity) {
+    public Bottomatik(final Activity activity) {
         this.key = "";
 
         this.noKey = activity.getString(R.string.ginger_no_key);
@@ -41,26 +46,25 @@ public class Ginger {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int addCotisation(final String login, final String fin, final Integer paid) throws Exception {
+    public int setTransaction(final String id, final boolean paid, final boolean served) throws Exception {
         return request(
-            login + "/cotisations",
+            id + "/validate",
             new HashMap<String, Object>() {{
-                put("debut", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-                put("fin", fin);
-                put("montant", Integer.toString(paid));
+                put("paid", paid);
+                put("served", served);
             }}
         );
     }
 
-    public int getInfoFromBadge(final String badgeId) throws Exception {
+    public int getTransactionFromId(final String id) throws Exception {
         return request(
-            "badge/" + badgeId
+            id
         );
     }
 
-    public int getInfo(final String login) throws Exception {
+    public int getTransactionFromUsername(final String username) throws Exception {
         return request(
-            login
+            "user/" + username
         );
     }
 
@@ -69,12 +73,11 @@ public class Ginger {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;
+        this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
         if (postArgs.size() == 0) {
-            this.request.setGet(new HashMap<String, String>(){{ put("key", key); }});
             responseCode = this.request.get();
         }
         else {
-            postArgs.put("key", key);
             this.request.setPost(postArgs);
             responseCode = this.request.post();
         }
@@ -86,13 +89,13 @@ public class Ginger {
         else if (responseCode == 403)
             throw new Exception(this.noRight);
         else if (responseCode == 404)
-            throw new Exception("Ginger " + this.notFound);
+            throw new Exception("Bottomatik " + this.notFound);
         else if (responseCode == 400)
-            throw new Exception("Ginger " + this.badRequest);
+            throw new Exception("Bottomatik " + this.badRequest);
         else if (responseCode == 500 || responseCode == 503) {
-            throw new Exception("Ginger " + this.internalError);
+            throw new Exception("Bottomatik " + this.internalError);
         }
         else
-            throw new Exception("Ginger " + this.errorRequest + " " + responseCode);
+            throw new Exception("Bottomatik " + this.errorRequest + " " + responseCode);
     }
 }

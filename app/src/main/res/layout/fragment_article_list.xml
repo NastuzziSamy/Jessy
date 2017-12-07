@@ -29,10 +29,9 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/article_click_background"
             android:paddingBottom="1dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
             android:paddingTop="1dp"
-            android:text="@string/app_name"
             android:textColor="@color/white" />
     </RelativeLayout>
 

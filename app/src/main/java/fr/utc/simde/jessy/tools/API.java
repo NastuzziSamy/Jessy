@@ -1,18 +1,21 @@
 package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
-import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import fr.utc.simde.jessy.R;
 
-public class Ginger {
-    private static final String LOG_TAG = "_Ginger";
-    private static final String url = "https://assos.utc.fr/ginger/v1/";
+/**
+ * Created by Samy on 29/11/2017.
+ */
+
+public class API {
+    private static final String LOG_TAG = "_API";
+
+    private String name;
+    private String url;
     private String key;
 
     private HTTPRequest request;
@@ -25,7 +28,9 @@ public class Ginger {
     private String internalError;
     private String errorRequest;
 
-    public Ginger(final Activity activity) {
+    public API(final Activity activity, final String name, final String url) {
+        this.name = name;
+        this.url = url;
         this.key = "";
 
         this.noKey = activity.getString(R.string.ginger_no_key);
@@ -41,26 +46,30 @@ public class Ginger {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int addCotisation(final String login, final String fin, final Integer paid) throws Exception {
+    public int validate(final String id) throws Exception {
         return request(
-            login + "/cotisations",
+            id + "/validate"
+        );
+    }
+    public int validate(final String id, final boolean paid, final boolean served) throws Exception {
+        return request(
+            id + "/validate",
             new HashMap<String, Object>() {{
-                put("debut", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-                put("fin", fin);
-                put("montant", Integer.toString(paid));
+                put("paid", paid);
+                put("served", served);
             }}
         );
     }
 
-    public int getInfoFromBadge(final String badgeId) throws Exception {
+    public int getInfosFromId(final String id) throws Exception {
         return request(
-            "badge/" + badgeId
+            id
         );
     }
 
-    public int getInfo(final String login) throws Exception {
+    public int getInfosFromUsername(final String username) throws Exception {
         return request(
-            login
+            "user/" + username
         );
     }
 
@@ -69,12 +78,13 @@ public class Ginger {
         this.request = new HTTPRequest(url + request);
 
         int responseCode;
-        if (postArgs.size() == 0) {
-            this.request.setGet(new HashMap<String, String>(){{ put("key", key); }});
+
+        if (!this.key.equals(""))
+            this.request.setGet(new HashMap<String, String>(){{ put("app_key", key); }});
+
+        if (postArgs.size() == 0)
             responseCode = this.request.get();
-        }
         else {
-            postArgs.put("key", key);
             this.request.setPost(postArgs);
             responseCode = this.request.post();
         }
@@ -86,13 +96,13 @@ public class Ginger {
         else if (responseCode == 403)
             throw new Exception(this.noRight);
         else if (responseCode == 404)
-            throw new Exception("Ginger " + this.notFound);
+            throw new Exception(this.name + " " + this.notFound);
         else if (responseCode == 400)
-            throw new Exception("Ginger " + this.badRequest);
+            throw new Exception(this.name + " " + this.badRequest);
         else if (responseCode == 500 || responseCode == 503) {
-            throw new Exception("Ginger " + this.internalError);
+            throw new Exception(this.name + " " + this.internalError);
         }
         else
-            throw new Exception("Ginger " + this.errorRequest + " " + responseCode);
+            throw new Exception(this.name + " " + this.errorRequest + " " + responseCode);
     }
 }

@@ -57,7 +57,13 @@ public class GridAdapter extends ArticlesAdapter {
                 imageCotisant.setLayoutParams(imageParms);
                 image18.setLayoutParams(imageParms);
 
-                setInfos(article, imageCotisant, image18);
+                if (article.get("id").intValue() == -1) {
+                    imageCotisant.setVisibility(View.GONE);
+                    image18.setVisibility(View.GONE);
+                }
+                else
+                    setInfos(article, imageCotisant, image18);
+
                 setImage(imageView, article.get("image_url").textValue(), position);
                 setClickView(position);
             }

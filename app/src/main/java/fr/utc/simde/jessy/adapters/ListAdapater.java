@@ -45,10 +45,14 @@ public class ListAdapater extends ArticlesAdapter {
 
             TextView priceText = this.viewList[position].findViewById(R.id.text_price);
 
-            if (article.get("variable_price").booleanValue())
-                priceText.setText("PV: " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue() * articleList.get(position).get("quantity").intValue()) / 100.00f) + "€");
-            else
-                priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
+            if (article.get("id").intValue() == -1)
+                priceText.setVisibility(View.GONE);
+            else {
+                if (article.get("variable_price").booleanValue())
+                    priceText.setText("PV: " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
+                else
+                    priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
+            }
 
             ImageView imageCotisant = this.viewList[position].findViewById(R.id.image_cotisant);
             ImageView image18 = this.viewList[position].findViewById(R.id.image_18);
@@ -57,6 +61,10 @@ public class ListAdapater extends ArticlesAdapter {
             if (article.has("info")) {
                 infoText.setText(article.get("info").textValue());
 
+                imageCotisant.setVisibility(View.GONE);
+                image18.setVisibility(View.GONE);
+            }
+            else if (article.get("id").intValue() == -1) {
                 imageCotisant.setVisibility(View.GONE);
                 image18.setVisibility(View.GONE);
             }

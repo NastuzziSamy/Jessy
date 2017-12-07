@@ -110,7 +110,7 @@ public class HTTPRequest {
             this.request.setDoOutput(true);
 
             DataOutputStream os = new DataOutputStream(this.request.getOutputStream());
-            os.writeBytes(post);
+            os.write(post.getBytes("UTF-8"));
             os.flush();
             os.close();
 
@@ -270,7 +270,7 @@ public class HTTPRequest {
         return data.equals("") ? "" : "?" + data.substring(0, data.length() - 1);
     }
 
-    protected JsonNode map2JsonNode(Map<String, Object> args) {
+    protected JsonNode map2JsonNode(Map<String, Object> args) throws UnsupportedEncodingException {
         ObjectNode data = new ObjectMapper().createObjectNode();
 
         for (String arg : args.keySet()) {
@@ -293,7 +293,7 @@ public class HTTPRequest {
         return data;
     }
 
-    protected String post2String(Map<String, Object> args) {
+    protected String post2String(Map<String, Object> args) throws UnsupportedEncodingException {
         return map2JsonNode(args).toString();
     }
 

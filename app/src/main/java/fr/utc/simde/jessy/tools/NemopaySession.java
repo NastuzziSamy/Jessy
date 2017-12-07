@@ -105,6 +105,101 @@ public class NemopaySession {
     public int getLocationId() { return locationId; }
     public String getFoundationName() { return foundationName; }
 
+    public int delArticle(final int id) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "GESARTICLE",
+            "deleteProduct",
+            new HashMap<String, Object>() {{
+                put("obj_id", id);
+                put("fun_id", foundationId);
+            }},
+            new String[]{
+                "POSS3",
+                "GESARTICLE"
+            }
+        );
+    }
+
+    public int setArticle(final String name, final String url, final int categoryId, final int price, final boolean isFor18Only, final boolean isForContributersOnly, final boolean isVariable) throws Exception { return setArticle(-1, name, url, categoryId, price, isFor18Only, isForContributersOnly, isVariable); }
+    public int setArticle(final int id, final String name, final String url, final int categoryId, final int price, final boolean isFor18Only, final boolean isForContributersOnly, final boolean isPriceVariable) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "GESARTICLE",
+            "setProduct",
+            new HashMap<String, Object>() {{
+                put("name", name);
+                put("image_path", url);
+                put("fun_id", foundationId);
+                put("parent", categoryId);
+                put("prix", price);
+                put("alcool", isFor18Only);
+                put("cotisant", isForContributersOnly);
+                put("variable_price", isPriceVariable);
+                if (id != -1)
+                    put("obj_id", id);
+            }},
+            new String[]{
+                "POSS3",
+                "GESARTICLE"
+            }
+        );
+    }
+
+    public int delCategory(final int id) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "GESARTICLE",
+            "deleteCategory",
+            new HashMap<String, Object>() {{
+                put("fun_id", foundationId);
+                put("obj_id", id);
+            }},
+            new String[]{
+                "POSS3",
+                "GESARTICLE"
+            }
+        );
+    }
+
+    public int setCategory(final String name) throws Exception { return setCategory(-1, name); }
+    public int setCategory(final int id, final String name) throws Exception {
+        if (!isConnected())
+            throw new Exception(this.notLogged);
+
+        if (this.foundationId == -1)
+            throw new Exception("No foundation set");
+
+        return request(
+            "GESARTICLE",
+            "setCategory",
+            new HashMap<String, Object>() {{
+                put("fun_id", foundationId);
+                put("name", name);
+                if (id != -1)
+                    put("obj_id", id);
+            }},
+            new String[]{
+                "POSS3",
+                "GESARTICLE"
+            }
+        );
+    }
 
     public int cancelTransaction(final int transactionId) throws Exception {
         if (!isConnected())
@@ -143,7 +238,7 @@ public class NemopaySession {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
-        if (foundationId == -1)
+        if (this.foundationId == -1)
             throw new Exception("No foundation set");
 
         return request(

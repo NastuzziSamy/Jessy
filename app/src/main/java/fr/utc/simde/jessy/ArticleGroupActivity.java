@@ -34,8 +34,8 @@ import fr.utc.simde.jessy.tools.HTTPRequest;
 public abstract class ArticleGroupActivity extends BaseActivity {
     private static final String LOG_TAG = "_ArticleGroupActivity";
 
-    protected ImageButton paramButton;
     protected ImageButton optionButton;
+    protected ImageButton deleteButton;
     protected TabHost tabHost;
 
     protected List<ArticleGroupFragment> groupFragmentList;
@@ -46,8 +46,8 @@ public abstract class ArticleGroupActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_group);
 
-        this.paramButton = findViewById(R.id.image_param);
-        this.optionButton = findViewById(R.id.image_delete);
+        this.optionButton = findViewById(R.id.image_param);
+        this.deleteButton = findViewById(R.id.image_delete);
         this.tabHost = findViewById(R.id.tab_categories);
         this.tabHost.setup();
 
@@ -86,118 +86,12 @@ public abstract class ArticleGroupActivity extends BaseActivity {
             });
         }
 
-        this.paramButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (config.getFoundationId() == -1) {
-                    final View popupView = LayoutInflater.from(ArticleGroupActivity.this).inflate(R.layout.dialog_config, null, false);
-                    final RadioButton radioKeyboard = popupView.findViewById(R.id.radio_keyboard);
-                    final RadioButton radioCategory = popupView.findViewById(R.id.radio_category);
-                    final RadioButton radioGrid = popupView.findViewById(R.id.radio_grid);
-                    final RadioButton radioList = popupView.findViewById(R.id.radio_list);
-                    final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
-                    final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
-                    final Button configButton = popupView.findViewById(R.id.button_config);
-
-                    if (config.getInCategory())
-                        radioCategory.setChecked(true);
-                    else
-                        radioKeyboard.setChecked(true);
-
-                    if (config.getInGrid())
-                        radioGrid.setChecked(true);
-                    else
-                        radioList.setChecked(true);
-
-                    switchCotisant.setChecked(config.getPrintCotisant());
-                    swtich18.setChecked(config.getPrint18());
-
-                    configButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(final View view) {
-                            hasRights(getString(R.string.configurate_by_default), new String[]{
-                                    "STAFF",
-                                    "GESAPPLICATIONS"
-                            }, new Runnable() {
-                                @Override
-                                public void run() {
-                                    configDialog();
-                                }
-                            });
-                        }
-                    });
-
-                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleGroupActivity.this);
-                    alertDialogBuilder
-                            .setTitle(R.string.configuration)
-                            .setView(popupView)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialogInterface, int id) {
-                                    config.setInCategory(radioCategory.isChecked());
-                                    config.setInGrid(radioGrid.isChecked());
-                                    config.setPrintCotisant(switchCotisant.isChecked());
-                                    config.setPrint18(swtich18.isChecked());
-
-                                    startSellActivity(ArticleGroupActivity.this);
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, null);
-
-                    dialog.createDialog(alertDialogBuilder);
-                }
-                else {
-                    final View popupView = LayoutInflater.from(ArticleGroupActivity.this).inflate(R.layout.dialog_config_restore, null, false);
-                    final Switch switchCotisant = popupView.findViewById(R.id.swtich_cotisant);
-                    final Switch swtich18 = popupView.findViewById(R.id.swtich_18);
-                    final Button configButton = popupView.findViewById(R.id.button_config);
-
-                    switchCotisant.setChecked(config.getPrintCotisant());
-                    swtich18.setChecked(config.getPrint18());
-
-                    configButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            hasRights(getString(R.string.configurate_by_default), new String[]{
-                                    "STAFF",
-                                    "GESAPPLICATIONS"
-                            }, new Runnable() {
-                                @Override
-                                public void run() {
-                                    config.setFoundation(-1, "");
-                                    config.setLocation(-1, "");
-                                    config.setCanCancel(true);
-
-                                    startMainActivity(ArticleGroupActivity.this);
-                                }
-                            });
-                        }
-                    });
-
-                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleGroupActivity.this);
-                    alertDialogBuilder
-                            .setTitle(R.string.configuration)
-                            .setView(popupView)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialogInterface, int id) {
-                                    config.setPrintCotisant(switchCotisant.isChecked());
-                                    config.setPrint18(swtich18.isChecked());
-
-                                    startSellActivity(ArticleGroupActivity.this);
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, null);
-
-                    dialog.createDialog(alertDialogBuilder);
-                }
-            }
-        });
-
         setOptionButton();
+        setDeleteButton();
     }
 
     protected abstract void setOptionButton();
+    protected abstract void setDeleteButton();
 
     protected void configDialog() {
         dialog.startLoading(ArticleGroupActivity.this, getResources().getString(R.string.information_collection), getString(config.getInCategory() ? R.string.category_list_collecting : R.string.keyboard_list_collecting));
@@ -323,13 +217,11 @@ public abstract class ArticleGroupActivity extends BaseActivity {
             ArrayNode articlesForThisCategory = articlesPerCategory.get(category.get("id").intValue());
             if (config.getFoundationId() != -1) if (!authorizedList.contains(category.get("id").intValue()))
                 continue;
-            else if (articlesForThisCategory.size() == 0)
-                continue;
 
             if (articlesForThisCategory == null)
-                continue;
+                articlesForThisCategory = new ObjectMapper().createArrayNode();
 
-            createNewGroup(category.get("name").textValue(), articlesForThisCategory);
+            createNewGroup(category.get("name").textValue(), category.get("id").intValue(), articlesForThisCategory);
         }
     }
 
@@ -373,13 +265,10 @@ public abstract class ArticleGroupActivity extends BaseActivity {
                     articlesForThisKeyboard.add(new ObjectMapper().createObjectNode());
             }
 
-            if (articlesForThisKeyboard.size() == 0)
-                continue;
-
-            createNewGroup(keyboard.get("name").textValue(), articlesForThisKeyboard, keyboard.get("data").get("nbColumns").isInt() ? keyboard.get("data").get("nbColumns").intValue() : Integer.valueOf(keyboard.get("data").get("nbColumns").textValue()));
+            createNewGroup(keyboard.get("name").textValue(), keyboard.get("id").intValue(), articlesForThisKeyboard, keyboard.get("data").get("nbColumns").isInt() ? keyboard.get("data").get("nbColumns").intValue() : Integer.valueOf(keyboard.get("data").get("nbColumns").textValue()));
         }
     }
 
-    protected abstract void createNewGroup(final String name, final ArrayNode articleList) throws Exception;
-    protected abstract void createNewGroup(final String name, final ArrayNode articleList, int gridColumns) throws Exception;
+    protected abstract void createNewGroup(final String name, final Integer id, final ArrayNode articleList) throws Exception;
+    protected abstract void createNewGroup(final String name, final Integer id, final ArrayNode articleList, int gridColumns) throws Exception;
 }

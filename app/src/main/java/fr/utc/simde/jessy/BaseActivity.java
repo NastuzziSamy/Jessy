@@ -676,7 +676,19 @@ public abstract class BaseActivity extends InternetActivity {
                                             }
                                             }
                                         })
-                                        .setNegativeButton(R.string.cancel, null);
+                                        .setNegativeButton(R.string.cancel, null)
+                                        .setNeutralButton(R.string.set_download, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialogInterface, int id) {
+                                                if (!haveStoragePermission()) {
+                                                    updateDialog.stopLoading();
+                                                    updateDialog.errorDialog(BaseActivity.this, getString(R.string.update), getString(R.string.need_storage_permission));
+                                                }
+                                                else if (!update(matcher.group(2), true)) {
+                                                    updateDialog.stopLoading();
+                                                    updateDialog.errorDialog(BaseActivity.this, getString(R.string.download), getString(R.string.can_not_download));
+                                                }
+                                            }
+                                        });
 
                                     updateDialog.createDialog(alertDialogBuilder);
                                 }
@@ -704,7 +716,8 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
-    protected boolean update(final String version) {
+    protected boolean update(final String version) { return update(version, false); }
+    protected boolean update(final String version, final boolean downloadOnly) {
         final String destination = this.downloadLocation + getString(R.string.app_name) + " " + version + ".apk";
         final String url = this.gitUrl + getString(R.string.app_name) + " " + version + ".apk";
         final Uri uri = Uri.parse("file://" + destination);
@@ -721,16 +734,28 @@ public abstract class BaseActivity extends InternetActivity {
         final DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         final long downloadId = manager.enqueue(request);
 
-        BroadcastReceiver onComplete = new BroadcastReceiver() {
-            public void onReceive(Context ctx, Intent intent) {
-                Intent install = new Intent(Intent.ACTION_VIEW);
-                install.setDataAndType(uri, "application/vnd.android.package-archive");
-                install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(install);
+        BroadcastReceiver onComplete;
+        if (downloadOnly) {
+            onComplete = new BroadcastReceiver() {
+                public void onReceive(Context ctx, Intent intent) {
+                    new Dialog(BaseActivity.this).infoDialog(BaseActivity.this, getString(R.string.download), getString(R.string.download_successful));
 
-                unregisterReceiver(this);
-            }
-        };
+                    unregisterReceiver(this);
+                }
+            };
+        }
+        else {
+            onComplete = new BroadcastReceiver() {
+                public void onReceive(Context ctx, Intent intent) {
+                    Intent install = new Intent(Intent.ACTION_VIEW);
+                    install.setDataAndType(uri, "application/vnd.android.package-archive");
+                    install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(install);
+
+                    unregisterReceiver(this);
+                }
+            };
+        }
 
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 

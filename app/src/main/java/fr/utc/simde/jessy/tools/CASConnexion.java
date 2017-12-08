@@ -36,7 +36,7 @@ public class CASConnexion {
         request.addPost("username", username);
         request.addPost("password", password);
 
-        if (request.post() == 201)
+        if (request.post(false) == 201)
             this.location = request.getHeader("Location");
         else
             throw new Exception("Not Connected");
@@ -72,7 +72,7 @@ public class CASConnexion {
         HTTPRequest request = new HTTPRequest(this.location);
         request.addPost("service", service);
 
-        if (request.post() == 200)
+        if (request.post(false) == 200)
             this.ticket = request.getResponse();
         else
             throw new RuntimeException("Service not added");

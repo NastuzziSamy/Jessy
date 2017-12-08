@@ -252,6 +252,7 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     public void startEditActivity(final Activity activity) {
+        config.setInCategory(true); // Do not allow keyboard modification (not supported yet)
         startArticleGroupActivity(activity, new Intent(activity, EditActivity.class));
     }
 

@@ -125,6 +125,18 @@ public abstract class BaseActivity extends InternetActivity {
 
                     if (!needToBeSuper) {
                         for (JsonNode foundation : myRightList) {
+                            if (rightList.length == 0 && foundation.size() > 75) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.stopLoading();
+                                        runnable.run();
+                                    }
+                                });
+
+                                return;
+                            }
+
                             for (JsonNode myRight : foundation) {
                                 if (rights.contains(myRight.textValue()) && !sameRights.contains(myRight.textValue()))
                                     sameRights.add(myRight.textValue());

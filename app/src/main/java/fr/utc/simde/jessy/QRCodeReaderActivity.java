@@ -51,9 +51,10 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
     protected List<String> apiName;
     protected List<String> apiUrl;
-    protected List<Class> apiResponseClass;
     protected List<Boolean> apiNeedKey;
     protected List<Boolean> apiNeedGinger;
+    protected List<Class> apiResponseClass;
+    protected Object apiResponse;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -71,11 +72,6 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
             add("https://www.lacomutc.fr/qr/" + sharedPreferences.getString("key_" + apiName.get(1), "no_key") + "/");
         }};
 
-        this.apiResponseClass = new ArrayList<Class>() {{
-            add(BottomatikResponse.class);
-            add(ComedmusResponse.class);
-        }};
-
         this.apiNeedKey = new ArrayList<Boolean>() {{
             add(true);
             add(false);
@@ -86,6 +82,10 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
             add(false);
         }};
 
+        this.apiResponseClass = new ArrayList<Class>() {{
+            add(BottomatikResponse.class);
+            add(ComedmusResponse.class);
+        }};
         this.scannerView = new ZXingScannerView(QRCodeReaderActivity.this) {
             @Override
             protected IViewFinder createViewFinderView(Context context) {
@@ -194,7 +194,6 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 });
 
                 API api = new API(QRCodeReaderActivity.this, apiName.get(apiIndex), apiUrl.get(apiIndex));
-                APIResponse apiResponse = null;
 
                 if (apiNeedKey.get(apiIndex))
                     api.setKey(sharedPreferences.getString("key_" + apiName.get(apiIndex), ""));
@@ -203,12 +202,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                     api.getInfosFromId(qrCodeResponse.getId());
                     Thread.sleep(100);
 
-                    apiResponse = (APIResponse) new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
+                    apiResponse = new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
 
-                    if (nemopaySession.getFoundationId() != -1 && apiResponse.getFoundationId() != null && apiResponse.getFoundationId() != nemopaySession.getFoundationId())
+                    if (nemopaySession.getFoundationId() != -1 && ((APIResponse) apiResponse).getFoundationId() != null && ((APIResponse) apiResponse).getFoundationId() != nemopaySession.getFoundationId())
                         throw new Exception(getString(R.string.can_not_sell_other_foundation));
 
-                    if (apiResponse.isValidated())
+                    if (((APIResponse) apiResponse).isValidated())
                         throw new Exception(getString(R.string.already_validated));
 
                     if (api.getRequest().getJSONResponse().has("type") && api.getRequest().getJSONResponse().get("type").textValue().equals("error") && api.getRequest().getJSONResponse().has("message"))

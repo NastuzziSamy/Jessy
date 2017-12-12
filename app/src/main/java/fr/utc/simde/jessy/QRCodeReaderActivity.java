@@ -474,7 +474,10 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     }
 
     protected void checkReservation(final API api, final ComedmusResponse comedmusResponse) {
-        if ((System.currentTimeMillis() / 1000) < comedmusResponse.getCreatedAt()) {
+        long currentTimestamp = (System.currentTimeMillis() / 1000);
+        Log.d(LOG_TAG, "Current time: " + currentTimestamp);
+
+        if (currentTimestamp < comedmusResponse.getCreatedAt()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -504,7 +507,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
             return;
         }
 
-        if ((System.currentTimeMillis() / 1000) > comedmusResponse.getExpiresAt()) {
+        if (currentTimestamp > comedmusResponse.getExpiresAt()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

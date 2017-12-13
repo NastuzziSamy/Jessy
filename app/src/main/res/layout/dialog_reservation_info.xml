@@ -55,7 +55,7 @@
             android:layout_width="100dp"
             android:textColor="#000000"
             android:layout_height="wrap_content"
-            android:text="@string/price" />
+            android:text="@string/type" />
 
         <TextView
             android:id="@+id/text_price"

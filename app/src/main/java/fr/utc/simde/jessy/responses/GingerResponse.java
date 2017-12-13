@@ -17,12 +17,12 @@ public class GingerResponse {
     protected boolean is_cotisant;
     protected String badge_uid;
 
-    public String getUsername() { return login; }
-    public String getLastname() { return nom; }
-    public String getFirstname() { return prenom; }
-    public String getEmail() { return mail; }
+    public String getLogin() { return login; }
+    public String getNom() { return nom; }
+    public String getPrenom() { return prenom; }
+    public String getMail() { return mail; }
     public String getType() { return type; }
-    public boolean getIsAdult() { return is_adulte; }
-    public boolean getIsContributer() { return is_cotisant; }
-    public String getBadgeId() { return badge_uid; }
+    public boolean getIs_adulte() { return is_adulte; }
+    public boolean getIs_cotisant() { return is_cotisant; }
+    public String getBadge_uid() { return badge_uid; }
 }

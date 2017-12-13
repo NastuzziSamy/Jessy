@@ -54,7 +54,6 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     protected List<Boolean> apiNeedKey;
     protected List<Boolean> apiNeedGinger;
     protected List<Class> apiResponseClass;
-    protected Object apiResponse;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -198,17 +197,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 if (apiNeedKey.get(apiIndex))
                     api.setKey(sharedPreferences.getString("key_" + apiName.get(apiIndex), ""));
 
+                Object apiResponse;
                 try {
                     api.getInfosFromId(qrCodeResponse.getId());
                     Thread.sleep(100);
 
                     apiResponse = new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
-
-                    if (nemopaySession.getFoundationId() != -1 && ((APIResponse) apiResponse).getFoundationId() != null && ((APIResponse) apiResponse).getFoundationId() != nemopaySession.getFoundationId())
-                        throw new Exception(getString(R.string.can_not_sell_other_foundation));
-
-                    if (((APIResponse) apiResponse).isValidated())
-                        throw new Exception(getString(R.string.already_validated));
 
                     if (api.getRequest().getJSONResponse().has("type") && api.getRequest().getJSONResponse().get("type").textValue().equals("error") && api.getRequest().getJSONResponse().has("message"))
                         throw new Exception(api.getRequest().getJSONResponse().get("message").textValue());
@@ -232,7 +226,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 }
 
                 if (apiIndex == 0)
-                    payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse.getBadgeId());
+                    payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse.getBadge_uid());
                 else if (apiIndex == 1) {
                     checkReservation(api, (ComedmusResponse) apiResponse);
                 }
@@ -252,6 +246,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         List<List<Integer>> articleIdList = bottomatikResponse.getArticleList();
         final ArrayNode purchaseList = new ObjectMapper().createArrayNode();
         try {
+            if (nemopaySession.getFoundationId() != -1 && bottomatikResponse.getFun_id() != nemopaySession.getFoundationId())
+                throw new Exception(getString(R.string.can_not_sell_other_foundation));
+
+            if (bottomatikResponse.isValidated())
+                throw new Exception(getString(R.string.already_validated));
+
             nemopaySession.getArticles();
             Thread.sleep(100);
 
@@ -304,7 +304,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         try {
             if (!bottomatikResponse.isPaid()) {
-                nemopaySession.setTransaction(badgeId, bottomatikResponse.getArticleList(), bottomatikResponse.getFoundationId());
+                nemopaySession.setTransaction(badgeId, bottomatikResponse.getArticleList(), bottomatikResponse.getFun_id());
                 Thread.sleep(100);
             }
 
@@ -476,13 +476,13 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         long currentTimestamp = (System.currentTimeMillis() / 1000);
         Log.d(LOG_TAG, "Current time: " + currentTimestamp);
 
-        if (currentTimestamp < comedmusResponse.getCreatedAt()) {
+        if (currentTimestamp < comedmusResponse.getCreation_date()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservation_id())
                             .setMessage(getString(R.string.ticket_not_created_yet))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -506,13 +506,13 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
             return;
         }
 
-        if (currentTimestamp > comedmusResponse.getExpiresAt()) {
+        if (currentTimestamp > comedmusResponse.getExpires_at()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservation_id())
                             .setMessage(getString(R.string.ticket_expired))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -556,7 +556,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
         alertDialogBuilder
-                .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservation_id())
                 .setView(keyView)
                 .setCancelable(false)
                 .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {

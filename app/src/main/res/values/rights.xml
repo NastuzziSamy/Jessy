@@ -11,6 +11,7 @@
     <string name="not_found">n\'a pas réussi à trouver l\'élement souhaité</string>
     <string name="bad_request">n\'a pas compris la requête reçue</string>
     <string name="internal_error">a renvoyé une erreur interne (contacter un adminstrateur si cela se reproduit)</string>
+    <string name="gone_request">a indiqué que le ticket n\'était plus valide</string>
     <string name="error_request">a renvoyé l\'erreur HTTP suivante: </string>
     <string-array name="rights_keys">
         <item>SALESKEYBOARD</item>

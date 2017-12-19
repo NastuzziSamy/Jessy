@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -602,10 +603,8 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         seanceText.setText(reservationResponse.getSeance());
         priceText.setText(reservationResponse.getType());
 
-        if (gingerResponse == null) {
-            adultText.setVisibility(View.GONE);
-            contributerText.setVisibility(View.GONE);
-        }
+        if (gingerResponse == null)
+            ((LinearLayout) keyView.findViewById(R.id.more_info)).setVisibility(View.GONE);
         else {
             if (gingerResponse.getIs_adulte())
                 adultText.setText(getString(R.string.yes));

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
@@ -113,14 +114,6 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
     @Override
     public void onIdentification(final String badgeId) {
         this.scannerView.stopCamera();
-/*
-        dialog.infoDialog(QRCodeReaderActivity.this, "Badge", badgeId, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                resumeReading();
-            }
-        });
-        */
 
         new Thread() {
             @Override
@@ -153,7 +146,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                     }
                 }
 
-                handleAPI(gingerResponse.getLogin(), apiIndex, gingerResponse.getBadge_uid(), false);
+                handleAPI(gingerResponse.getLogin(), apiIndex, gingerResponse, false);
             }
         }.start();
     }
@@ -226,12 +219,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                     }
                 }
 
-                handleAPI(qrCodeResponse.getId(), apiIndex, gingerResponse == null ? null : gingerResponse.getBadge_uid(), true);
+                handleAPI(qrCodeResponse.getId(), apiIndex, gingerResponse, true);
             }
         }.start();
     }
 
-    protected void handleAPI(final String info, final Integer apiIndex, final String badgeId, final boolean byQRCode) {
+    protected void handleAPI(final String info, final Integer apiIndex, final GingerResponse gingerResponse, final boolean byQRCode) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -277,17 +270,17 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         switch (apiIndex) {
             case 0:
-                payWithBottomatik(api, (BottomatikResponse) apiResponse, badgeId);
+                payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse);
                 break;
 
             case 1:
             case 2:
-                checkReservation(api, (ReservationResponse) apiResponse);
+                checkReservation(api, (ReservationResponse) apiResponse, gingerResponse);
                 break;
         }
     }
 
-    public void payWithBottomatik(final API api, final BottomatikResponse bottomatikResponse, final String badgeId) {
+    public void payWithBottomatik(final API api, final BottomatikResponse bottomatikResponse, final GingerResponse gingerResponse) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -357,7 +350,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         try {
             if (!bottomatikResponse.isPaid()) {
-                nemopaySession.setTransaction(badgeId, bottomatikResponse.getArticleList(), bottomatikResponse.getFun_id());
+                nemopaySession.setTransaction(gingerResponse.getBadge_uid(), bottomatikResponse.getArticleList(), bottomatikResponse.getFun_id());
                 Thread.sleep(100);
             }
 
@@ -525,7 +518,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         }
     }
 
-    protected void checkReservation(final API api, final ReservationResponse reservationResponse) {
+    protected void checkReservation(final API api, final ReservationResponse reservationResponse, final GingerResponse gingerResponse) {
         long currentTimestamp = (System.currentTimeMillis() / 1000);
         Log.d(LOG_TAG, "Current time: " + currentTimestamp);
 
@@ -547,7 +540,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    seeReservation(api, reservationResponse);
+                                    seeReservation(api, reservationResponse, gingerResponse);
                                 }
                             });
 
@@ -577,7 +570,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    seeReservation(api, reservationResponse);
+                                    seeReservation(api, reservationResponse, gingerResponse);
                                 }
                             });
 
@@ -592,27 +585,49 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                seeReservation(api, reservationResponse);
+                seeReservation(api, reservationResponse, gingerResponse);
             }
         });
     }
 
-    protected void seeReservation(final API api, final ReservationResponse reservationResponse) {
+    protected void seeReservation(final API api, final ReservationResponse reservationResponse, final GingerResponse gingerResponse) {
         final View keyView = getLayoutInflater().inflate(R.layout.dialog_reservation_info, null);
         final TextView nameText = keyView.findViewById(R.id.text_name);
         final TextView seanceText = keyView.findViewById(R.id.text_seance);
         final TextView priceText = keyView.findViewById(R.id.text_price);
+        final TextView adultText = keyView.findViewById(R.id.text_adult);
+        final TextView contributerText = keyView.findViewById(R.id.text_cotisant);
 
         nameText.setText(reservationResponse.getUsername());
         seanceText.setText(reservationResponse.getSeance());
         priceText.setText(reservationResponse.getType());
+
+        if (gingerResponse == null) {
+            adultText.setVisibility(View.GONE);
+            contributerText.setVisibility(View.GONE);
+        }
+        else {
+            if (gingerResponse.getIs_adulte())
+                adultText.setText(getString(R.string.yes));
+            else {
+                adultText.setText(getString(R.string.no));
+                adultText.setTextColor(Color.RED);
+            }
+
+            if (gingerResponse.getIs_adulte())
+                contributerText.setText(getString(R.string.yes));
+            else {
+                contributerText.setText(getString(R.string.no));
+                contributerText.setTextColor(Color.RED);
+            }
+        }
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
         alertDialogBuilder
                 .setTitle(getString(R.string.reservation_number) + reservationResponse.getReservation_id())
                 .setView(keyView)
                 .setCancelable(false)
-                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.ticket_in_validation));
                         new Thread() {
                             @Override

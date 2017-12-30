@@ -84,8 +84,14 @@ public abstract class ArticlesAdapter extends BaseAdapter {
                 this.clickViewList[position].setAlpha(0.0f);
             }
             else {
-                this.clickViewList[position].setText(this.nbrList[position] % 100 == 0 ? Integer.toString(this.nbrList[position] / 100) : Float.toString(this.nbrList[position] / 100.0f));
                 this.clickViewList[position].setAlpha(1.0f);
+
+                if (this.articleList.get(position).get("variable_price").booleanValue()) {
+                    this.clickViewList[position].setText(this.nbrList[position] % 100 == 0 ? Integer.toString(this.nbrList[position] / 100) : Float.toString(this.nbrList[position] / 100.0f) + "€");
+                    this.clickViewList[position].setBackgroundColor(Color.argb(255, 150, 200, 150));
+                }
+                else
+                    this.clickViewList[position].setText(this.nbrList[position] % 100 == 0 ? Integer.toString(this.nbrList[position] / 100) : Float.toString(this.nbrList[position] / 100.0f));
             }
         }
 
@@ -97,7 +103,7 @@ public abstract class ArticlesAdapter extends BaseAdapter {
         String text;
 
         if (articleList.get(position).get("variable_price").booleanValue())
-            text = articleList.get(position).get("name").textValue() + ": " + activity.getString(R.string.price_variable);
+            text = articleList.get(position).get("name").textValue() + ": " + (getNbr(position) == 0 ? activity.getString(R.string.price_variable) : Float.toString(getNbr(position) / 100.0f) + '$');
         else if (articleList.get(position).has("quantity"))
             text = Integer.toString(articleList.get(position).get("quantity").intValue()) + "x " + articleList.get(position).get("name").textValue() + ": " + Integer.toString(articleList.get(position).get("quantity").intValue()) + "x " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€";
         else

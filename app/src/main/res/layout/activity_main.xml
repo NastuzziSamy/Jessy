@@ -65,9 +65,9 @@
             android:id="@+id/text_app_registered"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
             android:gravity="center"
-            android:textStyle="italic"
-            android:text="@string/app_not_connected" />
+            android:paddingBottom="10dp"
+            android:text="@string/app_not_registred"
+            android:textStyle="italic" />
     </LinearLayout>
 </RelativeLayout>

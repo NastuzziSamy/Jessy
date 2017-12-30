@@ -145,7 +145,20 @@ public class EditActivity extends ArticleGroupActivity {
                 switchCotisant.setChecked(config.getPrintCotisant());
                 swtich18.setChecked(config.getPrint18());
 
-                configButton.setVisibility(View.GONE);
+                configButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View view) {
+                        hasRights(getString(R.string.configurate), new String[]{
+                                "STAFF",
+                                "GESAPPLICATIONS"
+                        }, new Runnable() {
+                            @Override
+                            public void run() {
+                                configDialog();
+                            }
+                        });
+                    }
+                });
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EditActivity.this);
                 alertDialogBuilder

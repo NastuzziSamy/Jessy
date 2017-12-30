@@ -6,6 +6,7 @@ import android.app.AlarmManager;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -102,8 +103,17 @@ public abstract class BaseActivity extends InternetActivity {
         });
     }
 
-    protected void hasRights(final String title, final String[] rightList, final Runnable runnable) { hasRights(title, rightList, false, runnable);}
-    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnable) {
+    protected void hasRights(final String title, final String[] rightList, final Runnable runnablePos) { hasRights(title, rightList, false, runnablePos);}
+    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnablePos) {
+        hasRights(title, rightList, false, runnablePos, new Runnable() {
+            @Override
+            public void run() {
+                dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));
+            }
+        });
+    }
+    protected void hasRights(final String title, final String[] rightList, final Runnable runnablePos, final Runnable runnableNeg) { hasRights(title, rightList, false, runnablePos, runnableNeg);}
+    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnablePos, final Runnable runnableNeg) {
         dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
         new Thread() {
             @Override
@@ -130,7 +140,7 @@ public abstract class BaseActivity extends InternetActivity {
                                     @Override
                                     public void run() {
                                         dialog.stopLoading();
-                                        runnable.run();
+                                        runnablePos.run();
                                     }
                                 });
 
@@ -149,7 +159,7 @@ public abstract class BaseActivity extends InternetActivity {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
-                                runnable.run();
+                                runnablePos.run();
                             }
                         });
                     else {
@@ -157,7 +167,7 @@ public abstract class BaseActivity extends InternetActivity {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
-                                dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));
+                                runnableNeg.run();
                             }
                         });
                     }

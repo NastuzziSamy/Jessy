@@ -139,7 +139,27 @@ public class BuyerInfoActivity extends BaseActivity {
                                         @Override
                                         public void run() {
                                             try {
-                                                nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue());
+                                                hasRights(getString(R.string.configurate), new String[]{
+                                                    "GESSALES"
+                                                }, new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue(), true);
+                                                        } catch (Exception e) {
+                                                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                        }
+                                                    }
+                                                }, new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue(), false);
+                                                        } catch (Exception e) {
+                                                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                        }
+                                                    }
+                                                });
                                                 Thread.sleep(100);
 
                                                 runOnUiThread(new Runnable() {

@@ -223,6 +223,19 @@ public class NemopaySession {
 
         if (hasSalesRights)
             return request(
+                "GESSALES",
+                "cancelTransactionRow",
+                new HashMap<String, Object>() {{
+                    put("fun_id", foundationId);
+                    put("id", purchaseId);
+                }},
+                new String[]{
+                    "POSS3",
+                    "GESSALES"
+                }
+            );
+        else
+            return request(
                 "POSS3",
                 "cancel",
                 new HashMap<String, Object>() {{
@@ -231,19 +244,6 @@ public class NemopaySession {
                 }},
                 new String[]{
                     "POSS3"
-                }
-            );
-        else
-            return request(
-                "GESSALES",
-                "cancelTransactionRow",
-                new HashMap<String, Object>() {{
-                    put("fun_id", foundationId);
-                    put("pur_id", purchaseId);
-                }},
-                new String[]{
-                    "POSS3",
-                    "GESSALES"
                 }
             );
     }

@@ -216,21 +216,36 @@ public class NemopaySession {
             }
         );
     }
-    public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception {
+    public int cancelTransaction(final int foundationId, final int purchaseId) throws Exception { return cancelTransaction(foundationId, purchaseId, false); }
+    public int cancelTransaction(final int foundationId, final int purchaseId, final boolean hasSalesRights) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
-        return request(
-            "POSS3",
-            "cancel",
-            new HashMap<String, Object>() {{
-                put("fun_id", foundationId);
-                put("pur_id", purchaseId);
-            }},
-            new String[]{
-                "POSS3"
-            }
-        );
+        if (hasSalesRights)
+            return request(
+                "POSS3",
+                "cancel",
+                new HashMap<String, Object>() {{
+                    put("fun_id", foundationId);
+                    put("pur_id", purchaseId);
+                }},
+                new String[]{
+                    "POSS3"
+                }
+            );
+        else
+            return request(
+                "GESSALES",
+                "cancelTransactionRow",
+                new HashMap<String, Object>() {{
+                    put("fun_id", foundationId);
+                    put("pur_id", purchaseId);
+                }},
+                new String[]{
+                    "POSS3",
+                    "GESSALES"
+                }
+            );
     }
 
     public int setTransaction(final String badgeId, final List<List<Integer>> articleList) throws Exception { return setTransaction(badgeId, articleList, this.foundationId); }

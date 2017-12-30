@@ -311,7 +311,7 @@ public class EditActivity extends ArticleGroupActivity {
                 StringBuilder builder = new StringBuilder(dest);
                 builder.replace(dstart, dend, source
                         .subSequence(start, end).toString());
-                if (!builder.toString().matches("(([1-9]{1})([0-9]{0,"+(maxDigitsBeforeDecimalPoint-1)+"})?)?(\\.[0-9]{0,"+maxDigitsAfterDecimalPoint+"})?")) {
+                if (!builder.toString().matches("((([1-9]{1})([0-9]{0,"+(maxDigitsBeforeDecimalPoint-1)+"})?)|0)?(\\.[0-9]{0,"+maxDigitsAfterDecimalPoint+"})?")) {
                     if (source.length() == 0)
                         return dest.subSequence(dstart, dend);
                     return "";
@@ -444,7 +444,7 @@ public class EditActivity extends ArticleGroupActivity {
                     .setTitle(R.string.configuration)
                     .setView(popupView)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.reload, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogInterface, int id) {
                             if (!nameInput.getText().toString().equals("") && (radioVariablePrice.isChecked() || !priceInput.getText().toString().equals(""))) {
                                 dialog.startLoading(EditActivity.this, getString(R.string.article_edit), getString(R.string.article_editing));

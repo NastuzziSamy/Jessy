@@ -26,6 +26,7 @@ public class API {
     private String notFound;
     private String badRequest;
     private String internalError;
+    private String goneRequest;
     private String errorRequest;
 
     public API(final Activity activity, final String name, final String url) {
@@ -40,6 +41,7 @@ public class API {
         this.badRequest = activity.getString(R.string.bad_request);
         this.internalError = activity.getString(R.string.internal_error);
         this.errorRequest = activity.getString(R.string.error_request);
+        this.goneRequest = activity.getString(R.string.gone_request);
     }
 
     public void setKey(final String key) { this.key = key; }
@@ -96,13 +98,14 @@ public class API {
         else if (responseCode == 403)
             throw new Exception(this.noRight);
         else if (responseCode == 404)
-            throw new Exception(this.name + " " + this.notFound);
+            throw new Exception(this.serviceText + " " + this.name + " " + this.notFound);
         else if (responseCode == 400)
-            throw new Exception(this.name + " " + this.badRequest);
-        else if (responseCode == 500 || responseCode == 503) {
-            throw new Exception(this.name + " " + this.internalError);
-        }
+            throw new Exception(this.serviceText + " " + this.name + " " + this.badRequest);
+        else if (responseCode == 500 || responseCode == 503)
+            throw new Exception(this.serviceText + " " + this.name + " " + this.internalError);
+        else if (responseCode == 410)
+                throw new Exception(this.serviceText + " " + this.name + " " + this.goneRequest);
         else
-            throw new Exception(this.name + " " + this.errorRequest + " " + responseCode);
+            throw new Exception(this.serviceText + " " + this.name + " " + this.errorRequest + " " + responseCode);
     }
 }

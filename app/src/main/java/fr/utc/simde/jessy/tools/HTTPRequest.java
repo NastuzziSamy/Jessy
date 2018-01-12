@@ -85,13 +85,14 @@ public class HTTPRequest {
         return getResponseCode();
     }
 
-    public int post() {
+    public int post() { return post(true); }
+    public int post(final Boolean sendJSON) {
         String get = null;
         String post = null;
 
         try {
             get = get2String(this.getArgs);
-            post = post2String(this.postArgs);
+            post = post2String(this.postArgs, sendJSON);
         }
         catch (Exception e) {
             Log.e(LOG_TAG, "error: " + e.getMessage());
@@ -102,7 +103,7 @@ public class HTTPRequest {
         try {
             this.request = (HttpURLConnection) (new URL(this.url + get)).openConnection();
             this.request.setRequestMethod("POST");
-            this.request.setRequestProperty("Content-Type", "application/json");
+            this.request.setRequestProperty("Content-Type", sendJSON ? "application/json" : "application/x-www-form-urlencoded");
             this.request.setRequestProperty("charset", "utf-8");
             this.request.setRequestProperty("Cookie", getCookiesHeader());
             this.request.setUseCaches(false);
@@ -293,8 +294,16 @@ public class HTTPRequest {
         return data;
     }
 
-    protected String post2String(Map<String, Object> args) throws UnsupportedEncodingException {
-        return map2JsonNode(args).toString();
+    protected String post2String(Map<String, Object> args, boolean inJSON) throws Exception {
+        if (inJSON)
+            return map2JsonNode(args).toString();
+
+        String data = "";
+
+        for (String arg : args.keySet())
+            data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode((String) args.get(arg), "UTF-8") + "&");
+
+        return data.equals("") ? "" : data.substring(0, data.length() - 1);
     }
 
     public void setGet(Map<String, String> args) {

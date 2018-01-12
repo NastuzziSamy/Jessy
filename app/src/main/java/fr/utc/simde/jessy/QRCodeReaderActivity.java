@@ -4,13 +4,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,14 +31,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.utc.simde.jessy.adapters.ListAdapater;
+import fr.utc.simde.jessy.adapters.LocationsAdapter;
 import fr.utc.simde.jessy.responses.APIResponse;
 import fr.utc.simde.jessy.responses.ArticleResponse;
 import fr.utc.simde.jessy.responses.BottomatikResponse;
-import fr.utc.simde.jessy.responses.ComedmusResponse;
+import fr.utc.simde.jessy.responses.ReservationResponse;
 import fr.utc.simde.jessy.responses.GingerResponse;
 import fr.utc.simde.jessy.responses.QRCodeResponse;
 import fr.utc.simde.jessy.tools.API;
 import fr.utc.simde.jessy.tools.ExtendedScannerView;
+import fr.utc.simde.jessy.tools.HTTPRequest;
 import me.dm7.barcodescanner.core.IViewFinder;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -49,41 +57,54 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
     protected SharedPreferences sharedPreferences;
 
+    protected String badgeId;
+
+    protected Runnable onIdentification;
+
     protected List<String> apiName;
     protected List<String> apiUrl;
-    protected List<Class> apiResponseClass;
     protected List<Boolean> apiNeedKey;
     protected List<Boolean> apiNeedGinger;
+    protected List<Class> apiResponseClass;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         this.sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
 
         this.apiName = new ArrayList<String>() {{
             add("bottomatik");
             add("comedmus");
+            add("reservations");
+            add("fetedespartiels");
         }};
 
         this.apiUrl = new ArrayList<String>() {{
             add("https://picasso.bottomatik.com/bot/transactions/");
             add("https://www.lacomutc.fr/qr/" + sharedPreferences.getString("key_" + apiName.get(1), "no_key") + "/");
-        }};
-
-        this.apiResponseClass = new ArrayList<Class>() {{
-            add(BottomatikResponse.class);
-            add(ComedmusResponse.class);
+            add("https://assos.utc.fr/simde/reservations/");
+            add("http://assos.utc.fr/fetedespartiels/api/");
         }};
 
         this.apiNeedKey = new ArrayList<Boolean>() {{
             add(true);
             add(false);
+            add(true);
+            add(true);
         }};
 
         this.apiNeedGinger = new ArrayList<Boolean>() {{
             add(true);
             add(false);
+            add(true);
+            add(true);
+        }};
+
+        this.apiResponseClass = new ArrayList<Class>() {{
+            add(BottomatikResponse.class);
+            add(ReservationResponse.class);
+            add(ReservationResponse.class);
+            add(APIResponse.class);
         }};
 
         this.scannerView = new ZXingScannerView(QRCodeReaderActivity.this) {
@@ -92,10 +113,41 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 return new ExtendedScannerView(context);
             }
         };
-        setContentView(this.scannerView);
 
-        scannerView.setResultHandler(QRCodeReaderActivity.this);
+        this.scannerView.setResultHandler(QRCodeReaderActivity.this);
         this.scannerView.startCamera(CAMERA_FACING_BACK);
+        this.scannerView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                final LayoutInflater layoutInflater = LayoutInflater.from(QRCodeReaderActivity.this);
+                final View popupView = layoutInflater.inflate(R.layout.dialog_tag, null);
+                final EditText inputInfo = popupView.findViewById(R.id.input_info);
+                final RadioButton buttonTag = popupView.findViewById(R.id.radio_tag);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+                alertDialogBuilder
+                    .setTitle(R.string.getting_informations_from)
+                    .setView(popupView)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    handleAPI(inputInfo.getText().toString(), 3, null, buttonTag.isChecked());
+                                }
+                            }).start();
+                        }
+                    })
+                    .setCancelable(true);
+
+                dialog.createDialog(alertDialogBuilder, inputInfo);
+
+                return false;
+            }
+        });
+
+        setContentView(this.scannerView);
     }
 
     @Override
@@ -108,14 +160,49 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
     @Override
     public void onIdentification(final String badgeId) {
-        this.scannerView.stopCamera();
+        if (this.onIdentification == null) {
+            this.scannerView.stopCamera();
 
-        dialog.infoDialog(QRCodeReaderActivity.this, "Badge", badgeId, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                resumeReading();
-            }
-        });
+            new Thread() {
+                @Override
+                public void run() {
+                    Integer apiIndex = 2;
+                    GingerResponse gingerResponse = null;
+                    if (apiNeedGinger.get(apiIndex)) {
+                        try {
+                            ginger.getInfoFromBadge(badgeId);
+                            Thread.sleep(100);
+
+                            gingerResponse = new ObjectMapper().readValue(ginger.getRequest().getResponse(), GingerResponse.class);
+                        }
+                        catch (final Exception e) {
+                            Log.e(LOG_TAG, e.getMessage());
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage(), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            resumeReading();
+                                        }
+                                    });
+                                }
+                            });
+
+                            return;
+                        }
+                    }
+
+                    handleAPI(gingerResponse.getLogin(), apiIndex, gingerResponse, false);
+                }
+            }.start();
+        }
+        else {
+            this.badgeId = badgeId;
+            this.onIdentification.run();
+            this.onIdentification = null;
+        }
     }
 
     protected void resumeReading() {
@@ -170,51 +257,66 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                     catch (final Exception e) {
                         Log.e(LOG_TAG, e.getMessage());
 
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage(), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        resumeReading();
-                                    }
-                                });
-                            }
-                        });
+                        if (ginger.getRequest().getResponseCode() != 404) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage(), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            resumeReading();
+                                        }
+                                    });
+                                }
+                            });
 
-                        return;
+                            return;
+                        }
                     }
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.changeLoading(getString(R.string.getting_informations_from) + " " + apiName.get(apiIndex));
-                    }
-                });
+                handleAPI(qrCodeResponse.getId(), apiIndex, gingerResponse, true);
+            }
+        }.start();
+    }
 
-                API api = new API(QRCodeReaderActivity.this, apiName.get(apiIndex), apiUrl.get(apiIndex));
-                APIResponse apiResponse = null;
+    protected void handleAPI(final String info, final Integer apiIndex, final GingerResponse gingerResponse, final boolean byQRCode) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.changeLoading(getString(R.string.getting_informations_from) + " " + apiName.get(apiIndex));
+            }
+        });
 
-                if (apiNeedKey.get(apiIndex))
-                    api.setKey(sharedPreferences.getString("key_" + apiName.get(apiIndex), ""));
+        final API api = new API(QRCodeReaderActivity.this, apiName.get(apiIndex), apiUrl.get(apiIndex));
 
+        if (apiNeedKey.get(apiIndex))
+            api.setKey(sharedPreferences.getString("key_" + apiName.get(apiIndex), ""));
+
+        Object apiResponse;
+        try {
+            if (byQRCode)
+                api.getInfosFromId(info);
+            else
+                api.getInfosFromUsername(info);
+            Thread.sleep(100);
+
+            apiResponse = new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
+
+            if (api.getRequest().getJSONResponse().has("type") && api.getRequest().getJSONResponse().get("type").textValue().equals("error") && api.getRequest().getJSONResponse().has("message"))
+                throw new Exception(api.getRequest().getJSONResponse().get("message").textValue());
+        }
+        catch (final Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+
+            if (api.getRequest().getResponseCode() == 410) {
                 try {
-                    api.getInfosFromId(qrCodeResponse.getId());
-                    Thread.sleep(100);
-
-                    apiResponse = (APIResponse) new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
-
-                    if (nemopaySession.getFoundationId() != -1 && apiResponse.getFoundationId() != null && apiResponse.getFoundationId() != nemopaySession.getFoundationId())
-                        throw new Exception(getString(R.string.can_not_sell_other_foundation));
-
-                    if (apiResponse.isValidated())
-                        throw new Exception(getString(R.string.already_validated));
+                    apiResponse = new ObjectMapper().readValue(api.getRequest().getResponse(), apiResponseClass.get(apiIndex));
 
                     if (api.getRequest().getJSONResponse().has("type") && api.getRequest().getJSONResponse().get("type").textValue().equals("error") && api.getRequest().getJSONResponse().has("message"))
                         throw new Exception(api.getRequest().getJSONResponse().get("message").textValue());
                 }
-                catch (final Exception e) {
+                catch (final Exception e1) {
                     Log.e(LOG_TAG, e.getMessage());
 
                     runOnUiThread(new Runnable() {
@@ -232,16 +334,65 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                     return;
                 }
 
-                if (apiIndex == 0)
-                    payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse.getBadgeId());
-                else if (apiIndex == 1) {
-                    checkReservation(api, (ComedmusResponse) apiResponse);
-                }
+                final APIResponse finalApiResponse = (APIResponse) apiResponse;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+                        alertDialogBuilder
+                                .setTitle(getString(R.string.reservation_number) + finalApiResponse.getId())
+                                .setMessage(getString(R.string.ticket_validated))
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        resumeReading();
+                                    }
+                                })
+                                .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        seeInfo(api, (APIResponse) finalApiResponse, gingerResponse);
+                                    }
+                                });
+
+                        dialog.createDialog(alertDialogBuilder);
+                        ((Vibrator) getSystemService(QRCodeReaderActivity.VIBRATOR_SERVICE)).vibrate(500);
+                    }
+                });
             }
-        }.start();
+            else
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.infoDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage(), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                resumeReading();
+                            }
+                        });
+                    }
+                });
+
+            return;
+        }
+
+        switch (apiIndex) {
+            case 0:
+                payWithBottomatik(api, (BottomatikResponse) apiResponse, gingerResponse);
+                break;
+
+            case 1:
+            case 2:
+                checkReservation(api, (ReservationResponse) apiResponse, gingerResponse);
+                break;
+            case 3:
+                seeInfo(api, (APIResponse) apiResponse, gingerResponse);
+                break;
+        }
     }
 
-    public void payWithBottomatik(final API api, final BottomatikResponse bottomatikResponse, final String badgeId) {
+    public void payWithBottomatik(final API api, final BottomatikResponse bottomatikResponse, final GingerResponse gingerResponse) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -253,6 +404,12 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         List<List<Integer>> articleIdList = bottomatikResponse.getArticleList();
         final ArrayNode purchaseList = new ObjectMapper().createArrayNode();
         try {
+            if (nemopaySession.getFoundationId() != -1 && bottomatikResponse.getFun_id() != nemopaySession.getFoundationId())
+                throw new Exception(getString(R.string.can_not_sell_other_foundation));
+
+            if (bottomatikResponse.isValidated())
+                throw new Exception(getString(R.string.already_validated));
+
             nemopaySession.getArticles();
             Thread.sleep(100);
 
@@ -305,7 +462,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         try {
             if (!bottomatikResponse.isPaid()) {
-                nemopaySession.setTransaction(badgeId, bottomatikResponse.getArticleList(), bottomatikResponse.getFoundationId());
+                nemopaySession.setTransaction(gingerResponse.getBadge_uid(), bottomatikResponse.getArticleList(), bottomatikResponse.getFun_id());
                 Thread.sleep(100);
             }
 
@@ -473,14 +630,17 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         }
     }
 
-    protected void checkReservation(final API api, final ComedmusResponse comedmusResponse) {
-        if ((System.currentTimeMillis() / 1000) < comedmusResponse.getCreatedAt()) {
+    protected void checkReservation(final API api, final ReservationResponse reservationResponse, final GingerResponse gingerResponse) {
+        long currentTimestamp = (System.currentTimeMillis() / 1000);
+        Log.d(LOG_TAG, "Current time: " + currentTimestamp);
+
+        if (currentTimestamp < reservationResponse.getCreation_date()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setTitle(getString(R.string.reservation_number) + reservationResponse.getReservation_id())
                             .setMessage(getString(R.string.ticket_not_created_yet))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -492,7 +652,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    seeReservation(api, comedmusResponse);
+                                    seeReservation(api, reservationResponse, gingerResponse);
                                 }
                             });
 
@@ -504,13 +664,13 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
             return;
         }
 
-        if ((System.currentTimeMillis() / 1000) > comedmusResponse.getExpiresAt()) {
+        if (currentTimestamp > reservationResponse.getExpires_at()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                            .setTitle(getString(R.string.reservation_number) + reservationResponse.getReservation_id())
                             .setMessage(getString(R.string.ticket_expired))
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -522,7 +682,7 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                             .setNeutralButton(R.string.more, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    seeReservation(api, comedmusResponse);
+                                    seeReservation(api, reservationResponse, gingerResponse);
                                 }
                             });
 
@@ -537,33 +697,53 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                seeReservation(api, comedmusResponse);
+                seeReservation(api, reservationResponse, gingerResponse);
             }
         });
     }
 
-    protected void seeReservation(final API api, final ComedmusResponse comedmusResponse) {
+    protected void seeReservation(final API api, final ReservationResponse reservationResponse, final GingerResponse gingerResponse) {
         final View keyView = getLayoutInflater().inflate(R.layout.dialog_reservation_info, null);
         final TextView nameText = keyView.findViewById(R.id.text_name);
         final TextView seanceText = keyView.findViewById(R.id.text_seance);
         final TextView priceText = keyView.findViewById(R.id.text_price);
+        final TextView adultText = keyView.findViewById(R.id.text_adult);
+        final TextView contributerText = keyView.findViewById(R.id.text_cotisant);
 
-        nameText.setText(comedmusResponse.getUsername());
-        seanceText.setText(comedmusResponse.getSeance());
-        priceText.setText(comedmusResponse.getType());
+        nameText.setText(reservationResponse.getUsername());
+        seanceText.setText(reservationResponse.getSeance());
+        priceText.setText(reservationResponse.getType());
+
+        if (gingerResponse == null)
+            ((LinearLayout) keyView.findViewById(R.id.more_info)).setVisibility(View.GONE);
+        else {
+            if (gingerResponse.getIs_adulte())
+                adultText.setText(getString(R.string.yes));
+            else {
+                adultText.setText(getString(R.string.no));
+                adultText.setTextColor(Color.RED);
+            }
+
+            if (gingerResponse.getIs_adulte())
+                contributerText.setText(getString(R.string.yes));
+            else {
+                contributerText.setText(getString(R.string.no));
+                contributerText.setTextColor(Color.RED);
+            }
+        }
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
         alertDialogBuilder
-                .setTitle(getString(R.string.reservation_number) + comedmusResponse.getReservationId())
+                .setTitle(getString(R.string.reservation_number) + reservationResponse.getReservation_id())
                 .setView(keyView)
                 .setCancelable(false)
-                .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogInterface, int id) {dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.ticket_in_validation));
                         new Thread() {
                             @Override
                             public void run() {
                                 try {
-                                    api.validate(comedmusResponse.getId());
+                                    api.validate(reservationResponse.getId());
                                     Thread.sleep(100);
 
                                     runOnUiThread(new Runnable() {
@@ -598,6 +778,136 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                 });
 
         dialog.createDialog(alertDialogBuilder);
+    }
+
+    protected void seeInfo(final API api, final APIResponse apiResponse, final GingerResponse gingerResponse) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_api_info, null);
+                final TextView nameText = keyView.findViewById(R.id.text_name);
+                final TextView typeText = keyView.findViewById(R.id.text_price);
+                final TextView adultText = keyView.findViewById(R.id.text_adult);
+                final TextView contributerText = keyView.findViewById(R.id.text_cotisant);
+
+                nameText.setText(apiResponse.getUsername());
+                typeText.setText(apiResponse.getType());
+
+                if (gingerResponse == null)
+                    ((LinearLayout) keyView.findViewById(R.id.more_info)).setVisibility(View.GONE);
+                else {
+                    if (gingerResponse.getIs_adulte())
+                        adultText.setText(getString(R.string.yes));
+                    else {
+                        adultText.setText(getString(R.string.no));
+                        adultText.setTextColor(Color.RED);
+                    }
+
+                    if (gingerResponse.getIs_adulte())
+                        contributerText.setText(getString(R.string.yes));
+                    else {
+                        contributerText.setText(getString(R.string.no));
+                        contributerText.setTextColor(Color.RED);
+                    }
+                }
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(QRCodeReaderActivity.this);
+                alertDialogBuilder
+                        .setTitle(getString(R.string.reservation_number) + apiResponse.getId())
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.validate, new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialogInterface, int id) {
+                                dialog.startLoading(QRCodeReaderActivity.this, getResources().getString(R.string.paiement), getResources().getString(R.string.ticket_in_validation));
+
+                                new Thread() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            api.validate(apiResponse.getId());
+                                            Thread.sleep(100);
+/*
+                                            if (api.getRequest().getJSONResponse().has("command")) {
+                                                onIdentification = new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.changeLoading("Création du compte");
+
+                                                        new Thread() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    HTTPRequest httpRequest = new HTTPRequest("http://assos.utc.fr/simde/ginger/" + api.getRequest().getJSONResponse().get("isAdult").intValue() + "/" + badgeId + "?app_key=bebesamy");
+                                                                    httpRequest.get();
+                                                                    Thread.sleep(100);
+
+                                                                    runOnUiThread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            dialog.stopLoading();
+                                                                            Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_validated), Toast.LENGTH_LONG).show();
+
+                                                                            resumeReading();
+                                                                        }
+                                                                    });
+                                                                } catch (final Exception e) {
+                                                                    runOnUiThread(new Runnable() {
+                                                                        @Override
+                                                                        public void run() {
+                                                                            Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                                            dialog.errorDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage());
+
+                                                                            resumeReading();
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+                                                        }.start();
+                                                    }
+                                                };
+
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.changeLoading("Il est nécessaire de badger une nouvelle carte !");
+                                                    }
+                                                });
+                                            } else {*/
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.stopLoading();
+                                                        Toast.makeText(QRCodeReaderActivity.this, getString(R.string.ticket_validated), Toast.LENGTH_LONG).show();
+
+                                                        resumeReading();
+                                                    }
+                                                });
+                                            //}
+                                        } catch (final Exception e) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                    dialog.errorDialog(QRCodeReaderActivity.this, getString(R.string.qrcode_reading), e.getMessage());
+
+                                                    resumeReading();
+                                                }
+                                            });
+                                        }
+                                    }
+                                }.start();
+                            }
+                        })
+                        .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                resumeReading();
+                            }
+                        });
+
+                dialog.createDialog(alertDialogBuilder);
+            }
+        });
     }
 }
 

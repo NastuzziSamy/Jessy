@@ -50,6 +50,84 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        launch();
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+
+        disconnect();
+        setConfig();
+
+        if (!nemopaySession.isRegistered()) {
+            final String key = sharedPreferences.getString("key", "");
+            if (!key.equals(""))
+                setNemopayKey(key);
+        }
+
+        checkUpdate(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        disconnect();
+    }
+
+    @Override
+    protected void onIdentification(final String badgeId) {
+        if (!dialog.isShowing() || casConnexionDialog)
+            badgeDialog(badgeId);
+
+        casConnexionDialog = false;
+    }
+
+    @Override
+    protected void enableInternetDialog(final Context context) {
+        Toast.makeText(context, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+        appRegisteredText.setText(R.string.app_not_connected);
+        appRegisteredText.setOnLongClickListener(null);
+
+        dialog.infoDialog(MainActivity.this, getString(R.string.connection), getString(R.string.internet_accessibility), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!checkInternet(context))
+                    enableInternetDialog(context);
+                else
+                    restartApp(MainActivity.this);
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5 && keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            onBackPressed();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        startActivity(setIntent);
+    }
+
+    @Override
+    protected void unregister(final Activity activity) {
+        super.unregister(activity);
+
+        ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
+    }
+
+    protected void launch() {
         sharedPreferences = getSharedPreferences("payutc", Activity.MODE_PRIVATE);
 
         nemopaySession = new NemopaySession(MainActivity.this);
@@ -94,76 +172,6 @@ public class MainActivity extends BaseActivity {
 
         setConfig();
         checkUpdate(false);
-    }
-
-    @Override
-    public void onRestart() {
-        super.onRestart();
-
-        disconnect();
-        setConfig();
-
-        if (!nemopaySession.isRegistered()) {
-            final String key = sharedPreferences.getString("key", "");
-            if (!key.equals(""))
-                setNemopayKey(key);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        disconnect();
-    }
-
-    @Override
-    protected void onIdentification(final String badgeId) {
-        if (!dialog.isShowing() || casConnexionDialog)
-            badgeDialog(badgeId);
-
-        casConnexionDialog = false;
-    }
-
-    @Override
-    protected void enableInternetDialog(final Context context) {
-        Toast.makeText(context, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
-
-        dialog.infoDialog(MainActivity.this, getString(R.string.connection), getString(R.string.internet_accessibility), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (!checkInternet(context))
-                    enableInternetDialog(context);
-                else
-                    restartApp(MainActivity.this);
-            }
-        });
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)  {
-        if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5 && keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            onBackPressed();
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent setIntent = new Intent(Intent.ACTION_MAIN);
-        setIntent.addCategory(Intent.CATEGORY_HOME);
-        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        startActivity(setIntent);
-    }
-
-    @Override
-    protected void unregister(final Activity activity) {
-        super.unregister(activity);
-
-        ((TextView) findViewById(R.id.text_app_registered)).setText(R.string.app_not_registred);
     }
 
     protected void setConfig() {

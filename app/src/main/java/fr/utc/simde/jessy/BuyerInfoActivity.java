@@ -135,70 +135,110 @@ public class BuyerInfoActivity extends BaseActivity {
                             .setCancelable(true)
                             .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int id) {
-                                    new Thread() {
+                                    hasRights(getString(R.string.cancel_transaction), new String[]{
+                                        "GESSALES"
+                                    }, new Runnable() {
                                         @Override
                                         public void run() {
-                                            try {
-                                                nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue());
-                                                Thread.sleep(100);
+                                            new Thread() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue(), true);
+                                                        Thread.sleep(100);
+                                                    } catch (final Exception e) {
+                                                        Log.e(LOG_TAG, "error: " + e.getMessage());
 
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        dialog.stopLoading();
+                                                        try {
+                                                            final JsonNode response = nemopaySession.getRequest().getJSONResponse();
 
-                                                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
-                                                        alertDialogBuilder
-                                                                .setTitle(R.string.cancel_transaction)
-                                                                .setMessage(getString(R.string.transaction_canceled))
-                                                                .setCancelable(true)
-                                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                                    public void onClick(DialogInterface dialogInterface, int id) {
-                                                                        try {
-                                                                            startBuyerInfoActivity(BuyerInfoActivity.this, badgeId);
-                                                                        } catch (Exception e) {
-                                                                            Log.e(LOG_TAG, "error: " + e.getMessage());
-                                                                            dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
-                                                                                @Override
-                                                                                public void onClick(DialogInterface dialogInterface, int id) {
-                                                                                    finish();
-                                                                                }
-                                                                            });
-                                                                        }
+                                                            if (response.has("error") && response.get("error").has("message")) {
+                                                                runOnUiThread(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        dialog.stopLoading();
+                                                                        dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), response.get("error").get("message").textValue());
                                                                     }
                                                                 });
-
-                                                        dialog.createDialog(alertDialogBuilder);
+                                                            } else
+                                                                throw new Exception("");
+                                                        } catch (Exception e1) {
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    dialog.stopLoading();
+                                                                    dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), e.getMessage());
+                                                                }
+                                                            });
+                                                        }
                                                     }
-                                                });
-                                            } catch (final Exception e) {
-                                                Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                }
+                                            }.start();
+                                        }
+                                    }, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            new Thread() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        nemopaySession.cancelTransaction(article.get("fundation_id").intValue(), article.get("purchase_id").intValue(), false);
+                                                        Thread.sleep(100);
+                                                    } catch (final Exception e) {
+                                                        Log.e(LOG_TAG, "error: " + e.getMessage());
 
-                                                try {
-                                                    final JsonNode response = nemopaySession.getRequest().getJSONResponse();
+                                                        try {
+                                                            final JsonNode response = nemopaySession.getRequest().getJSONResponse();
 
-                                                    if (response.has("error") && response.get("error").has("message")) {
-                                                        runOnUiThread(new Runnable() {
+                                                            if (response.has("error") && response.get("error").has("message")) {
+                                                                runOnUiThread(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        dialog.stopLoading();
+                                                                        dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), response.get("error").get("message").textValue());
+                                                                    }
+                                                                });
+                                                            } else
+                                                                throw new Exception("");
+                                                        } catch (Exception e1) {
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    dialog.stopLoading();
+                                                                    dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), e.getMessage());
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }.start();
+                                        }
+                                    });
+
+                                    dialog.stopLoading();
+
+                                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(BuyerInfoActivity.this);
+                                    alertDialogBuilder
+                                            .setTitle(R.string.cancel_transaction)
+                                            .setMessage(getString(R.string.transaction_canceled))
+                                            .setCancelable(true)
+                                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialogInterface, int id) {
+                                                    try {
+                                                        startBuyerInfoActivity(BuyerInfoActivity.this, badgeId);
+                                                    } catch (Exception e) {
+                                                        Log.e(LOG_TAG, "error: " + e.getMessage());
+                                                        dialog.errorDialog(BuyerInfoActivity.this, getResources().getString(R.string.information_collection), getResources().getString(R.string.error_view), new DialogInterface.OnClickListener() {
                                                             @Override
-                                                            public void run() {
-                                                                dialog.stopLoading();
-                                                                dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), response.get("error").get("message").textValue());
+                                                            public void onClick(DialogInterface dialogInterface, int id) {
+                                                                finish();
                                                             }
                                                         });
-                                                    } else
-                                                        throw new Exception("");
-                                                } catch (Exception e1) {
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            dialog.stopLoading();
-                                                            dialog.errorDialog(BuyerInfoActivity.this, getString(R.string.cancel_transaction), e.getMessage());
-                                                        }
-                                                    });
+                                                    }
                                                 }
-                                            }
-                                        }
-                                    }.start();
+                                            });
+
+                                    dialog.createDialog(alertDialogBuilder);
                                 }
                             })
                             .setNegativeButton(R.string.do_nothing, null);

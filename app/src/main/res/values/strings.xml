@@ -63,7 +63,8 @@
     <string name="solde">Solde</string>
     <string name="tag_id">ID tag</string>
     <string name="tag">Numéro de badge</string>
-    <string name="short_tag">Numéro raccourci</string>
+    <string name="short_tag">Numéro du tag</string>
+    <string name="info">Information</string>
     <string name="type">Type</string>
     <string name="day_s_">jour(s)</string>
     <string name="update">Mise à jour</string>

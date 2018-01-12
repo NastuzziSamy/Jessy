@@ -48,8 +48,12 @@ public class ListAdapater extends ArticlesAdapter {
             if (article.get("id").intValue() == -1)
                 priceText.setVisibility(View.GONE);
             else {
-                if (article.get("variable_price").booleanValue())
-                    priceText.setText("PV: " + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
+                if (article.get("variable_price").booleanValue()) {
+                    if (articleList.get(position).has("quantity"))
+                        priceText.setText(String.format("%.2f", articleList.get(position).get("price").intValue() * articleList.get(position).get("quantity").intValue() / 100.00f) + "€");
+                    else
+                        priceText.setText(R.string.price_variable);
+                }
                 else
                     priceText.setText((article.has("quantity") ? Integer.toString(article.get("quantity").intValue()) + "x " : "") + String.format("%.2f", new Float(articleList.get(position).get("price").intValue()) / 100.00f) + "€");
             }

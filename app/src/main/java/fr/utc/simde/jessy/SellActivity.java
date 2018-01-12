@@ -183,7 +183,7 @@ public class SellActivity extends ArticleGroupActivity {
                     configButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View view) {
-                            hasRights(getString(R.string.configurate_by_default), new String[]{
+                            hasRights(getString(R.string.configurate), new String[]{
                                     "STAFF",
                                     "GESAPPLICATIONS"
                             }, new Runnable() {

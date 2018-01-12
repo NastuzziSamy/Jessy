@@ -6,6 +6,7 @@ import android.app.AlarmManager;
 import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -102,8 +103,17 @@ public abstract class BaseActivity extends InternetActivity {
         });
     }
 
-    protected void hasRights(final String title, final String[] rightList, final Runnable runnable) { hasRights(title, rightList, false, runnable);}
-    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnable) {
+    protected void hasRights(final String title, final String[] rightList, final Runnable runnablePos) { hasRights(title, rightList, false, runnablePos);}
+    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnablePos) {
+        hasRights(title, rightList, false, runnablePos, new Runnable() {
+            @Override
+            public void run() {
+                dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));
+            }
+        });
+    }
+    protected void hasRights(final String title, final String[] rightList, final Runnable runnablePos, final Runnable runnableNeg) { hasRights(title, rightList, false, runnablePos, runnableNeg);}
+    protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnablePos, final Runnable runnableNeg) {
         dialog.startLoading(BaseActivity.this, getString(R.string.information_collection), getString(R.string.user_rights_list_collecting));
         new Thread() {
             @Override
@@ -125,6 +135,18 @@ public abstract class BaseActivity extends InternetActivity {
 
                     if (!needToBeSuper) {
                         for (JsonNode foundation : myRightList) {
+                            if (rightList.length == 0 && foundation.size() > 75) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.stopLoading();
+                                        runnablePos.run();
+                                    }
+                                });
+
+                                return;
+                            }
+
                             for (JsonNode myRight : foundation) {
                                 if (rights.contains(myRight.textValue()) && !sameRights.contains(myRight.textValue()))
                                     sameRights.add(myRight.textValue());
@@ -137,7 +159,7 @@ public abstract class BaseActivity extends InternetActivity {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
-                                runnable.run();
+                                runnablePos.run();
                             }
                         });
                     else {
@@ -145,7 +167,7 @@ public abstract class BaseActivity extends InternetActivity {
                             @Override
                             public void run() {
                                 dialog.stopLoading();
-                                dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));
+                                runnableNeg.run();
                             }
                         });
                     }
@@ -166,34 +188,26 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void restartApp(final Activity activity) {
-        try {
-            PackageManager pm = getPackageManager();
-            Intent mStartActivity = pm.getLaunchIntentForPackage(
-                getPackageName()
-            );
-            mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-            int mPendingIntentId = 223344;
-            PendingIntent mPendingIntent = PendingIntent.getActivity(activity, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-            AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-
-            System.exit(0);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
-        }
+        startMainActivity(activity);
     }
 
     protected void startMainActivity(final Activity activity) {
-        disconnect();
+        if (activity instanceof MainActivity)
+            ((MainActivity) activity).launch();
+        else {
+            disconnect();
 
-        Intent intent = new Intent(activity, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        finish();
-        activity.startActivity(intent);
+            Intent intent = new Intent(activity, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            finish();
+            activity.startActivity(intent);
+        }
     }
 
     protected void startFoundationListActivity(final Activity activity) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         if (config.getFoundationId() != -1) {
             startSellActivity(activity);
             return;
@@ -248,14 +262,24 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     public void startSellActivity(final Activity activity) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         startArticleGroupActivity(activity, new Intent(activity, SellActivity.class));
     }
 
     public void startEditActivity(final Activity activity) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
+        config.setInCategory(true); // Do not allow keyboard modification (not supported yet)
         startArticleGroupActivity(activity, new Intent(activity, EditActivity.class));
     }
 
     public void startArticleGroupActivity(final Activity activity, final Intent intent) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), getString(R.string.location_list_collecting));
 
         new Thread() {
@@ -471,6 +495,9 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void startBuyerInfoActivity(final Activity activity, final String badgeId) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         dialog.startLoading(activity, activity.getResources().getString(R.string.information_collection), activity.getResources().getString(R.string.buyer_info_collecting));
         final Intent intent = new Intent(activity, BuyerInfoActivity.class);
 
@@ -533,6 +560,9 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void startCardManagementActivity(final Activity activity) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         hasRights(getString(R.string.user_rights_list_collecting), new String[]{"GESUSERS"}, true, new Runnable() {
             @Override
             public void run() {
@@ -542,18 +572,13 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void startQRCodeReaderActivity(final Activity activity) {
+        if (!nemopaySession.isConnected())
+            restartApp(activity);
+
         if (haveCameraPermission())
             startActivity(new Intent(activity, QRCodeReaderActivity.class));
         else
             dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
-    }
-
-    protected void delKey() {
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.remove("key");
-        edit.apply();
-
-        unregister(BaseActivity.this);
     }
 
     protected void setNemopayKey(final String key) {

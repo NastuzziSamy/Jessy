@@ -116,9 +116,9 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
 
         this.scannerView.setResultHandler(QRCodeReaderActivity.this);
         this.scannerView.startCamera(CAMERA_FACING_BACK);
-        this.scannerView.setOnClickListener(new View.OnClickListener() {
+        this.scannerView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
+            public boolean onLongClick(View view) {
                 final LayoutInflater layoutInflater = LayoutInflater.from(QRCodeReaderActivity.this);
                 final View popupView = layoutInflater.inflate(R.layout.dialog_tag, null);
                 final EditText inputInfo = popupView.findViewById(R.id.input_info);
@@ -140,6 +140,10 @@ public class QRCodeReaderActivity extends BaseActivity implements ZXingScannerVi
                         }
                     })
                     .setCancelable(true);
+
+                dialog.createDialog(alertDialogBuilder, inputInfo);
+
+                return false;
             }
         });
 

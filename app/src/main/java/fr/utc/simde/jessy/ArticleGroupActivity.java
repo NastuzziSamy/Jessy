@@ -177,14 +177,14 @@ public abstract class ArticleGroupActivity extends BaseActivity {
 
                         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ArticleGroupActivity.this);
                         alertDialogBuilder
-                                .setTitle(R.string.configuration)
-                                .setView(popupView)
-                                .setCancelable(false)
-                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialogInterface, int id) {
-                                        config.setCanCancel(true);
-                                    }
-                                });
+                            .setTitle(R.string.configuration)
+                            .setView(popupView)
+                            .setCancelable(false)
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogInterface, int id) {
+                                    config.setCanCancel(true);
+                                }
+                            });
 
                         dialog.createDialog(alertDialogBuilder);
                     }

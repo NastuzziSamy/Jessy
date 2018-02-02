@@ -116,27 +116,27 @@ public class FoundationsOptionsActivity extends BaseActivity {
         this.optionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (isOption(position,0)) {
+                if (isOption(position, 0)) {
                     nemopaySession.setFoundation(-1, "", -1);
                     startActivity(new Intent(FoundationsOptionsActivity.this, BuyerInfoActivity.class));
                 }
-                else if (isOption(position,1))
+                else if (isOption(position, 1))
                     editDialog();
-                else if (isOption(position,2))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,3))
-                    dialog.infoDialog(FoundationsOptionsActivity.this, "Non encore fait", "Pour la version 0.12");
-                else if (isOption(position,4))
+                else if (isOption(position, 2))
+                    editDialog();
+                else if (isOption(position, 3))
                     startQRCodeReaderActivity(FoundationsOptionsActivity.this);
-                else if (isOption(position,5))
+                else if (isOption(position, 4))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
-                else if (isOption(position,6))
+                else if (isOption(position, 5))
                     keyNemopayDialog();
-                else if (isOption(position,7))
+                else if (isOption(position, 6))
+                    keyGingerDialog();
+                else if (isOption(position, 7))
                     keyEditDialog();
-                else if (isOption(position,8))
+                else if (isOption(position, 8))
                     checkUpdate();
-                else if (isOption(position,9))
+                else if (isOption(position, 9))
                     creditDialog();
                 else
                     configDialog();
@@ -150,22 +150,46 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_edit, null);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
-                keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
                 alertDialogBuilder
-                    .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
-                    .setView(keyView)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogInterface, int id) {
-                            if (!keyInput.getText().toString().equals(""))
-                                setNemopayKey(keyInput.getText().toString());
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null);
+                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.nemopay))
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                if (!keyInput.getText().toString().equals(""))
+                                    setNemopayKey(keyInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
+
+                dialog.createDialog(alertDialogBuilder, keyInput);
+            }
+        });
+    }
+
+    protected void keyGingerDialog() {
+        hasRights(getString(R.string.nemopay), new String[]{}, new Runnable(){
+            @Override
+            public void run() {
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_edit, null);
+                final EditText keyInput = keyView.findViewById(R.id.input_key);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
+                alertDialogBuilder
+                        .setTitle(getString(R.string.key_registration) + " " + getString(R.string.ginger))
+                        .setView(keyView)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                if (!keyInput.getText().toString().equals(""))
+                                    setGingerKey(keyInput.getText().toString());
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
 
                 dialog.createDialog(alertDialogBuilder, keyInput);
             }
@@ -176,8 +200,9 @@ public class FoundationsOptionsActivity extends BaseActivity {
         hasRights(getString(R.string.key_registration), new String[]{}, new Runnable(){
             @Override
             public void run() {
-                final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+                final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_set, null);
                 final EditText nameInput = keyView.findViewById(R.id.input_name);
+                final EditText urlInput = keyView.findViewById(R.id.input_url);
                 final EditText keyInput = keyView.findViewById(R.id.input_key);
 
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FoundationsOptionsActivity.this);
@@ -187,8 +212,8 @@ public class FoundationsOptionsActivity extends BaseActivity {
                         .setCancelable(false)
                         .setPositiveButton(R.string.register, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialogInterface, int id) {
-                                if (!nameInput.getText().toString().equals("") || !keyInput.getText().toString().equals(""))
-                                    setKey(nameInput.getText().toString(), keyInput.getText().toString());
+                                if (!nameInput.getText().toString().equals(""))
+                                    config.setApi(nameInput.getText().toString(), urlInput.getText().toString(), keyInput.getText().toString());
                             }
                         })
                         .setNegativeButton(R.string.cancel, null);

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -279,6 +280,8 @@ public class HTTPRequest {
                 data.put(arg, (String) args.get(arg));
             else if (args.get(arg).getClass() == Integer.class)
                 data.put(arg, (Integer) args.get(arg));
+            else if (args.get(arg).getClass() == Float.class)
+                data.put(arg, (Float) args.get(arg));
             else if (args.get(arg).getClass() == Boolean.class)
                 data.put(arg, (Boolean) args.get(arg));
             else if (args.get(arg).getClass() == JsonNode.class)
@@ -301,7 +304,7 @@ public class HTTPRequest {
         String data = "";
 
         for (String arg : args.keySet())
-            data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode((String) args.get(arg), "UTF-8") + "&");
+            data += (URLEncoder.encode(arg, "UTF-8") + "=" + URLEncoder.encode(String.valueOf(args.get(arg)), "UTF-8") + "&");
 
         return data.equals("") ? "" : data.substring(0, data.length() - 1);
     }

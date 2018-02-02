@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'jessy'
+            keyPassword 'kVg6ikc+(lTkre8//m%f1'
+            storeFile file('/root/jessy.jks')
+            storePassword 'kVg6ikc+(lTkre8//m%f1'
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -13,6 +21,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFile '/root'
+        }
+        debug {
+            proguardFile '/root'
         }
     }
     packagingOptions {

@@ -134,6 +134,8 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
             return;
         }
 
+        dialog.startLoading(APIActivity.this, getString(R.string.badge_read), getString(R.string.user_ginger_info_collecting));
+
         new Thread() {
             @Override
             public void run() {
@@ -277,8 +279,8 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
 
                             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(APIActivity.this);
                             alertDialogBuilder
-                                    .setTitle(getString(R.string.reservation_number) + finalApiResponse.getId())
-                                    .setMessage(getString(R.string.ticket_validated) + " (" + DateUtils.formatDateTime(APIActivity.this, finalApiResponse.getExpirationDate() * 1000, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME) + ")")
+                                    .setTitle(finalApiResponse.getId().isEmpty() ? getString(R.string.reservation_number) : (getString(R.string.reservation_number) + finalApiResponse.getId()))
+                                    .setMessage(getString(R.string.ticket_validated) + (finalApiResponse.getExpirationDate() == null ? "" : " (" + DateUtils.formatDateTime(APIActivity.this, finalApiResponse.getExpirationDate() * 1000, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME) + ")"))
                                     .setCancelable(false)
                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                         @Override
@@ -339,7 +341,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(APIActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + apiResponse.getId())
+                            .setTitle(apiResponse.getId().isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + apiResponse.getId()))
                             .setMessage(getString(R.string.ticket_maybe_falsified) + "\n" +
                                     "QRCode:\n" +
                                     "   id: " + qrCodeResponse.getId() + "\n" +
@@ -623,7 +625,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(APIActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + apiResponse.getId())
+                            .setTitle(apiResponse.getId().isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + apiResponse.getId()))
                             .setMessage(getString(R.string.ticket_not_created_yet) + " (" + DateUtils.formatDateTime(APIActivity.this, apiResponse.getCreationDate() * 1000, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME) + ")")
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -653,7 +655,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                 public void run() {
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(APIActivity.this);
                     alertDialogBuilder
-                            .setTitle(getString(R.string.reservation_number) + apiResponse.getId())
+                            .setTitle(apiResponse.getId().isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + apiResponse.getId()))
                             .setMessage(getString(R.string.ticket_expired) + " (" + DateUtils.formatDateTime(APIActivity.this, apiResponse.getExpirationDate() * 1000, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_TIME) + ")")
                             .setCancelable(false)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -692,7 +694,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
             @Override
             public void run() {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(APIActivity.this);
-                alertDialogBuilder.setTitle(getString(R.string.reservation_number) + apiResponse.getId()).setCancelable(false);
+                alertDialogBuilder.setTitle(apiResponse.getId().isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + apiResponse.getId())).setCancelable(false);
                 Map<String, Map<String, String>> data = apiResponse.getData();
                 List<ArticleResponse> articleResponseList = null;
                 List<List<Integer>> articleIdList = apiResponse.getArticleList();
@@ -812,7 +814,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.errorDialog(APIActivity.this, getString(R.string.reservation_number) + apiResponse.getId(), getString(R.string.api_no_data), new DialogInterface.OnClickListener() {
+                            dialog.errorDialog(APIActivity.this, apiResponse.getId().isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + apiResponse.getId()), getString(R.string.api_no_data), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     resumeReading();
@@ -877,7 +879,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                     });
                 }
 
-                if (!(apiResponse.getArticleList().isEmpty() || apiResponse.getFoundationId() == null) || (apiResponse.getNegativeCommand() != null && apiResponse.getNegativeCommand().getCommand() != null))
+                if (!(apiResponse.getArticleList().isEmpty() || apiResponse.getFoundationId() == null) || (apiResponse.getNegativeCommand() != null && apiResponse.getNegativeCommand() != null))
                     alertDialogBuilder.setNegativeButton(apiResponse.getNegativeCommand() == null || apiResponse.getNegativeCommand().getName() == null ? getString(R.string.cancel) : apiResponse.getNegativeCommand().getName(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -1000,7 +1002,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
             return;
         }
 
-        dialog.startLoading(APIActivity.this, getString(R.string.reservation_number) + id, apiCommand == null || apiCommand.getDescription() == null ? getString(R.string.api_execution) : apiCommand.getDescription());
+        dialog.startLoading(APIActivity.this, id.isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + id), apiCommand == null || apiCommand.getDescription() == null ? getString(R.string.api_execution) : apiCommand.getDescription());
 
         new Thread() {
             @Override
@@ -1042,7 +1044,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
 
                             Log.e(LOG_TAG, "error: " + message);
 
-                            dialog.errorDialog(APIActivity.this, getString(R.string.reservation_number) + id, message, new DialogInterface.OnClickListener() {
+                            dialog.errorDialog(APIActivity.this, id.isEmpty() ? getString(R.string.reservation) : (getString(R.string.reservation_number) + id), message, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     resumeReading();

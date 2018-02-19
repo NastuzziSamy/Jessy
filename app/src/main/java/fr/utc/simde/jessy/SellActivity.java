@@ -45,7 +45,7 @@ public class SellActivity extends ArticleGroupActivity {
         panierText.setOnLongClickListener(new TextView.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startQRCodeReaderActivity(SellActivity.this);
+                startAPIActivity(SellActivity.this);
 
                 return false;
             }

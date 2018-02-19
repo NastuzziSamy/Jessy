@@ -503,9 +503,8 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void optionDialog() {
-        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_set, null);
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_edit, null);
         final EditText keyInput = keyView.findViewById(R.id.input_key);
-        keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder

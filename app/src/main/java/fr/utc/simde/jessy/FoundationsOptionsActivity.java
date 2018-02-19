@@ -125,7 +125,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
                 else if (isOption(position, 2))
                     editDialog();
                 else if (isOption(position, 3))
-                    startQRCodeReaderActivity(FoundationsOptionsActivity.this);
+                    startAPIActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position, 4))
                     startCardManagementActivity(FoundationsOptionsActivity.this);
                 else if (isOption(position, 5))

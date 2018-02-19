@@ -4,9 +4,9 @@ android {
     signingConfigs {
         config {
             keyAlias 'jessy'
-            keyPassword 'kVg6ikc+(lTkre8//m%f1'
-            storeFile file('/root/jessy.jks')
-            storePassword 'kVg6ikc+(lTkre8//m%f1'
+            keyPassword 'payutc'
+            storeFile file('D:/cloud/Git/jessy/app/simde.jks')
+            storePassword 'simde-utc'
         }
     }
     compileSdkVersion 26
@@ -22,9 +22,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             proguardFile '/root'
+            signingConfig signingConfigs.config
         }
         debug {
             proguardFile '/root'
+            signingConfig signingConfigs.config
         }
     }
     packagingOptions {

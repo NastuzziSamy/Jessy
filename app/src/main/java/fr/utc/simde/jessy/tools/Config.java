@@ -6,6 +6,11 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Created by Samy on 04/11/2017.
  */
@@ -28,6 +33,8 @@ public class Config {
     private Boolean printCotisant;
     private Boolean print18;
 
+    private String currentApi;
+
     public Config(final SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
 
@@ -48,6 +55,8 @@ public class Config {
         this.inGrid = sharedPreferences.getBoolean("config_in_grid", true);
         this.printCotisant = sharedPreferences.getBoolean("config_print_cotisant", false);
         this.print18 = sharedPreferences.getBoolean("config_print_18", false);
+
+        this.currentApi = sharedPreferences.getString("api_current", "");
     }
 
     public Integer getFoundationId() { return this.foundationId; }
@@ -149,5 +158,50 @@ public class Config {
 
         setPrintCotisant(false);
         setPrint18(false);
+    }
+
+    public String getCurrentApi() { return this.currentApi; }
+    public void setCurrentApi(final String currentApi) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("api_current", currentApi);
+        editor.apply();
+
+        this.currentApi = currentApi;
+    }
+
+    public Map<String, String> getApi(final String name) {
+        final String api = name.toLowerCase().replace(" ", "-");
+
+        Map<String, String> apiInfo = new HashMap<String, String>() {{
+            put("api", api);
+            put("name", sharedPreferences.getString("api_name_" + api, ""));
+            put("url", sharedPreferences.getString("api_url_" + api, ""));
+            put("key", sharedPreferences.getString("api_key_" + api, ""));
+        }};
+
+        if (apiInfo.get("name").isEmpty() || apiInfo.get("url").isEmpty())
+            return null;
+        else {
+            setCurrentApi(name);
+            return apiInfo;
+        }
+    }
+    public void setApi(final String name, final String url, final String key) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String api = name.toLowerCase().replace(" ", "-");
+
+        if (name == null || name.isEmpty())
+            return;
+
+        editor.putString("api_name_" + api, name);
+
+        if (url != null && !url.isEmpty())
+            editor.putString("api_url_" + api, url);
+
+        if (key != null && !key.isEmpty())
+            editor.putString("api_key_" + api, key);
+
+        editor.apply();
+        setCurrentApi(name);
     }
 }

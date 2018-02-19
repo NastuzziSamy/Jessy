@@ -253,7 +253,7 @@ public class NemopaySession {
         if (!isConnected())
             throw new Exception(this.notLogged);
 
-        if (this.foundationId == -1)
+        if (foundationId == -1)
             throw new Exception("No foundation set");
 
         return request(
@@ -349,7 +349,8 @@ public class NemopaySession {
         );
     }
 
-    public int getArticles() throws Exception {
+    public int getArticles() throws Exception { return getArticles(this.foundationId); }
+    public int getArticles(final Integer foundationId) throws Exception {
         if (!isConnected())
             throw new Exception(this.notLogged);
 

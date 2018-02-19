@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'jessy'
+            keyPassword 'payutc'
+            storeFile file('D:/cloud/Git/jessy/app/simde.jks')
+            storePassword 'simde-utc'
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -13,6 +21,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFile '/root'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            proguardFile '/root'
+            signingConfig signingConfigs.config
         }
     }
     packagingOptions {

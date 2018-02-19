@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
-import fr.utc.simde.jessy.tools.Bottomatik;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Ginger;
@@ -449,7 +448,7 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void keyDialog() {
-        final View keyView = getLayoutInflater().inflate(R.layout.dialog_add_key, null);
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_add, null);
         final EditText nameInput = keyView.findViewById(R.id.input_name);
         final EditText descriptionInput = keyView.findViewById(R.id.input_description);
         final String date = new SimpleDateFormat("yyyy/MM/dd", Locale.FRANCE).format(new Date());
@@ -504,9 +503,8 @@ public class MainActivity extends BaseActivity {
     }
 
     protected void optionDialog() {
-        final View keyView = getLayoutInflater().inflate(R.layout.dialog_edit_key, null);
+        final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_edit, null);
         final EditText keyInput = keyView.findViewById(R.id.input_key);
-        keyView.findViewById(R.id.input_name).setVisibility(View.GONE);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder

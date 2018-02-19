@@ -2,6 +2,9 @@ package fr.utc.simde.jessy.tools;
 
 import android.app.Activity;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,18 +51,15 @@ public class API {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int validate(final String id) throws Exception {
+    public int interact(final String id, final String command) throws Exception {
         return request(
-            id + "/validate"
+            id + "/" + command
         );
     }
-    public int validate(final String id, final boolean paid, final boolean served) throws Exception {
+    public int interact(final String id, final String command, Map<String, Object> postArgs) throws Exception {
         return request(
-            id + "/validate",
-            new HashMap<String, Object>() {{
-                put("paid", paid);
-                put("served", served);
-            }}
+            id + "/" + command,
+            postArgs
         );
     }
 
@@ -88,7 +88,7 @@ public class API {
             responseCode = this.request.get();
         else {
             this.request.setPost(postArgs);
-            responseCode = this.request.post();
+            responseCode = this.request.post(false);
         }
 
         if (responseCode == 200)

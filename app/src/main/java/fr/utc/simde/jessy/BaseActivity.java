@@ -2,11 +2,8 @@ package fr.utc.simde.jessy;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.DownloadManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,7 +21,6 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,8 +29,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fr.utc.simde.jessy.responses.BottomatikResponse;
-import fr.utc.simde.jessy.tools.Bottomatik;
+import fr.utc.simde.jessy.responses.APIResponse;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Dialog;
@@ -571,12 +566,12 @@ public abstract class BaseActivity extends InternetActivity {
         });
     }
 
-    protected void startQRCodeReaderActivity(final Activity activity) {
+    protected void startAPIActivity(final Activity activity) {
         if (!nemopaySession.isConnected())
             restartApp(activity);
 
         if (haveCameraPermission())
-            startActivity(new Intent(activity, QRCodeReaderActivity.class));
+            startActivity(new Intent(activity, APIActivity.class));
         else
             dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
     }
@@ -626,16 +621,41 @@ public abstract class BaseActivity extends InternetActivity {
         }.start();
     }
 
-    protected void setKey(final String name, final String key) {
-        if (name.equals("") || key.equals(""))
+    protected void setGingerKey(final String key) {
+        if (key.equals(""))
             return;
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("key_" + name, key);
-        editor.apply();
+        dialog.startLoading(BaseActivity.this, getString(R.string.key_registration), getString(R.string.ginger_registering));
 
-        if (name.equals("ginger"))
-            ginger.setKey(key);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    ginger.getInfo(nemopaySession.getUsername());
+                    Thread.sleep(100);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.stopLoading();
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("key_ginger", key);
+                            editor.apply();
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "error: " + e.getMessage());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.errorDialog(BaseActivity.this, getString(R.string.key_registration), getString(R.string.ginger_error_registering));
+                        }
+                    });
+                }
+            }
+        }.start();
     }
 
     protected boolean haveStoragePermission() {

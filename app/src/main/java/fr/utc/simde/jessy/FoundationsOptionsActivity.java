@@ -79,6 +79,13 @@ public class FoundationsOptionsActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        config.setFoundation(-1, "");
+    }
+
+    @Override
     protected void onIdentification(final String badgeId) {}
 
     protected void setFoundationList(final ArrayNode foundationList) throws Exception {

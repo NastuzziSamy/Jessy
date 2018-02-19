@@ -74,6 +74,7 @@
     <string name="price">Prix</string>
     <string name="seance">Séance</string>
     <string name="print">Affichage</string>
+    <string name="pay">Payer</string>
     <string name="author">&lt;/&gt; avec ♥ par Samy NASTUZZI</string>
 
     <string name="error_unexpected">Une erreur improbable a eu lieu</string>
@@ -115,11 +116,13 @@
     <string name="nemopay_information">Informations de la part de Nemopay</string>
     <string name="ginger_registering">Enregistrement de l\'application</string>
     <string name="ginger_error_registering">Clé Ginger incorrecte</string>
+    <string name="no_api">Aucune API configurée</string>
     <string name="api_name">Nom d\'application</string>
     <string name="api_url">Url de l\'application</string>
     <string name="api_not_recognized">API non reconnue</string>
     <string name="api_no_data">L\'API n\'a envoyé aucune information</string>
     <string name="api_execution">Exécution de la commande API</string>
+    <string name="api_pay_caution">Attention, la commande "%s" fera payer la personne des articles affichés</string>
     <string name="key">Clé d\'application</string>
     <string name="key_registration">Enregistrement d\'une clé</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>

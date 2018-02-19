@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import fr.utc.simde.jessy.responses.APIResponse;
 import fr.utc.simde.jessy.tools.CASConnexion;
 import fr.utc.simde.jessy.tools.Config;
 import fr.utc.simde.jessy.tools.Dialog;
@@ -565,12 +566,12 @@ public abstract class BaseActivity extends InternetActivity {
         });
     }
 
-    protected void startQRCodeReaderActivity(final Activity activity) {
+    protected void startAPIActivity(final Activity activity) {
         if (!nemopaySession.isConnected())
             restartApp(activity);
 
         if (haveCameraPermission())
-            startActivity(new Intent(activity, QRCodeReaderActivity.class));
+            startActivity(new Intent(activity, APIActivity.class));
         else
             dialog.errorDialog(BaseActivity.this, getString(R.string.qrcode), getString(R.string.need_camera_permission));
     }

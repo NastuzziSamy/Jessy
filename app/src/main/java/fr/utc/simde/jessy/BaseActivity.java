@@ -627,17 +627,22 @@ public abstract class BaseActivity extends InternetActivity {
 
         dialog.startLoading(BaseActivity.this, getString(R.string.key_registration), getString(R.string.ginger_registering));
 
+        final Ginger gingerTest = new Ginger(BaseActivity.this);
+        gingerTest.setKey(key);
+
         new Thread() {
             @Override
             public void run() {
                 try {
-                    ginger.getInfo(nemopaySession.getUsername());
+                    gingerTest.getInfo(nemopaySession.getUsername());
                     Thread.sleep(100);
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             dialog.stopLoading();
+
+                            ginger.setKey(key);
 
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putString("key_ginger", key);

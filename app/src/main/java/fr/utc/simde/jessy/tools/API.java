@@ -53,7 +53,7 @@ public class API {
 
     public int interact(final String id, final String command) throws Exception {
         return request(
-            id + "/" + command
+            id + (command == null || command.isEmpty() ? "" : ("/" + command))
         );
     }
     public int interact(final String id, final String command, Map<String, Object> postArgs) throws Exception {

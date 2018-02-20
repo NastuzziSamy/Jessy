@@ -123,6 +123,7 @@
     <string name="api_no_data">L\'API n\'a envoyé aucune information</string>
     <string name="api_execution">Exécution de la commande API</string>
     <string name="api_pay_caution">Attention, la commande \"%s\" fera payer la personne des articles affichés</string>
+    <string name="api_assign">Assigner cette API</string>
     <string name="key">Clé d\'application</string>
     <string name="key_registration">Enregistrement d\'une clé</string>
     <string name="key_explication">Pour pouvoir fonctionner, l\'application a besoin d\'être enregistrée sous un nom précis et daté (date automatiquement ajoutée si non détectée). Ceci permettra par la suite de donner des droits à cet appareil</string>

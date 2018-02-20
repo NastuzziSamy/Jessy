@@ -100,7 +100,7 @@ public abstract class BaseActivity extends InternetActivity {
 
     protected void hasRights(final String title, final String[] rightList, final Runnable runnablePos) { hasRights(title, rightList, false, runnablePos);}
     protected void hasRights(final String title, final String[] rightList, final boolean needToBeSuper, final Runnable runnablePos) {
-        hasRights(title, rightList, false, runnablePos, new Runnable() {
+        hasRights(title, rightList, needToBeSuper, runnablePos, new Runnable() {
             @Override
             public void run() {
                 dialog.errorDialog(BaseActivity.this, title, nemopaySession.forbidden(rightList, needToBeSuper));

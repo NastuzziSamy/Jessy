@@ -82,6 +82,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                 alertDialogBuilder
                         .setTitle(R.string.getting_informations_from)
                         .setView(popupView)
+                        .setCancelable(false)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -91,16 +92,32 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                                         Map<String, String> apiInfo = config.getApi(inputApi.getText().toString());
 
                                         if (apiInfo == null) {
-                                            Log.e(LOG_TAG, getString(R.string.api_not_recognized));
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Log.e(LOG_TAG, getString(R.string.api_not_recognized));
 
-                                            dialog.infoDialog(APIActivity.this, getString(R.string.badge_read), getString(R.string.api_not_recognized));
+                                                    dialog.infoDialog(APIActivity.this, getString(R.string.badge_read), getString(R.string.api_not_recognized));
+                                                }
+                                            });
                                         } else
                                             handleAPI(buttonTag.isChecked() ? inputInfo.getText().toString().toUpperCase() : inputInfo.getText().toString(), apiInfo, null, null, buttonTag.isChecked());
                                     }
                                 }).start();
                             }
                         })
-                        .setCancelable(true);
+                        .setNeutralButton(R.string.api_assign, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Map<String, String> apiInfo = config.getApi(inputApi.getText().toString());
+                                    }
+                                }).start();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, null);
 
                 dialog.createDialog(alertDialogBuilder, inputInfo);
 

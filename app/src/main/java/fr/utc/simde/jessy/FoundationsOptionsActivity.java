@@ -204,7 +204,7 @@ public class FoundationsOptionsActivity extends BaseActivity {
     }
 
     protected void keyEditDialog() {
-        hasRights(getString(R.string.key_registration), new String[]{}, new Runnable(){
+        hasRights(getString(R.string.key_registration), new String[]{}, true, new Runnable(){
             @Override
             public void run() {
                 final View keyView = getLayoutInflater().inflate(R.layout.dialog_key_set, null);

@@ -864,7 +864,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if (apiResponse.getPositiveCommand() != null && apiResponse.getPositiveCommand().getCommand() != null)
-                                startCommand(api, apiResponse.getId(), apiResponse.getPositiveCommand(), gingerResponse);
+                                startCommand(api, apiResponse.getId(), apiResponse.getUsername(), apiResponse.getPositiveCommand(), gingerResponse);
                             else
                                 resumeReading();
                         }
@@ -883,7 +883,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                     alertDialogBuilder.setNegativeButton(apiResponse.getNegativeCommand() == null || apiResponse.getNegativeCommand().getName() == null ? getString(R.string.cancel) : apiResponse.getNegativeCommand().getName(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            startCommand(api, apiResponse.getId(), apiResponse.getNegativeCommand(), gingerResponse);
+                            startCommand(api, apiResponse.getId(), apiResponse.getUsername(), apiResponse.getNegativeCommand(), gingerResponse);
                         }
                     });
                 else if (apiResponse.getPositiveCommand() != null && apiResponse.getPositiveCommand().getCommand() != null) // Si le bouton ok est déjà défini et qu'on ne défini pas le bouton négatif, alors il s'agira du simple bouton ok
@@ -898,7 +898,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                     alertDialogBuilder.setNeutralButton(apiResponse.getNeutralCommand().getName() == null ? getString(R.string.more) : apiResponse.getNeutralCommand().getName(), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            startCommand(api, apiResponse.getId(), apiResponse.getNeutralCommand(), gingerResponse);
+                            startCommand(api, apiResponse.getId(), apiResponse.getUsername(), apiResponse.getNeutralCommand(), gingerResponse);
                         }
                     });
 
@@ -944,13 +944,16 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
 
                                 if (apiResponse.getPositiveCommand().getArguments() == null)
                                     apiCommand.setArguments(new HashMap<String, String>(){{
-                                        put("paid", "true");
+                                        put("paid", "1");
                                     }});
                                 else
                                     apiCommand.setArguments(apiResponse.getPositiveCommand().getArguments());
+
+                                if (apiResponse.getPositiveCommand().getUseUsername() != null)
+                                    apiCommand.setUseUsername(apiResponse.getPositiveCommand().getUseUsername());
                             }
 
-                            startCommand(api, apiResponse.getId(), apiCommand, gingerResponse);
+                            startCommand(api, apiResponse.getId(), apiResponse.getUsername(), apiCommand, gingerResponse);
                         }
                     });
                 } catch (final Exception e) {
@@ -995,7 +998,7 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
         }.start();
     }
 
-    protected void startCommand(final API api, final String id, final APICommand apiCommand, final GingerResponse gingerResponse) {
+    protected void startCommand(final API api, final String id, final String username, final APICommand apiCommand, final GingerResponse gingerResponse) {
         if (apiCommand == null) {
             resumeReading();
 
@@ -1009,9 +1012,9 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
             public void run() {
                 try {
                     if (apiCommand.getArguments() == null)
-                        api.interact(id, apiCommand.getCommand());
+                        api.interact(apiCommand.getUseUsername() == null || apiCommand.getUseUsername() == false ? id : ("user/" + username), apiCommand.getCommand());
                     else
-                        api.interact(id, apiCommand.getCommand(), mapArgs(apiCommand.getArguments()));
+                        api.interact(apiCommand.getUseUsername() == null || apiCommand.getUseUsername() == false ? id : ("user/" + username), apiCommand.getCommand(), mapArgs(apiCommand.getArguments()));
                     Thread.sleep(100);
 
                     final APIResponse apiResponse = new ObjectMapper().readValue(api.getRequest().getResponse(), APIResponse.class);

@@ -51,14 +51,14 @@ public class API {
 
     public HTTPRequest getRequest() { return this.request; }
 
-    public int interact(final String id, final String command) throws Exception {
+    public int interact(final String before, final String command) throws Exception {
         return request(
-            id + (command == null || command.isEmpty() ? "" : ("/" + command))
+            before + (before == null || before.isEmpty() || command == null || command.isEmpty() ? "" : "/") + command
         );
     }
-    public int interact(final String id, final String command, Map<String, Object> postArgs) throws Exception {
+    public int interact(final String before, final String command, Map<String, Object> postArgs) throws Exception {
         return request(
-            id + "/" + command,
+            before + (before == null || before.isEmpty() || command == null || command.isEmpty() ? "" : "/") + command,
             postArgs
         );
     }

@@ -4,11 +4,11 @@
         <item>Mode annulation</item>
         <item>Modifier les articles, catégories/claviers de caisse</item>
         <item>Modifier les points de vente</item>
-        <item>Lire un QR Code</item>
+        <item>Communiquer avec une API</item>
         <item>Gestion des cartes/cotisations</item>
         <item>Modifier la clé Nemopay</item>
         <item>Modifier la clé Ginger</item>
-        <item>Modifier une clé API</item>
+        <item>Modifier une API</item>
         <item>Rechercher une mise à jour</item>
         <item>Crédits</item>
     </string-array>

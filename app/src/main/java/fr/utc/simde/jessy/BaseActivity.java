@@ -187,16 +187,12 @@ public abstract class BaseActivity extends InternetActivity {
     }
 
     protected void startMainActivity(final Activity activity) {
-        if (activity instanceof MainActivity)
-            ((MainActivity) activity).launch();
-        else {
-            disconnect();
+        disconnect();
 
-            Intent intent = new Intent(activity, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            finish();
-            activity.startActivity(intent);
-        }
+        Intent intent = new Intent(activity, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        finish();
+        activity.startActivity(intent);
     }
 
     protected void startFoundationListActivity(final Activity activity) {

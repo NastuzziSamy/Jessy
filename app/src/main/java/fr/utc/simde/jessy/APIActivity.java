@@ -100,8 +100,44 @@ public class APIActivity extends BaseActivity implements ZXingScannerView.Result
                                                     dialog.infoDialog(APIActivity.this, getString(R.string.badge_read), getString(R.string.api_not_recognized));
                                                 }
                                             });
-                                        } else
-                                            handleAPI(buttonTag.isChecked() ? inputInfo.getText().toString().toUpperCase() : inputInfo.getText().toString(), apiInfo, null, null, buttonTag.isChecked());
+                                        } else {
+                                            GingerResponse gingerResponse = null;
+                                            if (!buttonTag.isChecked()) {
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        dialog.startLoading(APIActivity.this, getString(R.string.api_execution), getString(R.string.user_ginger_info_collecting));
+                                                    }
+                                                });
+
+                                                try {
+                                                    ginger.getInfo(inputInfo.getText().toString());
+                                                    Thread.sleep(100);
+
+                                                    gingerResponse = new ObjectMapper().readValue(ginger.getRequest().getResponse(), GingerResponse.class);
+                                                } catch (final Exception e) {
+                                                    Log.e(LOG_TAG, e.getMessage());
+
+                                                    if (ginger.getRequest().getResponseCode() != 404) {
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                dialog.infoDialog(APIActivity.this, getString(R.string.api_execution), e.getMessage(), new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        resumeReading();
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
+
+                                                        return;
+                                                    }
+                                                }
+                                            }
+
+                                            handleAPI(buttonTag.isChecked() ? inputInfo.getText().toString().toUpperCase() : inputInfo.getText().toString(), apiInfo, gingerResponse, null, buttonTag.isChecked());
+                                        }
                                     }
                                 }).start();
                             }
